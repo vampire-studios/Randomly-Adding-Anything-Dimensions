@@ -1,9 +1,8 @@
-package io.github.vampirestudios.raa_example;
+package io.github.vampirestudios.raa_dimension;
 
 import io.github.vampirestudios.raa_core.api.RAAAddon;
-import net.fabricmc.api.ModInitializer;
 
-public class ExampleAddon implements RAAAddon {
+public class RAADimensionAddon implements RAAAddon {
 	@Override
 	public String[] shouldLoadAfter() {
 		return new String[0];
@@ -11,7 +10,7 @@ public class ExampleAddon implements RAAAddon {
 
 	@Override
 	public String getId() {
-		return "raa_example";
+		return "raa_dimension";
 	}
 
 	@Override

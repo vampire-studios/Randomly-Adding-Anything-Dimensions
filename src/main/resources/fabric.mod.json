@@ -1,32 +1,32 @@
 {
   "schemaVersion": 1,
-  "id": "raa_example",
+  "id": "raa_dimension",
   "version": "${version}",
 
-  "name": "RAA Example Addon",
+  "name": "RAA Dimension Addon",
   "description": "This is an example description! Tell everyone what your addon (mod) is about!",
   "authors": [
     "Me!"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/vampire-studios/RAA-Example-Addon"
+    "sources": "https://github.com/vampire-studios/Randomly-Adding-Anything-Dimension"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/raa_example/icon.png",
+  "icon": "assets/raa_dimension/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "raa:addon": [
-      "io.github.vampirestudios.raa_example.ExampleAddon"
+      "io.github.vampirestudios.raa_dimension.RAADimensionAddon"
     ],
     "raa:addon_client": [
-      "io.github.vampirestudios.raa_example.ExampleAddonClient"
+      "io.github.vampirestudios.raa_dimension.RAADimensionAddonClient"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+//    "raa_dimension.mixins.json"
   ],
 
   "depends": {

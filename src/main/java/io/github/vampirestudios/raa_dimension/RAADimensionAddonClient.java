@@ -1,8 +1,8 @@
-package io.github.vampirestudios.raa_example;
+package io.github.vampirestudios.raa_dimension;
 
 import io.github.vampirestudios.raa_core.api.client.RAAAddonClient;
 
-public class ExampleAddonClient implements RAAAddonClient {
+public class RAADimensionAddonClient implements RAAAddonClient {
     @Override
     public void onClientInitialize() {
 
@@ -10,7 +10,7 @@ public class ExampleAddonClient implements RAAAddonClient {
 
     @Override
     public String getId() {
-        return "raa_example";
+        return "raa_dimension";
     }
 
     @Override
