@@ -26,7 +26,7 @@
     ]
   },
   "mixins": [
-//    "raa_dimension.mixins.json"
+    "raa_dimension.mixins.json"
   ],
 
   "depends": {
