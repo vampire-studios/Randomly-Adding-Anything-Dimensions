@@ -1,6 +1,7 @@
 package io.github.vampirestudios.raa_dimension;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.swordglowsblue.artifice.api.Artifice;
 import io.github.vampirestudios.raa_core.RAACore;
@@ -33,6 +34,7 @@ public class RAADimensionAddon implements RAAAddon {
 
 	@Override
 	public void onInitialize() {
+		String[] fluids = new String[]{"minecraft:water","minecraft:air","minecraft:lava"};
 		DimensionLanguageManager.init();
 		List<String> CHUNK_GENERATOR_TYPES = ImmutableList.of(
 				"overworld",
@@ -48,8 +50,8 @@ public class RAADimensionAddon implements RAAAddon {
 			System.out.println("Generating " + DIMENSION_NUMBER + " dimensions");
 			while (a < DIMENSION_NUMBER) {
 				NameGenerator nameGenerator = RAACore.CONFIG.getLanguage().getNameGenerator(DimensionLanguageManager.DIMENSION_NAME);
-				String name = nameGenerator.generate();
-				System.out.println("Dimension number: " + a);
+				String name = nameGenerator.generate().toLowerCase();
+				System.out.println("Dimension name: " + name);
 				serverResourcePackBuilder.addDimensionType(new Identifier(getId(), name + "_type"), dimensionTypeBuilder -> {
 					dimensionTypeBuilder.bedWorks(Rands.chance(DIMENSION_NUMBER))
 							.piglinSafe(Rands.chance(DIMENSION_NUMBER))
@@ -75,13 +77,46 @@ public class RAADimensionAddon implements RAAAddon {
 					dimensionBuilder.dimensionType(new Identifier(getId(), name + "_type"));
 
 					dimensionBuilder.noiseGenerator(noiseChunkGeneratorTypeBuilder -> {
-						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome("minecraft:plains"));
-						noiseChunkGeneratorTypeBuilder.customSettings(generatorSettingsBuilder ->
-								generatorSettingsBuilder.defaultBlock(blockStateBuilder ->
-										blockStateBuilder.name(Rands.list(Arrays.asList(Registry.BLOCK.getIds().toArray())).toString())
-								)
-						);
-						noiseChunkGeneratorTypeBuilder.presetSettings(Rands.list(CHUNK_GENERATOR_TYPES));
+						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Rands.list(Arrays.asList(Registry.BIOME.getIds().toArray())).toString()));
+						noiseChunkGeneratorTypeBuilder.customSettings(generatorSettingsBuilder -> {
+							generatorSettingsBuilder.defaultBlock(blockStateBuilder ->
+//									blockStateBuilder.name(Rands.list(Arrays.asList(Registry.BLOCK.getIds().toArray())).toString())
+									blockStateBuilder.jsonString("Name", Rands.list(Arrays.asList(Registry.BLOCK.getIds().toArray())).toString())
+											.jsonObject("Properties", jsonArrayBuilder -> jsonArrayBuilder.buildTo(new JsonObject()))
+							).defaultFluid(blockStateBuilder -> {
+//								blockStateBuilder.name(Rands.list(Arrays.asList(Registry.FLUID.getIds().toArray())).toString());
+								blockStateBuilder.jsonString("Name", Rands.list(Arrays.asList(fluids)))
+										.jsonObject("Properties", jsonArrayBuilder -> jsonArrayBuilder.buildTo(new JsonObject()));
+							}).bedrockFloorPosition(Rands.randIntRange(0,255))
+									.bedrockRoofPosition(Rands.randIntRange(0,255))
+									.disableMobGeneration(Rands.chance(3))
+									.seaLevel(Rands.randIntRange(0,255)).noiseConfig(noiseConfigBuilder -> {
+										noiseConfigBuilder.amplified(Rands.chance(3))
+												.densityFactor(Rands.randFloatRange(0.0F,1F))
+												.densityOffset(Rands.randIntRange(0,2))
+												.height(Rands.randIntRange(0,255))
+												.sizeVertical(Rands.randIntRange(1,5))
+												.sizeHorizontal(Rands.randIntRange(1,5))
+												.simplexSurfaceNoise(Rands.chance(3))
+												.randomDensityOffset(Rands.chance(3))
+												.islandNoiseOverride(Rands.chance(3))
+												.bottomSlide(slideConfigBuilder -> {
+													slideConfigBuilder.offset(Rands.randInt(5))
+															.size(Rands.randInt(5)).target(Rands.randInt(5));
+												})
+												.topSlide(slideConfigBuilder -> {
+													slideConfigBuilder.offset(Rands.randInt(5))
+															.size(Rands.randInt(5)).target(Rands.randInt(5));
+												}).sampling(noiseSamplingConfigBuilder -> {
+													noiseSamplingConfigBuilder.xzFactor(Rands.randFloat(5))
+															.xzScale(Rands.randFloat(5)).yFactor(Rands.randFloat(5))
+															.yScale(Rands.randFloat(5));
+										});
+							}).structureManager(structureManagerBuilder -> {
+
+							});
+						});
+//						noiseChunkGeneratorTypeBuilder.presetSettings(Rands.list(CHUNK_GENERATOR_TYPES));
 						noiseChunkGeneratorTypeBuilder.seed((int) Rands.getRandom().nextLong());
 					});
 					/*dimensionBuilder.flatGenerator(flatChunkGeneratorTypeBuilder -> {
