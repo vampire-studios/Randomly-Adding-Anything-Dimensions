@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "raa_dimension",
+  "id": "raa_dimensions",
   "version": "${version}",
 
   "name": "RAA Dimension Addon",
   "description": "This is an example description! Tell everyone what your addon (mod) is about!",
   "authors": [
-    "Me!"
+    "Vampire Studios"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
@@ -14,7 +14,7 @@
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/raa_dimension/icon.png",
+  "icon": "assets/raa_dimensions/icon.png",
 
   "environment": "*",
   "entrypoints": {
@@ -28,14 +28,11 @@
   "mixins": [
     "raa_dimension.mixins.json"
   ],
+  "accessWidener": "raa_dimensions.accesswidener",
 
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "raa_core": "*",
-    "minecraft": ">1.16-alpha.20.20.a"
-  },
-  "suggests": {
-    "flamingo": "*"
+    "raa_core": "*"
   }
 }
