@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.generation.surface;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -10,13 +10,12 @@ import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Random;
-import java.util.function.Function;
 
 //Code kindly taken from Terraform. Thank you, coderbot, Prospector, and Valoeghese!
 public class ClassicCliffsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
 
-    public ClassicCliffsSurfaceBuilder(Function<Dynamic<?>, ? extends TernarySurfaceConfig> configDeserializer, Function<Random, ? extends TernarySurfaceConfig> function) {
-        super(configDeserializer, function);
+    public ClassicCliffsSurfaceBuilder(Codec<TernarySurfaceConfig> ternarySurfaceConfigCodec) {
+        super(ternarySurfaceConfigCodec);
     }
 
     @Override

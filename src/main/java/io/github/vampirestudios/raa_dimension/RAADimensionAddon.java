@@ -1,7 +1,6 @@
 package io.github.vampirestudios.raa_dimension;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.swordglowsblue.artifice.api.Artifice;
 import io.github.vampirestudios.raa_core.RAACore;
@@ -9,6 +8,10 @@ import io.github.vampirestudios.raa_core.api.RAAAddon;
 import io.github.vampirestudios.raa_core.api.name_generation.NameGenerator;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLanguageManager;
 import io.github.vampirestudios.vampirelib.utils.Rands;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -19,6 +22,9 @@ import java.util.List;
 public class RAADimensionAddon implements RAAAddon {
 
 	public static final String MOD_ID = "raa_dimensions";
+
+	public static final ItemGroup RAA_DIMENSION_BLOCKS = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "dimension_blocks"), () ->
+			new ItemStack(Items.STONE));
 
 	@Override
 	public String[] shouldLoadAfter() {
@@ -52,7 +58,7 @@ public class RAADimensionAddon implements RAAAddon {
 				NameGenerator nameGenerator = RAACore.CONFIG.getLanguage().getNameGenerator(DimensionLanguageManager.DIMENSION_NAME);
 				String name = nameGenerator.generate().toLowerCase();
 				System.out.println("Dimension name: " + name);
-				serverResourcePackBuilder.addDimensionType(new Identifier(getId(), name + "_type"), dimensionTypeBuilder -> {
+				serverResourcePackBuilder.addDimensionType(new Identifier(MOD_ID, name + "_type"), dimensionTypeBuilder -> {
 					dimensionTypeBuilder.bedWorks(Rands.chance(DIMENSION_NUMBER))
 							.piglinSafe(Rands.chance(DIMENSION_NUMBER))
 							.respawnAnchorWorks(Rands.chance(DIMENSION_NUMBER))
@@ -72,16 +78,15 @@ public class RAADimensionAddon implements RAAAddon {
 					System.out.println("Dimension Type JSON: " + dimensionTypeBuilder.buildTo(new JsonObject()).toOutputString());
 				});
 
-				int finalA = a;
-				serverResourcePackBuilder.addDimension(new Identifier(getId(), name), dimensionBuilder -> {
-					dimensionBuilder.dimensionType(new Identifier(getId(), name + "_type"));
+				serverResourcePackBuilder.addDimension(new Identifier(MOD_ID, name), dimensionBuilder -> {
+					dimensionBuilder.dimensionType(new Identifier(MOD_ID, name + "_type"));
 
 					dimensionBuilder.noiseGenerator(noiseChunkGeneratorTypeBuilder -> {
 						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Rands.list(Arrays.asList(Registry.BIOME.getIds().toArray())).toString()));
 						noiseChunkGeneratorTypeBuilder.customSettings(generatorSettingsBuilder -> {
 							generatorSettingsBuilder.defaultBlock(blockStateBuilder ->
 //									blockStateBuilder.name(Rands.list(Arrays.asList(Registry.BLOCK.getIds().toArray())).toString())
-									blockStateBuilder.jsonString("Name", Rands.list(Arrays.asList(Registry.BLOCK.getIds().toArray())).toString())
+									blockStateBuilder.jsonString("Name", /*Rands.list(Arrays.asList(Registry.BLOCK.getIds().toArray())).toString()*/"minecraft:grass_block")
 											.jsonObject("Properties", jsonArrayBuilder -> jsonArrayBuilder.buildTo(new JsonObject()))
 							).defaultFluid(blockStateBuilder -> {
 //								blockStateBuilder.name(Rands.list(Arrays.asList(Registry.FLUID.getIds().toArray())).toString());
@@ -113,7 +118,6 @@ public class RAADimensionAddon implements RAAAddon {
 															.yScale(Rands.randFloat(5));
 										});
 							}).structureManager(structureManagerBuilder -> {
-
 							});
 						});
 //						noiseChunkGeneratorTypeBuilder.presetSettings(Rands.list(CHUNK_GENERATOR_TYPES));

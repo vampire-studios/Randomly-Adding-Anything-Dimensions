@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.generation.surface;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -10,11 +10,10 @@ import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Random;
-import java.util.function.Function;
 
 public class StratifiedSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
-    public StratifiedSurfaceBuilder(Function<Dynamic<?>, ? extends TernarySurfaceConfig> configDeserializer, Function<Random, ? extends TernarySurfaceConfig> function) {
-        super(configDeserializer, function);
+    public StratifiedSurfaceBuilder(Codec<TernarySurfaceConfig> ternarySurfaceConfigCodec) {
+        super(ternarySurfaceConfigCodec);
     }
 
     @Override

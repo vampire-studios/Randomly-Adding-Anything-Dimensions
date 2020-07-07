@@ -1,8 +1,8 @@
 package io.github.vampirestudios.raa_dimension.generation.surface.random.elements;
 
 import com.google.gson.JsonObject;
-import io.github.vampirestudios.raa.generation.surface.random.SurfaceElement;
-import io.github.vampirestudios.raa.registries.SurfaceBuilders;
+import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
+import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.noise.OctaveSimplexNoiseSampler;

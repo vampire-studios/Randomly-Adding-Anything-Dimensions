@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.generation.surface;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -12,15 +12,14 @@ import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class HyperflatSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
     public static OctaveSimplexNoiseSampler HEIGHT = new OctaveSimplexNoiseSampler(new ChunkRandom(79), IntStream.of(4, 0));
     public static OctaveSimplexNoiseSampler WATER_NOISE = new OctaveSimplexNoiseSampler(new ChunkRandom(7979), IntStream.of(4, 0));
 
-    public HyperflatSurfaceBuilder(Function<Dynamic<?>, ? extends TernarySurfaceConfig> configDeserializer, Function<Random, ? extends TernarySurfaceConfig> function) {
-        super(configDeserializer, function);
+    public HyperflatSurfaceBuilder(Codec<TernarySurfaceConfig> ternarySurfaceConfigCodec) {
+        super(ternarySurfaceConfigCodec);
     }
 
     @Override

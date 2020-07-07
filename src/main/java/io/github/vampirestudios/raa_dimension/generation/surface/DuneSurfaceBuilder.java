@@ -1,7 +1,7 @@
 package io.github.vampirestudios.raa_dimension.generation.surface;
 
-import com.mojang.datafixers.Dynamic;
-import io.github.vampirestudios.raa.utils.WorleyNoise;
+import com.mojang.serialization.Codec;
+import io.github.vampirestudios.raa_dimension.utils.WorleyNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -14,15 +14,14 @@ import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Random;
-import java.util.function.Function;
 
 //Code kindly taken from Terrestria. Thank you, coderbot, Prospector, and Valoeghese!
 public class DuneSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
 
     private static final WorleyNoise NOISE = new WorleyNoise(3445);
 
-    public DuneSurfaceBuilder(Function<Dynamic<?>, ? extends TernarySurfaceConfig> configDeserializer, Function<Random, ? extends TernarySurfaceConfig> function) {
-        super(configDeserializer, function);
+    public DuneSurfaceBuilder(Codec<TernarySurfaceConfig> ternarySurfaceConfigCodec) {
+        super(ternarySurfaceConfigCodec);
     }
 
     @Override

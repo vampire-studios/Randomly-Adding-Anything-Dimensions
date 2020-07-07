@@ -1,8 +1,8 @@
 package io.github.vampirestudios.raa_dimension.generation.surface.random.elements;
 
 import com.google.gson.JsonObject;
-import io.github.vampirestudios.raa.generation.surface.random.SurfaceElement;
-import io.github.vampirestudios.raa.utils.Rands;
+import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
+import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;

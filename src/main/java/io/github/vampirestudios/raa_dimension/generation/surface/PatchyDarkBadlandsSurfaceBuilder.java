@@ -1,7 +1,7 @@
 package io.github.vampirestudios.raa_dimension.generation.surface;
 
-import com.mojang.datafixers.Dynamic;
-import io.github.vampirestudios.raa.registries.SurfaceBuilders;
+import com.mojang.serialization.Codec;
+import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.noise.OctaveSimplexNoiseSampler;
 import net.minecraft.world.biome.Biome;
@@ -11,14 +11,13 @@ import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class PatchyDarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
     public static final OctaveSimplexNoiseSampler MESA_NOISE = new OctaveSimplexNoiseSampler(new ChunkRandom(79L), IntStream.of(6, 0));
 
-    public PatchyDarkBadlandsSurfaceBuilder(Function<Dynamic<?>, ? extends TernarySurfaceConfig> configDeserializer, Function<Random, ? extends TernarySurfaceConfig> function) {
-        super(configDeserializer, function);
+    public PatchyDarkBadlandsSurfaceBuilder(Codec<TernarySurfaceConfig> ternarySurfaceConfigCodec) {
+        super(ternarySurfaceConfigCodec);
     }
 
     @Override

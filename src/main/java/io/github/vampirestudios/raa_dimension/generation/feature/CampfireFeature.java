@@ -2,6 +2,7 @@ package io.github.vampirestudios.raa_dimension.generation.feature;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa.registries.RAALootTables;
 import io.github.vampirestudios.raa.utils.Rands;
 import io.github.vampirestudios.raa.utils.Utils;
@@ -13,6 +14,8 @@ import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
@@ -23,12 +26,12 @@ import java.util.Random;
 import java.util.function.Function;
 
 public class CampfireFeature extends Feature<DefaultFeatureConfig> {
-    public CampfireFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-        super(configDeserializer, function);
+    public CampfireFeature(Codec<DefaultFeatureConfig> configCodec) {
+        super(configCodec);
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(ServerWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig config) {
         if (world.getBlockState(pos.add(0, -1, 0)).isAir() || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
         for (int i = -1; i <= 1; i++) {

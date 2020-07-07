@@ -5,7 +5,7 @@
 
 package io.github.vampirestudios.raa_dimension.generation.surface.vanilla_variants;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -19,7 +19,6 @@ import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
@@ -45,8 +44,8 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
     protected OctaveSimplexNoiseSampler heightNoise;
     protected OctaveSimplexNoiseSampler layerNoise;
 
-    public DarkBadlandsSurfaceBuilder(Function<Dynamic<?>, ? extends TernarySurfaceConfig> configDeserializer, Function<Random, ? extends TernarySurfaceConfig> function) {
-        super(configDeserializer, function);
+    public DarkBadlandsSurfaceBuilder(Codec<TernarySurfaceConfig> ternarySurfaceConfigCodec) {
+        super(ternarySurfaceConfigCodec);
     }
 
     public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {

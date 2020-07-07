@@ -13,7 +13,7 @@ public class RandomSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
     private final List<SurfaceElement> elements;
 
     public RandomSurfaceBuilder(List<SurfaceElement> elements) {
-        super(TernarySurfaceConfig::deserialize, TernarySurfaceConfig::method_26680);
+        super(TernarySurfaceConfig.CODEC);
         this.elements = elements;
     }
 
