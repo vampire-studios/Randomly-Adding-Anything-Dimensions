@@ -24,14 +24,9 @@
 
 package io.github.vampirestudios.raa_dimension.utils;
 
-import io.github.vampirestudios.raa.api.RAARegisteries;
-import io.github.vampirestudios.raa.items.RAABlockItem;
-import io.github.vampirestudios.raa.items.RAABlockItemAlt;
-import io.github.vampirestudios.raa.world.gen.feature.OreFeatureConfig;
 import io.github.vampirestudios.raa_dimension.item.RAABlockItem;
 import io.github.vampirestudios.raa_dimension.item.RAABlockItemAlt;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -44,13 +39,6 @@ import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
-import net.minecraft.world.gen.chunk.ChunkGeneratorFactory;
-import net.minecraft.world.gen.chunk.ChunkGeneratorType;
-
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class RegistryUtils {
 
@@ -109,36 +97,6 @@ public class RegistryUtils {
         }
     }
 
-    public static OreFeatureConfig.Target registerOreTarget(Identifier name, OreFeatureConfig.Target target) {
-        if (RAARegisteries.TARGET_REGISTRY.get(name) == null) {
-            return Registry.register(RAARegisteries.TARGET_REGISTRY, name, target);
-        } else {
-            return target;
-        }
-    }
-
-    public static OreFeatureConfig.Target registerOreTarget(String name, Predicate<BlockState> blockStatePredicate, Block block) {
-        return registerOreTarget(new Identifier(name), blockStatePredicate, block);
-    }
-
-    public static OreFeatureConfig.Target registerOreTarget(Identifier name, Predicate<BlockState> blockStatePredicate, Block block) {
-        OreFeatureConfig.Target target = new OreFeatureConfig.Target(name, blockStatePredicate, block);
-        if (RAARegisteries.TARGET_REGISTRY.get(target.getId()) == null) {
-            return Registry.register(RAARegisteries.TARGET_REGISTRY, target.getId(), target);
-        } else {
-            return target;
-        }
-    }
-
-
-    /*public static OreTargetData registerOreTargetData(Identifier name, OreTargetData target) {
-        if (RAARegisteries.TARGET_DATA_REGISTRY.get(name) == null) {
-            return Registry.register(RAARegisteries.TARGET_DATA_REGISTRY, name, target);
-        } else {
-            return target;
-        }
-    }*/
-
     /**
      * Called to register and create new instance of the ChunkGeneratorType.
      *
@@ -147,9 +105,9 @@ public class RegistryUtils {
      * @param settingsSupplier   config supplier
      * @param buffetScreenOption whether or not the ChunkGeneratorType should appear in the buffet screen options page
      */
-    public static <C extends ChunkGeneratorConfig, T extends ChunkGenerator<C>> ChunkGeneratorType<C, T> registerChunkGenerator(Identifier id, ChunkGeneratorFactory<C, T> factory, Supplier<C> settingsSupplier, boolean buffetScreenOption) {
+    /*public static <C extends ChunkGeneratorConfig, T extends ChunkGenerator<C>> ChunkGeneratorType<C, T> registerChunkGenerator(Identifier id, ChunkGeneratorFactory<C, T> factory, Supplier<C> settingsSupplier, boolean buffetScreenOption) {
         return Registry.register(Registry.CHUNK_GENERATOR_TYPE, id, new ChunkGeneratorType<>(factory, buffetScreenOption, settingsSupplier));
-    }
+    }*/
 
     public static <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(Builder<T> builder, Identifier name) {
         BlockEntityType<T> blockEntityType = builder.build(null);

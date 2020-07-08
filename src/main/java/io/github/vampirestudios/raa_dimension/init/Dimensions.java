@@ -25,6 +25,7 @@ import io.github.vampirestudios.raa_core.api.name_generation.NameGenerator;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.api.enums.TextureTypes;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLanguageManager;
+import io.github.vampirestudios.raa_dimension.blocks.DimensionalBlock;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.*;
 import io.github.vampirestudios.raa_dimension.history.Civilization;
 import io.github.vampirestudios.raa_dimension.history.ProtoDimension;
@@ -215,7 +216,7 @@ public class Dimensions {
                     .canSleep(Rands.chance(4))
                     .waterVaporize(Rands.chance(100))
                     .shouldRenderFog(Rands.chance(40))
-                    .chunkGenerator(gen)
+//                    .chunkGenerator(gen)
                     .flags(flags)
                     .difficulty(difficultyAndMobs.getLeft())
                     .mobs(difficultyAndMobs.getRight())
@@ -252,7 +253,7 @@ public class Dimensions {
                 SurfaceBuilder<?> surfaceBuilder = Utils.newRandomSurfaceBuilder();
                 TernarySurfaceConfig surfaceConfig = Utils.randomSurfaceBuilderConfig();
 
-                List<CarverType> carvers = new ArrayList<>();
+                /*List<CarverType> carvers = new ArrayList<>();
 
                 //cave generation
                 if (!Rands.chance(5)) { //80% chance of normal caves
@@ -277,7 +278,7 @@ public class Dimensions {
 
                 if (Rands.chance(10)) { //10% chance of big rooms
                     carvers.add(CarverType.BIG_ROOM);
-                }
+                }*/
 
                 DimensionBiomeData biomeData = DimensionBiomeData.Builder.create(Utils.addSuffixToPath(name.getRight(), "_biome" + "_" + i), name.getLeft())
                         .depth(Rands.randFloatRange(-1F, 3F))
@@ -338,7 +339,6 @@ public class Dimensions {
 
     public static void createDimensions() {
         DIMENSIONS.forEach(dimensionData -> {
-            Identifier identifier = dimensionData.getId();
 
             for(Identifier identifier1 : dimensionData.getStones()) {
                 for (int i = 0; i < dimensionData.getStones().length; i++) {
@@ -377,14 +377,14 @@ public class Dimensions {
                         RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "cobblestoneWall");
                 RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_cobblestone"),
                         RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "mossyCobblestone");
-                RegistryUtils.register(new DimensionalBlock(), new Identifier(RandomlyAddingAnything.MOD_ID,
+                RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
                                 "chiseled_" + dimensionData.getId().getPath().toLowerCase() + "_stone_bricks"),
                         RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "chiseled_stone_bricks");
                 RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "cracked_", "_chiseled_stone_bricks"),
                         RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "crackedChiseledStoneBricks");
                 RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_chiseled_stone_bricks"),
                         RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "mossyChiseledStoneBricks");
-                Block polished = RegistryUtils.register(new DimensionalBlock(), new Identifier(RandomlyAddingAnything.MOD_ID,
+                Block polished = RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
                                 "polished_" + dimensionData.getId().getPath().toLowerCase()),
                         RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "polished");
                 RegistryUtils.register(new StairsBaseBlock(polished.getDefaultState()), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_stairs"),
