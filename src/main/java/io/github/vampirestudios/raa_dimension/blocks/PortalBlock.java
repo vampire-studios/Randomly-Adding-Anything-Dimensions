@@ -1,9 +1,6 @@
 package io.github.vampirestudios.raa_dimension.blocks;
 
-import io.github.vampirestudios.raa.api.dimension.PlayerPlacementHandlers;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
@@ -47,12 +44,12 @@ public class PortalBlock extends Block {
             }*/
             BlockPos playerPos = playerEntity_1.getBlockPos();
             if (playerPos.getX() == pos.getX() && playerPos.getZ() == pos.getZ() && playerPos.getY() == pos.getY() + 1) {
-                if (playerEntity_1.world.dimension.getType() == dimensionType) {
+                if (playerEntity_1.world.getDimension() == dimensionType) {
                     // coming from our custom dimension
-                    FabricDimensions.teleport(playerEntity_1, DimensionType.OVERWORLD, PlayerPlacementHandlers.OVERWORLD.getEntityPlacer());
+//                    FabricDimensionInternals.changeDimension(playerEntity_1, DimensionType.OVERWORLD_REGISTRY_KEY, PlayerPlacementHandlers.OVERWORLD.getEntityPlacer());
                 } else {
                     // going to our custom dimension
-                    FabricDimensions.teleport(playerEntity_1, dimensionType, null);
+//                    FabricDimensions.teleport(playerEntity_1, dimensionType, null);
                 }
             }
 

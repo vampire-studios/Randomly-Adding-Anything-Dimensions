@@ -3,12 +3,20 @@ package io.github.vampirestudios.raa_dimension.generation.feature.portalHub;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa.registries.Dimensions;
 import io.github.vampirestudios.raa.utils.JsonConverter;
 import io.github.vampirestudios.raa.utils.Rands;
 import io.github.vampirestudios.raa.utils.WorldStructureManipulation;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
+import io.github.vampirestudios.raa_dimension.init.Dimensions;
+import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
+import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
+import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.impl.resource.loader.ResourceManagerHelperImpl;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.Resource;
 import net.minecraft.server.world.ServerWorld;
@@ -17,7 +25,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
@@ -33,11 +43,11 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
     private final JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public PortalHubFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-        super(configDeserializer, function);
+    public PortalHubFeature(Codec<DefaultFeatureConfig> codec) {
+        super(codec);
     }
 
-    public static void placePiece(IWorld world, BlockPos pos, JsonConverter.StructureValues piece, int decay) {
+    public static void placePiece(ServerWorldAccess world, BlockPos pos, JsonConverter.StructureValues piece, int decay) {
         int themeNum = Rands.randInt(PortalHubThemes.PORTAL_HUB_THEMES.getIds().size());
         PortalHubTheme theme = PortalHubThemes.PORTAL_HUB_THEMES.get(themeNum);
         assert theme != null;
@@ -81,7 +91,7 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(ServerWorldAccess world, StructureAccessor accessor, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig config) {
         JsonObject jsonObject = null;
         try {
             Resource path = Objects.requireNonNull(world.getWorld().getServer()).getDataManager().getResource(new Identifier("raa:structures/portal_hub/portal_hub.json"));
@@ -100,7 +110,7 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
         }
 
         //Cheeky way of limiting these structures to the overworld
-        if (!world.getDimension().getType().getSuffix().equals("")) {
+        if (!world.getDimension().getSuffix().equals("")) {
             return true;
         }
 
@@ -115,7 +125,7 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
         placePiece(world, pos, structures.get("portal_hub"), 0);
 
         //Record spawn in text file
-        try {
+        /*try {
             String path;
             World world2 = world.getWorld();
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT)
@@ -126,7 +136,7 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         return true;
     }
