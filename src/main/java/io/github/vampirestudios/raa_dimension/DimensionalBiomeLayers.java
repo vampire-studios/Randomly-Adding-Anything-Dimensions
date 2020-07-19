@@ -1,5 +1,7 @@
 package io.github.vampirestudios.raa_dimension;
 
+import net.minecraft.util.registry.BuiltinRegistries;
+import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.layer.ContinentLayer;
@@ -53,7 +55,7 @@ public class DimensionalBiomeLayers {
         @Override
         public int sample(LayerRandomnessSource context, int x, int y) {
             List<Biome> biomeList = new ArrayList<>(biomes);
-            return Registry.BIOME.getRawId(biomeList.get(context.nextInt(biomeList.size())));
+            return BuiltinRegistries.BIOME.getRawId(biomeList.get(context.nextInt(biomeList.size())));
         }
     }
 }

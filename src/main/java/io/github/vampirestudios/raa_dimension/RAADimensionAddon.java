@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Arrays;
@@ -82,7 +83,7 @@ public class RAADimensionAddon implements RAAAddon {
 					dimensionBuilder.dimensionType(new Identifier(MOD_ID, name + "_type"));
 
 					dimensionBuilder.noiseGenerator(noiseChunkGeneratorTypeBuilder -> {
-						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Rands.list(Arrays.asList(Registry.BIOME.getIds().toArray())).toString()));
+						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Rands.list(Arrays.asList(BuiltinRegistries.BIOME.getIds().toArray())).toString()));
 						noiseChunkGeneratorTypeBuilder.customSettings(generatorSettingsBuilder -> {
 							generatorSettingsBuilder.defaultBlock(blockStateBuilder ->
 //									blockStateBuilder.name(Rands.list(Arrays.asList(Registry.BLOCK.getIds().toArray())).toString())
