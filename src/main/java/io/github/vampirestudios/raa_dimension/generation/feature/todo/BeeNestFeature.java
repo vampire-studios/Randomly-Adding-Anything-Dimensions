@@ -1,16 +1,20 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa.utils.JsonConverter;
 import io.github.vampirestudios.raa.utils.Utils;
 import io.github.vampirestudios.raa.utils.WorldStructureManipulation;
+import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
@@ -23,23 +27,23 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
-public class MushRuinFeature extends Feature<DefaultFeatureConfig> {
+public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public MushRuinFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-        super(configDeserializer, function);
+    public BeeNestFeature(Codec<DefaultFeatureConfig> configCodec) {
+        super(configCodec);
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(ServerWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/mushruin.json"));
+            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/bee_nest.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
-                put("mushruin", converter.loadStructure(finalJsonObject));
+                put("bee_nest", converter.loadStructure(finalJsonObject));
             }};
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,27 +54,27 @@ public class MushRuinFeature extends Feature<DefaultFeatureConfig> {
             return true;
         }
 
-        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("mushruin").getSize(), 0.125f);
+        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("bee_nest").getSize(), 0.125f);
         if (tempPos.compareTo(Vec3i.ZERO) == 0) {
             return true;
         }
         pos = new BlockPos(tempPos);
 
-        JsonConverter.StructureValues shrine = structures.get("mushruin");
+        JsonConverter.StructureValues beeNest = structures.get("bee_nest");
         int rotation = new Random().nextInt(4);
-        for (int i = 0; i < shrine.getBlockPositions().size(); i++) {
-            String currBlockType = shrine.getBlockTypes().get(shrine.getBlockStates().get(i));
+        for (int i = 0; i < beeNest.getBlockPositions().size(); i++) {
+            String currBlockType = beeNest.getBlockTypes().get(beeNest.getBlockStates().get(i));
             if (currBlockType.equals("minecraft:air")) {
-                Vec3i currBlockPos = shrine.getBlockPositions().get(i);
-                Map<String, String> currBlockProp = shrine.getBlockProperties().get(shrine.getBlockStates().get(i));
+                Vec3i currBlockPos = beeNest.getBlockPositions().get(i);
+                Map<String, String> currBlockProp = beeNest.getBlockProperties().get(beeNest.getBlockStates().get(i));
 
-                currBlockPos = WorldStructureManipulation.rotatePos(rotation, currBlockPos, shrine.getSize());
+                currBlockPos = WorldStructureManipulation.rotatePos(rotation, currBlockPos, beeNest.getSize());
 
                 WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
             }
         }
 
-        Utils.createSpawnsFile("mushroom_ruins", world, pos);
+        Utils.createSpawnsFile("bee_nest", world, pos);
 
         return true;
     }

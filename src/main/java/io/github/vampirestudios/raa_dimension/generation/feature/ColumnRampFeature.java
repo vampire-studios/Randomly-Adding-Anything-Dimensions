@@ -11,7 +11,6 @@ import net.minecraft.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.Feature;
 
@@ -30,7 +29,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 	}
 
 	@Override
-	public boolean generate(ServerWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator changedBlock, Random rand, BlockPos position, ColumnBlocksConfig blocksConfig) {
+	public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random rand, BlockPos position, ColumnBlocksConfig featureConfig) {
 		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
 		int minWidth = 4;
 		int currentHeight = 0;
@@ -188,10 +187,10 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 						BlockState blockBelowAir = world.getBlockState(blockpos$Mutable.down());
 						BlockState blockBelowBelowAir = world.getBlockState(blockpos$Mutable.down(2));
 						if (blockBelowAir.isAir()) {
-							if (blocksConfig.topBlock.getMaterial() == Material.AGGREGATE && blockBelowBelowAir.getMaterial() == Material.AIR) {
-								world.setBlockState(blockpos$Mutable.down(), blocksConfig.middleBlock, 2);
+							if (featureConfig.topBlock.getMaterial() == Material.AGGREGATE && blockBelowBelowAir.getMaterial() == Material.AIR) {
+								world.setBlockState(blockpos$Mutable.down(), featureConfig.middleBlock, 2);
 							} else {
-								world.setBlockState(blockpos$Mutable.down(), blocksConfig.topBlock, 2);
+								world.setBlockState(blockpos$Mutable.down(), featureConfig.topBlock, 2);
 							}
 						}
 					}
@@ -229,7 +228,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 					{
 						if (!world.getBlockState(blockpos$Mutable).isAir())
 						{
-							world.setBlockState(blockpos$Mutable, blocksConfig.insideBlock, 2);
+							world.setBlockState(blockpos$Mutable, featureConfig.insideBlock, 2);
 						}
 					}
 					//We are at non-pillar space 
@@ -241,15 +240,15 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 						{
 							BlockState block = world.getBlockState(blockpos$Mutable.down(downward));
 							BlockState blockBelow = world.getBlockState(blockpos$Mutable.down(downward + 1));
-							if (block == blocksConfig.insideBlock)
+							if (block == featureConfig.insideBlock)
 							{
-								if (downward == 1 && !(blocksConfig.topBlock.getMaterial() == Material.AGGREGATE && blockBelow.getMaterial() == Material.AIR))
+								if (downward == 1 && !(featureConfig.topBlock.getMaterial() == Material.AGGREGATE && blockBelow.getMaterial() == Material.AIR))
 								{
-									world.setBlockState(blockpos$Mutable.down(downward), blocksConfig.topBlock, 2);
+									world.setBlockState(blockpos$Mutable.down(downward), featureConfig.topBlock, 2);
 								}
 								else
 								{
-									world.setBlockState(blockpos$Mutable.down(downward), blocksConfig.middleBlock, 2);
+									world.setBlockState(blockpos$Mutable.down(downward), featureConfig.middleBlock, 2);
 								}
 
 							}

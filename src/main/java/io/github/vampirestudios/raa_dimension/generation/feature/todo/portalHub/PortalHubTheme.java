@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.portalHub;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo.portalHub;
 
 import net.minecraft.block.Block;
 

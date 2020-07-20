@@ -1,33 +1,30 @@
 package io.github.vampirestudios.raa_dimension.generation.feature;
 
-import com.mojang.datafixers.Dynamic;
-import io.github.vampirestudios.raa.RandomlyAddingAnything;
-import io.github.vampirestudios.raa.utils.FeatureUtils;
-import io.github.vampirestudios.raa.utils.Utils;
+import com.mojang.serialization.Codec;
+import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
+import io.github.vampirestudios.raa_dimension.utils.FeatureUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 
 import java.util.Random;
-import java.util.function.Function;
 
 //Code kindly taken from The Hallow, thanks to everyone who is working on it!
 public class SpiderLairFeature extends Feature<DefaultFeatureConfig> {
 
-    public SpiderLairFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-        super(configDeserializer, function);
+    public SpiderLairFeature(Codec<DefaultFeatureConfig> configDeserializer) {
+        super(configDeserializer);
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig defaultFeatureConfig) {
+    public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig defaultFeatureConfig) {
         if (world.getBlockState(pos.add(0, -1, 0)).isAir() || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
         if (world.getBlockState(pos.down(1)).getBlock() == Blocks.GRASS_BLOCK) {
@@ -42,9 +39,9 @@ public class SpiderLairFeature extends Feature<DefaultFeatureConfig> {
 
             BlockPos chestPos = pos.add(0, -1, 0);
             world.setBlockState(chestPos, StructurePiece.method_14916(world, chestPos, Blocks.CHEST.getDefaultState()), 2);
-            LootableContainerBlockEntity.setLootTable(world, random, chestPos, new Identifier(RandomlyAddingAnything.MOD_ID, "chest/spider_lair"));
+            LootableContainerBlockEntity.setLootTable(world, random, chestPos, new Identifier(RAADimensionAddon.MOD_ID, "chest/spider_lair"));
 
-            Utils.createSpawnsFile("spider_lair", world, pos);
+//            Utils.createSpawnsFile("spider_lair", world, pos);
             return true;
         } else {
             return false;

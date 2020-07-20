@@ -1,31 +1,30 @@
 package io.github.vampirestudios.raa_dimension.generation.feature;
 
-import com.mojang.datafixers.Dynamic;
-import io.github.vampirestudios.raa.generation.feature.config.CorruptedFeatureConfig;
-import io.github.vampirestudios.raa.utils.Rands;
+import com.mojang.serialization.Codec;
+import io.github.vampirestudios.raa_dimension.generation.feature.config.CorruptedFeatureConfig;
+import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.Feature;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.function.Function;
 
 public class CraterFeature extends Feature<CorruptedFeatureConfig> {
     public static final ArrayList<BlockState> ALLOWED_STATES = new ArrayList<BlockState>();
 
-    public CraterFeature(Function<Dynamic<?>, ? extends CorruptedFeatureConfig> configDeserializer, Function<Random, ? extends CorruptedFeatureConfig> function) {
-        super(configDeserializer, function);
+    public CraterFeature(Codec<CorruptedFeatureConfig> configDeserializer) {
+        super(configDeserializer);
         ALLOWED_STATES.add(Blocks.GRASS_BLOCK.getDefaultState());
         ALLOWED_STATES.add(Blocks.STONE.getDefaultState());
         ALLOWED_STATES.add(Blocks.GRAVEL.getDefaultState());
         ALLOWED_STATES.add(Blocks.SAND.getDefaultState());
     }
 
-    private static boolean canSpawn(IWorld world, BlockPos pos) {
+    private static boolean canSpawn(ServerWorldAccess world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         if (state == Blocks.GRASS_BLOCK.getDefaultState() || state == Blocks.PODZOL.getDefaultState() || state == Blocks.COARSE_DIRT.getDefaultState())
             return true;
@@ -33,7 +32,7 @@ public class CraterFeature extends Feature<CorruptedFeatureConfig> {
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, CorruptedFeatureConfig config) {
+    public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, CorruptedFeatureConfig config) {
         if (world.getBlockState(pos.add(0, -1, 0)).isAir() || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
         if (canSpawn(world, pos.add(0, -1, 0))) {

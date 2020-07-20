@@ -3,7 +3,6 @@ package io.github.vampirestudios.raa_dimension.generation.carvers;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import io.github.vampirestudios.raa_dimension.api.dimension.DimensionChunkGenerators;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -55,9 +54,9 @@ public abstract class RAACarver<C extends CarverConfig> extends Carver<C> {
                 return false;
             } else {
                 if (m < 11) {
-                    DimensionChunkGenerators generator = data.getDimensionChunkGenerator();
+                    /*DimensionChunkGenerators generator = data.getDimensionChunkGenerator();
                     if (generator == DimensionChunkGenerators.FLOATING || generator == DimensionChunkGenerators.PRE_CLASSIC_FLOATING || generator == DimensionChunkGenerators.LAYERED_FLOATING)
-                        return true;
+                        return true;*/
                     chunk.setBlockState(mutable, LAVA.getBlockState(), false);
                 } else {
                     chunk.setBlockState(mutable, CAVE_AIR, false);

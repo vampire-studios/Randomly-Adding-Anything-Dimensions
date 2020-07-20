@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.mojang.datafixers.Dynamic;
 import io.github.vampirestudios.raa.utils.Rands;

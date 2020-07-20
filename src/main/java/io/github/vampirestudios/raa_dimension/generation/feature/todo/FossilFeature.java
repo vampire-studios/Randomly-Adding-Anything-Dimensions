@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

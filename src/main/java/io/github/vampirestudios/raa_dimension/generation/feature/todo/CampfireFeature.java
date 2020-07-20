@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.Dynamic;

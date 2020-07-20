@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
-public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
+public class CaveCampfireFeature extends Feature<DefaultFeatureConfig> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public BeeNestFeature(Codec<DefaultFeatureConfig> configCodec) {
+    public CaveCampfireFeature(Codec<DefaultFeatureConfig> configCodec) {
         super(configCodec);
     }
 
@@ -38,11 +38,11 @@ public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
     public boolean generate(ServerWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/bee_nest.json"));
+            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/cave_campfire.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
-                put("bee_nest", converter.loadStructure(finalJsonObject));
+                put("cave_campfire", converter.loadStructure(finalJsonObject));
             }};
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,27 +53,27 @@ public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
             return true;
         }
 
-        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("bee_nest").getSize(), 0.125f);
+        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("cave_campfire").getSize(), 0.125f, true);
         if (tempPos.compareTo(Vec3i.ZERO) == 0) {
             return true;
         }
         pos = new BlockPos(tempPos);
 
-        JsonConverter.StructureValues beeNest = structures.get("bee_nest");
+        JsonConverter.StructureValues shrine = structures.get("cave_campfire");
         int rotation = new Random().nextInt(4);
-        for (int i = 0; i < beeNest.getBlockPositions().size(); i++) {
-            String currBlockType = beeNest.getBlockTypes().get(beeNest.getBlockStates().get(i));
-            if (currBlockType.equals("minecraft:air")) {
-                Vec3i currBlockPos = beeNest.getBlockPositions().get(i);
-                Map<String, String> currBlockProp = beeNest.getBlockProperties().get(beeNest.getBlockStates().get(i));
+        for (int i = 0; i < shrine.getBlockPositions().size(); i++) {
+            String currBlockType = shrine.getBlockTypes().get(shrine.getBlockStates().get(i));
+            if (currBlockType.equals("minecraft:cave_air")) {
+                Vec3i currBlockPos = shrine.getBlockPositions().get(i);
+                Map<String, String> currBlockProp = shrine.getBlockProperties().get(shrine.getBlockStates().get(i));
 
-                currBlockPos = WorldStructureManipulation.rotatePos(rotation, currBlockPos, beeNest.getSize());
+                currBlockPos = WorldStructureManipulation.rotatePos(rotation, currBlockPos, shrine.getSize());
 
                 WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
             }
         }
 
-        Utils.createSpawnsFile("bee_nest", world, pos);
+        Utils.createSpawnsFile("cave_campfire", world, pos);
 
         return true;
     }

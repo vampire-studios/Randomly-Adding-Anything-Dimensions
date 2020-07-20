@@ -1,18 +1,16 @@
 package io.github.vampirestudios.raa_dimension.generation.feature;
 
-import com.mojang.datafixers.Dynamic;
-import io.github.vampirestudios.raa.generation.feature.config.ColumnBlocksConfig;
-import io.github.vampirestudios.raa.utils.OpenSimplexNoise;
+import com.mojang.serialization.Codec;
+import io.github.vampirestudios.raa_dimension.generation.feature.config.ColumnBlocksConfig;
+import io.github.vampirestudios.raa_dimension.utils.OpenSimplexNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.Feature;
 
 import java.util.Random;
-import java.util.function.Function;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
 public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
@@ -30,15 +28,14 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 	}
 
 
-	public ColumnVerticalFeature(Function<Dynamic<?>, ? extends ColumnBlocksConfig> configDeserializer, Function<Random, ? extends ColumnBlocksConfig> function) {
-		super(configDeserializer, function);
+	public ColumnVerticalFeature(Codec<ColumnBlocksConfig> configDeserializer) {
+		super(configDeserializer);
 	}
 
-
 	@Override
-	public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> changedBlock, Random rand, BlockPos position, ColumnBlocksConfig blocksConfig) {
+	public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos, ColumnBlocksConfig featureConfig) {
 		setSeed(world.getSeed());
-		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
+		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 		int minWidth = 3;
 		int maxWidth = 10;
 		int currentHeight = 0;
@@ -60,7 +57,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		ceilingHeight = blockpos$Mutable.getY();
 
 		//find floor
-		blockpos$Mutable.set(position); // reset back to normal height
+		blockpos$Mutable.set(blockPos); // reset back to normal height
 		currentHeight = 0;
 		while (!world.getBlockState(blockpos$Mutable.up(currentHeight)).isAir())
 		{
@@ -92,12 +89,12 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		widthAtHeight = getWidthAtHeight(0, heightDiff, thinnestWidth);
 
 		//checks to see if there is enough circular land above and below to hold pillar
-		for (int x = position.getX() - widthAtHeight; x <= position.getX() + widthAtHeight; x += 3)
+		for (int x = blockPos.getX() - widthAtHeight; x <= blockPos.getX() + widthAtHeight; x += 3)
 		{
-			for (int z = position.getZ() - widthAtHeight; z <= position.getZ() + widthAtHeight; z += 3)
+			for (int z = blockPos.getZ() - widthAtHeight; z <= blockPos.getZ() + widthAtHeight; z += 3)
 			{
-				int xDiff = x - position.getX();
-				int zDiff = z - position.getZ();
+				int xDiff = x - blockPos.getX();
+				int zDiff = z - blockPos.getZ();
 				if (xDiff * xDiff + zDiff * zDiff <= (widthAtHeight) * (widthAtHeight))
 				{
 					BlockState block1 = world.getBlockState(blockpos$Mutable.set(x, ceilingHeight + 3, z));
@@ -117,8 +114,8 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		int zMod = 0;
 		//adds perlin noise to the pillar shape to make it more oval
 		//larger pillars will be more oval shaped
-		boolean flagImperfection1 = rand.nextBoolean();
-		boolean flagImperfection2 = rand.nextBoolean();
+		boolean flagImperfection1 = random.nextBoolean();
+		boolean flagImperfection2 = random.nextBoolean();
 
 		if (flagImperfection1 && flagImperfection2)
 		{
@@ -146,18 +143,18 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		{
 			widthAtHeight = getWidthAtHeight(y, heightDiff, thinnestWidth);
 
-			for (int x = position.getX() - widthAtHeight - xMod - 1; x <= position.getX() + widthAtHeight + xMod + 1; ++x)
+			for (int x = blockPos.getX() - widthAtHeight - xMod - 1; x <= blockPos.getX() + widthAtHeight + xMod + 1; ++x)
 			{
-				for (int z = position.getZ() - widthAtHeight - zMod - 1; z <= position.getZ() + widthAtHeight + zMod + 1; ++z)
+				for (int z = blockPos.getZ() - widthAtHeight - zMod - 1; z <= blockPos.getZ() + widthAtHeight + zMod + 1; ++z)
 				{
-					int xDiff = x - position.getX();
-					int zDiff = z - position.getZ();
+					int xDiff = x - blockPos.getX();
+					int zDiff = z - blockPos.getZ();
 					blockpos$Mutable.set(x, y + floorHeight, z);
 
 					//scratches the surface for more imperfection
 					//cut the number of scratches on smallest part of pillar by 4
 					boolean flagImperfection3 = this.noiseGen.eval(x * 0.06D, z * 0.6D, y * 0.02D) < 0;
-					if (flagImperfection3 && (widthAtHeight > thinnestWidth || (widthAtHeight == thinnestWidth && rand.nextInt(4) == 0)))
+					if (flagImperfection3 && (widthAtHeight > thinnestWidth || (widthAtHeight == thinnestWidth && random.nextInt(4) == 0)))
 					{
 						currentWidth = widthAtHeight - 1;
 					}
@@ -175,7 +172,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 
 						if (!block.isAir())
 						{
-							world.setBlockState(blockpos$Mutable, blocksConfig.insideBlock, 2);
+							world.setBlockState(blockpos$Mutable, featureConfig.insideBlock, 2);
 						}
 					}
 					//We are at non-pillar space 
@@ -186,9 +183,9 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 						for (int downward = 0; downward < 6 && y - downward >= -3; downward++)
 						{
 							BlockState block = world.getBlockState(blockpos$Mutable);
-							if (block == blocksConfig.insideBlock)
+							if (block == featureConfig.insideBlock)
 							{
-								world.setBlockState(blockpos$Mutable, downward == 1 ? blocksConfig.topBlock : blocksConfig.middleBlock, 2);
+								world.setBlockState(blockpos$Mutable, downward == 1 ? featureConfig.topBlock : featureConfig.middleBlock, 2);
 							}
 
 							blockpos$Mutable.move(Direction.DOWN); //moves down 1 every loop

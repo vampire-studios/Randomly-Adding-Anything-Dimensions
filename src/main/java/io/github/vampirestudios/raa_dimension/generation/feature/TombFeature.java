@@ -1,11 +1,10 @@
 package io.github.vampirestudios.raa_dimension.generation.feature;
 
-import io.github.vampirestudios.raa.RandomlyAddingAnything;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionData;
-import io.github.vampirestudios.raa.utils.FeatureUtils;
-import io.github.vampirestudios.raa.utils.Rands;
-import io.github.vampirestudios.raa.utils.Utils;
-import io.github.vampirestudios.raa.utils.noise.old.OctaveOpenSimplexNoise;
+import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
+import io.github.vampirestudios.raa_dimension.utils.FeatureUtils;
+import io.github.vampirestudios.raa_dimension.utils.old.OctaveOpenSimplexNoise;
+import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -14,10 +13,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.surfacebuilder.SurfaceConfig;
@@ -31,16 +29,16 @@ public class TombFeature extends Feature<DefaultFeatureConfig> {
     private static final OctaveOpenSimplexNoise offsetNoise = new OctaveOpenSimplexNoise(new Random(0), 2, 30D, 4D, 2D);
     private static final BlockState AIR = Blocks.AIR.getDefaultState();
     private static final EntityType<?> SKELETON = EntityType.SKELETON;
-    private static final Identifier LOOT_TABLE = new Identifier(RandomlyAddingAnything.MOD_ID, "chest/tomb");
+    private static final Identifier LOOT_TABLE = new Identifier(RAADimensionAddon.MOD_ID, "chest/tomb");
     private static BlockState STONE;
 
     public TombFeature(DimensionData dimensionData) {
-        super(DefaultFeatureConfig::deserialize, DefaultFeatureConfig::method_26619);
-        STONE = Registry.BLOCK.get(new Identifier(RandomlyAddingAnything.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")).getDefaultState();
+        super(DefaultFeatureConfig.CODEC);
+        STONE = Registry.BLOCK.get(new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")).getDefaultState();
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> chunkGenerator, Random rand, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random rand, BlockPos pos, DefaultFeatureConfig config) {
         if (world.getBlockState(pos.add(0, -3, 0)).isAir() || !world.getBlockState(pos.add(0, -3, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
         final BiomeSource source = chunkGenerator.getBiomeSource();
@@ -48,7 +46,7 @@ public class TombFeature extends Feature<DefaultFeatureConfig> {
         return this.generate(world, rand, pos.add(0, -3, 0), (x, y, z) -> source.getBiomeForNoiseGen(x, y, z).getSurfaceConfig());
     }
 
-    private boolean generate(IWorld world, Random rand, BlockPos pos, Coordinate3iFunction<SurfaceConfig> configFunction) {
+    private boolean generate(ServerWorldAccess world, Random rand, BlockPos pos, Coordinate3iFunction<SurfaceConfig> configFunction) {
         int centreX = pos.getX() + rand.nextInt(16) - 8;
         int centreZ = pos.getZ() + rand.nextInt(16) - 8;
         int lowY = pos.getY() - 3;
@@ -83,11 +81,11 @@ public class TombFeature extends Feature<DefaultFeatureConfig> {
             }
         }
 
-        Utils.createSpawnsFile("tomb", world, pos);
+//        Utils.createSpawnsFile("tomb", world, pos);
         return true;
     }
 
-    private void generateBarrowColumn(IWorld world, Random rand, int lowY, int heightOffset, BlockPos.Mutable pos, SurfaceConfig surfaceConfig) {
+    private void generateBarrowColumn(ServerWorldAccess world, Random rand, int lowY, int heightOffset, BlockPos.Mutable pos, SurfaceConfig surfaceConfig) {
         int upperY = lowY + heightOffset;
 
         for (int y = upperY; y >= lowY; --y) {

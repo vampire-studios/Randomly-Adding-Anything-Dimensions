@@ -1,8 +1,9 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.Dynamic;
 import io.github.vampirestudios.raa.RandomlyAddingAnything;
+import io.github.vampirestudios.raa_core.RAACore;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -15,6 +16,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
@@ -46,7 +48,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 
 
 	@Override
-	public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> changedBlock, Random rand, BlockPos position, DefaultFeatureConfig p_212245_5_) {
+	public boolean generate(ServerWorldAccess world, ChunkGenerator changedBlock, Random rand, BlockPos position, DefaultFeatureConfig p_212245_5_) {
 		//makes sure this stonehenge does not spawn too close to world height border or it will get cut off.
 		if (position.getY() > 248) {
 			return false;
@@ -100,7 +102,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		//north stone
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
 		if (template == null) {
-			RandomlyAddingAnything.LOGGER.warn("a side stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -112,7 +114,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		//East stone - rotated 90 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
 		if (template == null) {
-			RandomlyAddingAnything.LOGGER.warn("a side stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -124,7 +126,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		//south stone - rotated 180 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
 		if (template == null) {
-			RandomlyAddingAnything.LOGGER.warn("a side stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -137,7 +139,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
 		if (template == null)
 		{
-			RandomlyAddingAnything.LOGGER.warn("a side stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -152,7 +154,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
 		if (template == null)
 		{
-			RandomlyAddingAnything.LOGGER.warn("a corner stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -165,7 +167,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
 		if (template == null)
 		{
-			RandomlyAddingAnything.LOGGER.warn("a corner stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -178,7 +180,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
 		if (template == null)
 		{
-			RandomlyAddingAnything.LOGGER.warn("a corner stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -191,7 +193,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
 		if (template == null)
 		{
-			RandomlyAddingAnything.LOGGER.warn("a corner stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -213,7 +215,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 
 		if (template == null)
 		{
-			RandomlyAddingAnything.LOGGER.warn("a center stonehenge NTB does not exist!");
+			RAACore.LOGGER.warn("a center stonehenge NTB does not exist!");
 			return false;
 		}
 
@@ -226,7 +228,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 	}
 
 
-	private boolean validatePosition(IWorld world, BlockPos position) {
+	private boolean validatePosition(ServerWorldAccess world, BlockPos position) {
 		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
 		//makes sure it generates with land around it instead of cutting into cliffs or hanging over an edge by checking if block at north, east, west, and south are acceptable terrain blocks that appear only at top of land.
 		for (int x = -10; x <= 10; x = x + 5) {

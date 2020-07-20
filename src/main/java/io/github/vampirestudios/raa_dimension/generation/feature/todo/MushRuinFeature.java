@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -23,11 +23,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
-public class UndegroundBeeHiveFeature extends Feature<DefaultFeatureConfig> {
-    private final JsonConverter converter = new JsonConverter();
+public class MushRuinFeature extends Feature<DefaultFeatureConfig> {
+    private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public UndegroundBeeHiveFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
+    public MushRuinFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
         super(configDeserializer, function);
     }
 
@@ -35,11 +35,11 @@ public class UndegroundBeeHiveFeature extends Feature<DefaultFeatureConfig> {
     public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/underground_bee_nest.json"));
+            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/mushruin.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
-                put("underground_bee_nest", converter.loadStructure(finalJsonObject));
+                put("mushruin", converter.loadStructure(finalJsonObject));
             }};
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,17 +50,17 @@ public class UndegroundBeeHiveFeature extends Feature<DefaultFeatureConfig> {
             return true;
         }
 
-        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("underground_bee_nest").getSize(), 0.125f, true);
+        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("mushruin").getSize(), 0.125f);
         if (tempPos.compareTo(Vec3i.ZERO) == 0) {
             return true;
         }
         pos = new BlockPos(tempPos);
 
-        JsonConverter.StructureValues shrine = structures.get("underground_bee_nest");
+        JsonConverter.StructureValues shrine = structures.get("mushruin");
         int rotation = new Random().nextInt(4);
         for (int i = 0; i < shrine.getBlockPositions().size(); i++) {
             String currBlockType = shrine.getBlockTypes().get(shrine.getBlockStates().get(i));
-            if (currBlockType.equals("minecraft:cave_air")) {
+            if (currBlockType.equals("minecraft:air")) {
                 Vec3i currBlockPos = shrine.getBlockPositions().get(i);
                 Map<String, String> currBlockProp = shrine.getBlockProperties().get(shrine.getBlockStates().get(i));
 
@@ -70,7 +70,7 @@ public class UndegroundBeeHiveFeature extends Feature<DefaultFeatureConfig> {
             }
         }
 
-        Utils.createSpawnsFile("underground_bee_hive", world, pos);
+        Utils.createSpawnsFile("mushroom_ruins", world, pos);
 
         return true;
     }

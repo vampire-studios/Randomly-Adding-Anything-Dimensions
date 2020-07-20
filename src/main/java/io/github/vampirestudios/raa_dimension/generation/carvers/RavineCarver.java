@@ -2,7 +2,6 @@ package io.github.vampirestudios.raa_dimension.generation.carvers;
 
 import com.google.common.collect.ImmutableSet;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import io.github.vampirestudios.raa_dimension.api.dimension.DimensionChunkGenerators;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -118,9 +117,9 @@ public class RavineCarver extends RAACarver<ProbabilityConfig> {
                 return false;
             } else {
                 if (int_7 < 11) {
-                    DimensionChunkGenerators generator = data.getDimensionChunkGenerator();
+                    /*DimensionChunkGenerators generator = data.getDimensionChunkGenerator();
                     if (generator == DimensionChunkGenerators.FLOATING || generator == DimensionChunkGenerators.PRE_CLASSIC_FLOATING || generator == DimensionChunkGenerators.LAYERED_FLOATING)
-                        return true;
+                        return true;*/
                     chunk_1.setBlockState(blockPos$Mutable_1, LAVA.getBlockState(), false);
                 } else {
                     chunk_1.setBlockState(blockPos$Mutable_1, CAVE_AIR, false);

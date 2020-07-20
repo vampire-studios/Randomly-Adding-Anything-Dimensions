@@ -1,9 +1,8 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.Dynamic;
-import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa.utils.JsonConverter;
 import io.github.vampirestudios.raa.utils.Utils;
 import io.github.vampirestudios.raa.utils.WorldStructureManipulation;
@@ -12,8 +11,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
@@ -26,23 +23,23 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CaveCampfireFeature extends Feature<DefaultFeatureConfig> {
-    private JsonConverter converter = new JsonConverter();
+public class UndegroundBeeHiveFeature extends Feature<DefaultFeatureConfig> {
+    private final JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public CaveCampfireFeature(Codec<DefaultFeatureConfig> configCodec) {
-        super(configCodec);
+    public UndegroundBeeHiveFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
+        super(configDeserializer, function);
     }
 
     @Override
-    public boolean generate(ServerWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/cave_campfire.json"));
+            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/underground_bee_nest.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
-                put("cave_campfire", converter.loadStructure(finalJsonObject));
+                put("underground_bee_nest", converter.loadStructure(finalJsonObject));
             }};
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,13 +50,13 @@ public class CaveCampfireFeature extends Feature<DefaultFeatureConfig> {
             return true;
         }
 
-        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("cave_campfire").getSize(), 0.125f, true);
+        Vec3i tempPos = WorldStructureManipulation.circularSpawnCheck(world, pos, structures.get("underground_bee_nest").getSize(), 0.125f, true);
         if (tempPos.compareTo(Vec3i.ZERO) == 0) {
             return true;
         }
         pos = new BlockPos(tempPos);
 
-        JsonConverter.StructureValues shrine = structures.get("cave_campfire");
+        JsonConverter.StructureValues shrine = structures.get("underground_bee_nest");
         int rotation = new Random().nextInt(4);
         for (int i = 0; i < shrine.getBlockPositions().size(); i++) {
             String currBlockType = shrine.getBlockTypes().get(shrine.getBlockStates().get(i));
@@ -73,7 +70,7 @@ public class CaveCampfireFeature extends Feature<DefaultFeatureConfig> {
             }
         }
 
-        Utils.createSpawnsFile("cave_campfire", world, pos);
+        Utils.createSpawnsFile("underground_bee_hive", world, pos);
 
         return true;
     }

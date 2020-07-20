@@ -1,20 +1,18 @@
 package io.github.vampirestudios.raa_dimension.generation.feature;
 
-import io.github.vampirestudios.raa.RandomlyAddingAnything;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionData;
-import io.github.vampirestudios.raa.utils.FeatureUtils;
-import io.github.vampirestudios.raa.utils.Utils;
-import io.github.vampirestudios.raa.utils.noise.old.OctaveOpenSimplexNoise;
+import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
+import io.github.vampirestudios.raa_dimension.utils.FeatureUtils;
+import io.github.vampirestudios.raa_dimension.utils.old.OctaveOpenSimplexNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.ModifiableWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 
@@ -24,22 +22,22 @@ import java.util.Random;
 public class StoneCircleFeature extends Feature<DefaultFeatureConfig> {
 
     private static final OctaveOpenSimplexNoise offsetNoise = new OctaveOpenSimplexNoise(new Random(0), 2, 25D, 4D, 3D);
-    private static final Identifier LOOT_TABLE = new Identifier(RandomlyAddingAnything.MOD_ID, "chest/stone_circle");
+    private static final Identifier LOOT_TABLE = new Identifier(RAADimensionAddon.MOD_ID, "chest/stone_circle");
     private static BlockState STONE;
     private static BlockState COBBLESTONE;
 
     public StoneCircleFeature(DimensionData dimensionData) {
-        super(DefaultFeatureConfig::deserialize, DefaultFeatureConfig::method_26619);
-        STONE = Registry.BLOCK.get(new Identifier(RandomlyAddingAnything.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")).getDefaultState();
-        COBBLESTONE = Registry.BLOCK.get(new Identifier(RandomlyAddingAnything.MOD_ID, dimensionData.getName().toLowerCase() + "_cobblestone")).getDefaultState();
+        super(DefaultFeatureConfig.CODEC);
+        STONE = Registry.BLOCK.get(new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")).getDefaultState();
+        COBBLESTONE = Registry.BLOCK.get(new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_cobblestone")).getDefaultState();
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> chunkGenerator, Random rand, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random rand, BlockPos pos, DefaultFeatureConfig config) {
         return this.generate(world, rand, pos);
     }
 
-    private boolean generate(IWorld world, Random rand, BlockPos pos) {
+    private boolean generate(ServerWorldAccess world, Random rand, BlockPos pos) {
         if (world.getBlockState(pos.add(0, -1, 0)).isAir() || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
 
@@ -116,7 +114,7 @@ public class StoneCircleFeature extends Feature<DefaultFeatureConfig> {
         }
 
         //Record spawn in text file
-        Utils.createSpawnsFile("stone_circle", world, pos);
+//        Utils.createSpawnsFile("stone_circle", world, pos);
 
         return true;
     }
@@ -133,7 +131,7 @@ public class StoneCircleFeature extends Feature<DefaultFeatureConfig> {
 
                 double squaredDistanceTo = centre.getSquaredDistance(mutable) / 9D;
 
-                int localHeight = (int) offsetNoise.sample(mutable.getX(), mutable.getZ()) + (int) MathHelper.lerp(squaredDistanceTo, height, 0D) + lowY;
+                int localHeight = (int) (offsetNoise.sample(mutable.getX(), mutable.getZ()) + (int) MathHelper.lerp(squaredDistanceTo, height, 0D) + lowY);
 
                 for (int y = lowY - 5; y < localHeight + 1; ++y) {
                     mutable.setY(y);

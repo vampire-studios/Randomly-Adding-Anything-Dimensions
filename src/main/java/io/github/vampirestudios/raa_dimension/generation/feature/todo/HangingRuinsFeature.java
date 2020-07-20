@@ -1,7 +1,10 @@
-package io.github.vampirestudios.raa_dimension.generation.feature;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa.RandomlyAddingAnything;
+import io.github.vampirestudios.raa_core.RAACore;
+import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.Structure;
 import net.minecraft.structure.StructureManager;
@@ -12,6 +15,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
@@ -23,12 +27,12 @@ import java.util.function.Function;
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
 public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 
-	public HangingRuinsFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-		super(configDeserializer, function);
+	public HangingRuinsFeature(Codec<DefaultFeatureConfig> configDeserializer) {
+		super(configDeserializer);
 	}
 
 	@Override
-	public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> changedBlock, Random rand, BlockPos position, DefaultFeatureConfig config) {
+	public boolean generate(ServerWorldAccess world, ChunkGenerator changedBlock, Random rand, BlockPos position, DefaultFeatureConfig config) {
 		//makes sure this ruins does not spawn too close to world height border.
 		if (position.getY() < world.getSeaLevel() + 5) {
 			return false;
@@ -64,11 +68,11 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 
 		//UltraAmplified.LOGGER.debug("Hanging Ruins | " + position.getX() + " " + position.getY() + " "+position.getZ());
 		StructureManager templatemanager = ((ServerWorld) world.getWorld()).getSaveHandler().getStructureManager();
-		Structure template = templatemanager.getStructure(new Identifier(RandomlyAddingAnything.MOD_ID + ":hanging_ruins"));
+		Structure template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":hanging_ruins"));
 
 		if (template == null)
 		{
-			RandomlyAddingAnything.LOGGER.warn("hanging ruins NTB does not exist!");
+			RAACore.LOGGER.warn("hanging ruins NTB does not exist!");
 			return false;
 		}
 
@@ -83,7 +87,7 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 	}
 
 
-	private boolean shouldMoveDownOne(IWorld world, BlockPos.Mutable blockpos$Mutable, BlockPos.Mutable offset, BlockRotation rot) {
+	private boolean shouldMoveDownOne(ServerWorldAccess world, BlockPos.Mutable blockpos$Mutable, BlockPos.Mutable offset, BlockRotation rot) {
 
 		//if we are on a 1 block thick ledge at any point, move down one so ruins ceiling isn't exposed 
 		for (int x = -5; x <= 5; x++)

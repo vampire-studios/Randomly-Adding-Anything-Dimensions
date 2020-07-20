@@ -1,29 +1,27 @@
 package io.github.vampirestudios.raa_dimension.generation.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 
 import java.util.Random;
-import java.util.function.Function;
 
 public class IceSpikeFeature extends Feature<DefaultFeatureConfig> {
 
    private Block blockToUse;
 
-   public IceSpikeFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-      super(configDeserializer, function);
+   public IceSpikeFeature(Codec<DefaultFeatureConfig> configDeserializer) {
+      super(configDeserializer);
    }
 
-   public boolean generate(IWorld iWorld, ChunkGenerator<? extends ChunkGeneratorConfig> chunkGenerator, Random random, BlockPos blockPos, DefaultFeatureConfig defaultFeatureConfig) {
+   public boolean generate(ServerWorldAccess iWorld, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos, DefaultFeatureConfig defaultFeatureConfig) {
       while(iWorld.isAir(blockPos) && blockPos.getY() > 2) {
          blockPos = blockPos.down();
       }
@@ -49,14 +47,14 @@ public class IceSpikeFeature extends Feature<DefaultFeatureConfig> {
                if ((m == 0 && n == 0 || g * g + h * h <= f * f) && (m != -l && m != l && n != -l && n != l || random.nextFloat() <= 0.75F)) {
                   BlockState blockState = iWorld.getBlockState(blockPos.add(m, k, n));
                   Block block = blockState.getBlock();
-                  if (blockState.isAir() || isDirt(block)) {
+                  if (blockState.isAir() || isSoil(block)) {
                      this.setBlockState(iWorld, blockPos.add(m, k, n), Blocks.PACKED_ICE.getDefaultState());
                   }
 
                   if (k != 0 && l > 1) {
                      blockState = iWorld.getBlockState(blockPos.add(m, -k, n));
                      block = blockState.getBlock();
-                     if (blockState.isAir() || isDirt(block)) {
+                     if (blockState.isAir() || isSoil(block)) {
                         this.setBlockState(iWorld, blockPos.add(m, -k, n), Blocks.PACKED_ICE.getDefaultState());
                      }
                   }

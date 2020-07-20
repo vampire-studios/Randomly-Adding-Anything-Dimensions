@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.portalHub;
+package io.github.vampirestudios.raa_dimension.generation.feature.todo.portalHub;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -14,30 +14,21 @@ import io.github.vampirestudios.raa_dimension.init.Dimensions;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.impl.resource.loader.ResourceManagerHelperImpl;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.Resource;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.function.Function;
 
 public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
     private final JsonConverter converter = new JsonConverter();

@@ -1,11 +1,8 @@
 package io.github.vampirestudios.raa_dimension.generation.feature.config;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.gen.feature.FeatureConfig;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
@@ -13,16 +10,24 @@ public class ColumnBlocksConfig implements FeatureConfig {
 	public final BlockState topBlock;
 	public final BlockState middleBlock;
 	public final BlockState insideBlock;
+	public static final Codec<ColumnBlocksConfig> CODEC = RecordCodecBuilder.create((instance) -> {
+		return instance.group(BlockState.CODEC.fieldOf("topBlock").forGetter((chanceAndTypeConfig) -> {
+			return chanceAndTypeConfig.topBlock;
+		}), BlockState.CODEC.fieldOf("middleBlock").forGetter((chanceAndTypeConfig) -> {
+			return chanceAndTypeConfig.middleBlock;
+		}), BlockState.CODEC.fieldOf("insideBlock").forGetter((chanceAndTypeConfig) -> {
+			return chanceAndTypeConfig.insideBlock;
+		})).apply(instance, ColumnBlocksConfig::new);
+	});
 
-
-	public ColumnBlocksConfig(BlockState blockState, BlockState blockState2, BlockState blockState3) {
-		this.topBlock = blockState;
-		this.middleBlock = blockState2;
-		this.insideBlock = blockState3;
+	public ColumnBlocksConfig(BlockState topBlock, BlockState middleBlock, BlockState insideBlock) {
+		this.topBlock = topBlock;
+		this.middleBlock = middleBlock;
+		this.insideBlock = insideBlock;
 	}
 
 
-	@Override
+	/*@Override
 	public <T> Dynamic<T> serialize(DynamicOps<T> ops) {
 		return new Dynamic<>(
 			ops,
@@ -42,5 +47,5 @@ public class ColumnBlocksConfig implements FeatureConfig {
 		BlockState middleBlock = ops.get("middle_block").map(BlockState::deserialize).orElse(Blocks.AIR.getDefaultState());
 		BlockState insideBlock = ops.get("inside_block").map(BlockState::deserialize).orElse(Blocks.AIR.getDefaultState());
 		return new ColumnBlocksConfig(topBlock, middleBlock, insideBlock);
-	}
+	}*/
 }
