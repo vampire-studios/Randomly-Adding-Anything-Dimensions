@@ -9,10 +9,12 @@ import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLangua
 import io.github.vampirestudios.raa_dimension.config.DimensionsConfig;
 import io.github.vampirestudios.raa_dimension.config.GeneralConfig;
 import io.github.vampirestudios.raa_dimension.config.SurfaceBuilderConfig;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.RAADimensionSkyProperties;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
 import io.github.vampirestudios.raa_dimension.init.Dimensions;
 import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
 import io.github.vampirestudios.raa_dimension.init.Textures;
+import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import io.github.vampirestudios.vampirelib.utils.Utils;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
@@ -23,6 +25,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,12 +51,13 @@ public class RAADimensionAddon implements RAAAddon {
 		return MOD_ID;
 	}
 
-	public static final int DIMENSION_NUMBER = 10;
+	public static int DIMENSION_NUMBER = 0;
 
 	@Override
 	public void onInitialize() {
 		AutoConfig.register(GeneralConfig.class, GsonConfigSerializer::new);
 		CONFIG = AutoConfig.getConfigHolder(GeneralConfig.class).getConfig();
+		DIMENSION_NUMBER = CONFIG.dimensionGenAmount;
 		String[] fluids = new String[]{"minecraft:water","minecraft:air","minecraft:lava"};
 		DimensionLanguageManager.init();
 		CivsLanguageManager.init();
@@ -108,53 +113,73 @@ public class RAADimensionAddon implements RAAAddon {
 					}
 					System.out.println("Dimension Type JSON: " + dimensionTypeBuilder.buildTo(new JsonObject()).toOutputString());
 				});
+				serverResourcePackBuilder.addNoiseSettingsBuilder(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings"), noiseSettingsBuilder -> {
+					noiseSettingsBuilder.defaultBlock(stateDataBuilder -> {
+						stateDataBuilder.name(Utils.appendToPath(dimensionData.getId(), "_stone").toString());
+					}).defaultFluid(blockStateBuilder -> {
+						blockStateBuilder.name(Rands.list(Arrays.asList(fluids)));
+						blockStateBuilder.setProperty("level", "0");
+						/*blockStateBuilder.jsonString("Name", Rands.list(Arrays.asList(fluids)))
+								.jsonObject("Properties", jsonArrayBuilder -> jsonArrayBuilder.with("level", 0)jsonArrayBuilder.buildTo(new JsonObject()));*/
+					}).bedrockFloorPosition(Rands.randIntRange(0, 255))
+						.bedrockRoofPosition(Rands.randIntRange(0, 255))
+						.disableMobGeneration(Rands.chance(3))
+						.seaLevel(Rands.randIntRange(0, 255))
+						.noiseConfig(noiseConfigBuilder -> {
+							noiseConfigBuilder.amplified(Rands.chance(3))
+								.densityFactor(Rands.randFloatRange(0.0F, 1F))
+								.densityOffset(Rands.randFloatRange(0, 1))
+								.height(Rands.randIntRange(0, 255))
+								.sizeVertical(Rands.randIntRange(1, 4))
+								.sizeHorizontal(Rands.randIntRange(1, 4))
+								.simplexSurfaceNoise(Rands.chance(3))
+								.randomDensityOffset(Rands.chance(3))
+								.islandNoiseOverride(Rands.chance(3))
+								.bottomSlide(slideConfigBuilder -> {
+									slideConfigBuilder.offset(Rands.randInt(5))
+										.size(Rands.randInt(5))
+										.target(Rands.randInt(5));
+								}).topSlide(slideConfigBuilder -> {
+									slideConfigBuilder.offset(Rands.randInt(5))
+										.size(Rands.randIntRange(0, 255))
+										.target(Rands.randInt(5));
+								}).sampling(noiseSamplingConfigBuilder -> {
+									noiseSamplingConfigBuilder.xzFactor(Rands.randFloatRange(0.001F, 10))
+										.xzScale(Rands.randFloatRange(0.001F, 10))
+										.yFactor(Rands.randFloatRange(0.001F, 10))
+										.yScale(Rands.randFloatRange(0.001F, 10.0F));
+								});
+						}).structureManager(structureManagerBuilder -> {
+
+						});
+				});
 				serverResourcePackBuilder.addDimension(dimensionData.getId(), dimensionBuilder -> {
 					dimensionBuilder.dimensionType(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_type"));
 					dimensionBuilder.noiseGenerator(noiseChunkGeneratorTypeBuilder -> {
-						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Utils.appendToPath(dimensionData.getId(), "_biome_0").toString()));
-						noiseChunkGeneratorTypeBuilder.customSettings(generatorSettingsBuilder -> {
-							generatorSettingsBuilder.defaultBlock(stateDataBuilder -> {
-								stateDataBuilder.name(Utils.appendToPath(dimensionData.getId(), "_stone").toString());
-							}).defaultFluid(blockStateBuilder -> {
-								blockStateBuilder.jsonString("Name", Rands.list(Arrays.asList(fluids)))
-										.jsonObject("Properties", jsonArrayBuilder -> jsonArrayBuilder.buildTo(new JsonObject()));
-							}).bedrockFloorPosition(Rands.randIntRange(0, 255))
-									.bedrockRoofPosition(Rands.randIntRange(0, 255))
-									.disableMobGeneration(Rands.chance(3))
-									.seaLevel(Rands.randIntRange(0, 255))
-									.noiseConfig(noiseConfigBuilder ->
-											noiseConfigBuilder.amplified(Rands.chance(3))
-													.densityFactor(Rands.randFloatRange(0.0F, 1F))
-													.densityOffset(Rands.randFloatRange(0, 1))
-													.height(Rands.randIntRange(0, 255))
-													.sizeVertical(Rands.randIntRange(1, 4))
-													.sizeHorizontal(Rands.randIntRange(1, 4))
-													.simplexSurfaceNoise(Rands.chance(3))
-													.randomDensityOffset(Rands.chance(3))
-													.islandNoiseOverride(Rands.chance(3))
-													.bottomSlide(slideConfigBuilder -> {
-														slideConfigBuilder.offset(Rands.randInt(5))
-																.size(Rands.randInt(5))
-																.target(Rands.randInt(5));
-													}).topSlide(slideConfigBuilder -> {
-												slideConfigBuilder.offset(Rands.randInt(5))
-														.size(Rands.randInt(5))
-														.target(Rands.randInt(5));
-											}).sampling(noiseSamplingConfigBuilder -> {
-												noiseSamplingConfigBuilder.xzFactor(Rands.randFloatRange(0.001F, 5))
-														.xzScale(Rands.randFloatRange(0.001F, 5))
-														.yFactor(Rands.randFloatRange(0.001F, 5))
-														.yScale(Rands.randFloatRange(0.001F, 1.0F));
-											})
-									).structureManager(structureManagerBuilder -> {
-
+						noiseChunkGeneratorTypeBuilder.multiNoiseBiomeSource(multiNoiseBiomeSourceBuilder -> {
+							multiNoiseBiomeSourceBuilder.addBiome(biomeBuilder -> {
+								dimensionData.getBiomeData().forEach(dimensionBiomeData -> {
+									biomeBuilder.biome(dimensionBiomeData.getId().toString());
+									biomeBuilder.parameters(biomeParametersBuilder -> {
+										biomeParametersBuilder.altitude(Rands.randFloatRange(-1.0F, 1.0F));
+										biomeParametersBuilder.humidity(Rands.randFloatRange(-1.0F, 1.0F));
+										biomeParametersBuilder.offset(Rands.randFloatRange(0.0F, 1.0F));
+										biomeParametersBuilder.temperature(Rands.randFloatRange(-1.0F, 1.0F));
+										biomeParametersBuilder.weirdness(Rands.randFloatRange(-1.0F, 1.0F));
+									});
+								});
 							});
+							multiNoiseBiomeSourceBuilder.seed((int) Rands.getRandom().nextLong());
 						});
+//						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Utils.appendToPath(dimensionData.getId(), "_biome_0").toString()));
+						noiseChunkGeneratorTypeBuilder.noiseSettings(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings").toString());
 						noiseChunkGeneratorTypeBuilder.seed((int) Rands.getRandom().nextLong());
 					});
 				});
 			});
 		});
+		Dimensions.DIMENSIONS.forEach(dimensionData -> SkyPropertiesAccessor.getBY_DIMENSION_TYPE().put(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId()),
+				new RAADimensionSkyProperties(dimensionData)));
 	}
 
 }

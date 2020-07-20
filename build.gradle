@@ -35,6 +35,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modImplementation "io.github.vampirestudios:raa-core:${project.core_version}"
+
+	modImplementation "com.github.vampire-studios:Customized-Astral-Body:bab88029f7"
+	include "com.github.vampire-studios:Customized-Astral-Body:bab88029f7"
 }
 
 processResources {
