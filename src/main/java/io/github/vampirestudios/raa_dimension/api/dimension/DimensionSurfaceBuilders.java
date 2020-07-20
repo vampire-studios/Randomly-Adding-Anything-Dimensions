@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.api.dimension;
 
-import io.github.vampirestudios.raa.registries.SurfaceBuilders;
+import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
 import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 
 public enum DimensionSurfaceBuilders {

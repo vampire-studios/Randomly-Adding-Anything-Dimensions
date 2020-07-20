@@ -1,3 +1,4 @@
+/*
 package io.github.vampirestudios.raa_dimension.api.dimension;
 
 import io.github.vampirestudios.raa.generation.dimensions.data.DimensionData;
@@ -65,16 +66,19 @@ public enum DimensionChunkGenerators {
         if (this == TOTALLY_CUSTOM) return ChunkGenerators.TOTALLY_CUSTOM.create(world, biomeSource, config);
         if (this == LAYERED_OVERWORLD) return ChunkGenerators.LAYERED_OVERWORLD.create(world, biomeSource, config);
 
-        /*if (this == CUSTOM_OVERWORLD && FabricLoader.getInstance().isModLoaded("simplexterrain")) {
+        */
+/*if (this == CUSTOM_OVERWORLD && FabricLoader.getInstance().isModLoaded("simplexterrain")) {
             return ChunkGenerators.CUSTOM_SURFACE.create(world, biomeSource, config);
         } else {
             if (!FabricLoader.getInstance().isModLoaded("simplexterrain")) {
                 data.setDimensionChunkGenerator(Rands.values(DimensionChunkGenerators.values()));
                 data.getDimensionChunkGenerator().getChunkGenerator(world, biomeSource, data, stoneBlock);
             }
-        }*/
+        }*//*
+
 
         return ChunkGenerators.SURFACE.create(world, biomeSource, config);
     }
 
 }
+*/

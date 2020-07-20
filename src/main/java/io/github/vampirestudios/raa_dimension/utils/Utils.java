@@ -1,10 +1,12 @@
 package io.github.vampirestudios.raa_dimension.utils;
 
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
+import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
@@ -72,7 +74,6 @@ public class Utils {
         Map<String, TernarySurfaceConfig> surfaceBuilders = new HashMap<>();
         surfaceBuilders.put("minecraft:gravel_config", SurfaceBuilder.GRAVEL_CONFIG);
         surfaceBuilders.put("minecraft:grass_config", SurfaceBuilder.GRASS_CONFIG);
-        surfaceBuilders.put("minecraft:dirt_config", SurfaceBuilder.DIRT_CONFIG);
         surfaceBuilders.put("minecraft:stone_config", SurfaceBuilder.STONE_CONFIG);
         surfaceBuilders.put("minecraft:coarse_dirt_config", SurfaceBuilder.COARSE_DIRT_CONFIG);
         surfaceBuilders.put("minecraft:sand_config", SurfaceBuilder.SAND_CONFIG);
@@ -91,7 +92,6 @@ public class Utils {
     public static TernarySurfaceConfig fromIdentifierToConfig(Identifier name) {
         if (name.equals(new Identifier("gravel_config"))) return SurfaceBuilder.GRAVEL_CONFIG;
         if (name.equals(new Identifier("grass_config"))) return SurfaceBuilder.GRASS_CONFIG;
-        if (name.equals(new Identifier("dirt_config"))) return SurfaceBuilder.DIRT_CONFIG;
         if (name.equals(new Identifier("stone_config"))) return SurfaceBuilder.STONE_CONFIG;
         if (name.equals(new Identifier("coarse_dirt_config"))) return SurfaceBuilder.COARSE_DIRT_CONFIG;
         if (name.equals(new Identifier("sand_config"))) return SurfaceBuilder.SAND_CONFIG;
@@ -110,7 +110,6 @@ public class Utils {
         if (config.equals(SurfaceBuilder.GRAVEL_CONFIG)) return new Identifier("gravel_config");
 
         if (config.equals(SurfaceBuilder.GRASS_CONFIG)) return new Identifier("grass_config");
-        if (config.equals(SurfaceBuilder.DIRT_CONFIG)) return new Identifier("dirt_config");
         if (config.equals(SurfaceBuilder.STONE_CONFIG)) return new Identifier("stone_config");
         if (config.equals(SurfaceBuilder.COARSE_DIRT_CONFIG)) return new Identifier("coarse_dirt_config");
         if (config.equals(SurfaceBuilder.SAND_CONFIG)) return new Identifier("sand_config");
@@ -125,6 +124,20 @@ public class Utils {
         if (config.equals(SurfaceBuilder.WARPED_NYLIUM_CONFIG)) return new Identifier("warped_nylium_config");
 
         return new Identifier("grass_config");
+    }
+
+    public static SurfaceBuilder<?> newRandomSurfaceBuilder() {
+        //random surface builder
+        if (Rands.chance(2)) {
+            return SurfaceBuilderGenerator.RANDOM_SURFACE_BUILDER.getRandom(Rands.getRandom());
+        }
+
+        //choose the default type of surface builder
+        SurfaceBuilder<?> sb = Registry.SURFACE_BUILDER.get(new Identifier(Rands.list(surfaceBuilders)));
+        if (sb == null) { //dunno why it's null sometimes, but if it is, default to the default
+            sb = SurfaceBuilder.DEFAULT; //TODO: fix this instead of a hack
+        }
+        return sb;
     }
 
     public static boolean checkBitFlag(int toCheck, int flag) {

@@ -6,8 +6,18 @@ import com.swordglowsblue.artifice.api.Artifice;
 import io.github.vampirestudios.raa_core.RAACore;
 import io.github.vampirestudios.raa_core.api.RAAAddon;
 import io.github.vampirestudios.raa_core.api.name_generation.NameGenerator;
+import io.github.vampirestudios.raa_dimension.api.namegeneration.CivsLanguageManager;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLanguageManager;
+import io.github.vampirestudios.raa_dimension.config.DimensionsConfig;
+import io.github.vampirestudios.raa_dimension.config.GeneralConfig;
+import io.github.vampirestudios.raa_dimension.config.SurfaceBuilderConfig;
+import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
+import io.github.vampirestudios.raa_dimension.init.Dimensions;
+import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
+import io.github.vampirestudios.raa_dimension.init.Textures;
 import io.github.vampirestudios.vampirelib.utils.Rands;
+import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -15,7 +25,6 @@ import net.minecraft.item.Items;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.Registry;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +35,9 @@ public class RAADimensionAddon implements RAAAddon {
 
 	public static final ItemGroup RAA_DIMENSION_BLOCKS = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "dimension_blocks"), () ->
 			new ItemStack(Items.STONE));
+	public static GeneralConfig CONFIG;
+	public static SurfaceBuilderConfig SURFACE_BUILDER_CONFIG;
+	public static DimensionsConfig DIMENSIONS_CONFIG;
 
 	@Override
 	public String[] shouldLoadAfter() {
@@ -41,8 +53,11 @@ public class RAADimensionAddon implements RAAAddon {
 
 	@Override
 	public void onInitialize() {
+		AutoConfig.register(GeneralConfig.class, GsonConfigSerializer::new);
+		CONFIG = AutoConfig.getConfigHolder(GeneralConfig.class).getConfig();
 		String[] fluids = new String[]{"minecraft:water","minecraft:air","minecraft:lava"};
 		DimensionLanguageManager.init();
+		CivsLanguageManager.init();
 		List<String> CHUNK_GENERATOR_TYPES = ImmutableList.of(
 				"overworld",
 				"amplified",
@@ -51,6 +66,28 @@ public class RAADimensionAddon implements RAAAddon {
 				"caves",
 				"floating_islands"
 		);
+		Textures.init();
+		SurfaceBuilders.init();
+
+		SurfaceBuilderGenerator.registerElements();
+		SURFACE_BUILDER_CONFIG = new SurfaceBuilderConfig("surface_builders/surface_builder_config");
+		if (!SURFACE_BUILDER_CONFIG.fileExist()) {
+			SURFACE_BUILDER_CONFIG.generate();
+			SURFACE_BUILDER_CONFIG.save();
+		} else {
+			SURFACE_BUILDER_CONFIG.load();
+		}
+
+		DIMENSIONS_CONFIG = new DimensionsConfig("dimensions/dimension_config");
+		if (CONFIG.dimensionGenAmount > 0) {
+			if (!DIMENSIONS_CONFIG.fileExist()) {
+				DIMENSIONS_CONFIG.generate();
+				DIMENSIONS_CONFIG.save();
+			} else {
+				DIMENSIONS_CONFIG.load();
+			}
+		}
+		Dimensions.createDimensions();
 
 		Artifice.registerData(new Identifier(getId(), "data_pack"), serverResourcePackBuilder -> {
 			int a = 0;

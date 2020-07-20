@@ -2,6 +2,7 @@ package io.github.vampirestudios.raa_dimension.generation.surface;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.Biome;
@@ -20,7 +21,7 @@ public class LazyNoiseSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
     public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState stone, BlockState water, int var11, long seed, TernarySurfaceConfig config) {
         BlockPos.Mutable delPos = new BlockPos.Mutable(x, height, z);
         for (int i = 0; i < height; i++) {
-            chunk.setBlockState(delPos, AIR, false);
+            chunk.setBlockState(delPos, Blocks.AIR.getDefaultState(), false);
             delPos.offset(Direction.DOWN);
         }
 
@@ -30,7 +31,7 @@ public class LazyNoiseSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
             pos.offset(Direction.UP);
         }
         for (int i = 0; i < 3; i++) {
-            chunk.setBlockState(pos, DIRT, false);
+            chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
             pos.offset(Direction.UP);
         }
         chunk.setBlockState(pos, config.getTopMaterial(), false);

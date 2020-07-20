@@ -1,41 +1,29 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
 import com.google.common.collect.ImmutableList;
-import io.github.vampirestudios.raa.api.dimension.DimensionChunkGenerators;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionBiomeData;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionData;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionTreeData;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionTreeTypes;
-import io.github.vampirestudios.raa.generation.feature.StoneCircleFeature;
-import io.github.vampirestudios.raa.generation.feature.TombFeature;
-import io.github.vampirestudios.raa.generation.feature.config.ColumnBlocksConfig;
-import io.github.vampirestudios.raa.generation.feature.config.CorruptedFeatureConfig;
-import io.github.vampirestudios.raa.generation.feature.tree.foliage.*;
-import io.github.vampirestudios.raa.registries.Decorators;
-import io.github.vampirestudios.raa.registries.Features;
-import io.github.vampirestudios.raa.registries.SurfaceBuilders;
-import io.github.vampirestudios.raa.utils.Rands;
-import io.github.vampirestudios.raa.utils.Utils;
-import io.github.vampirestudios.vampirelib.utils.registry.WoodType;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionBiomeData;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionTreeData;
+import io.github.vampirestudios.raa_dimension.utils.Utils;
+import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeEffects;
-import net.minecraft.world.biome.DefaultBiomeFeatures;
 import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.decorator.*;
-import net.minecraft.world.gen.feature.*;
+import net.minecraft.world.gen.UniformIntDistribution;
+import net.minecraft.world.gen.decorator.CountExtraDecoratorConfig;
+import net.minecraft.world.gen.decorator.Decorator;
+import net.minecraft.world.gen.feature.ConfiguredFeatures;
+import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.RandomFeatureConfig;
 import net.minecraft.world.gen.foliage.*;
-import net.minecraft.world.gen.stateprovider.SimpleBlockStateProvider;
 import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
-
-import java.util.ArrayList;
 
 public class CustomDimensionalBiome extends Biome {
 
@@ -43,8 +31,9 @@ public class CustomDimensionalBiome extends Biome {
 
     public CustomDimensionalBiome(DimensionData dimensionData, DimensionBiomeData biomeData) {
         super((new Settings()
-                .configureSurfaceBuilder((SurfaceBuilder<TernarySurfaceConfig>) Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()),
-                        biomeData.getSurfaceConfig())
+                .surfaceBuilder(((SurfaceBuilder<TernarySurfaceConfig>) Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()))
+                        .method_30478(biomeData.getSurfaceConfig())
+                )
                 .precipitation(Utils.checkBitFlag(dimensionData.getFlags(), Utils.FROZEN) ? Precipitation.SNOW : Rands.chance(10) ? Precipitation.RAIN : Precipitation.NONE)
                 .category(Category.PLAINS)
                 .depth(biomeData.getDepth())
@@ -62,20 +51,20 @@ public class CustomDimensionalBiome extends Biome {
         ));
         this.dimensionData = dimensionData;
 
-        if (!(dimensionData.getDimensionChunkGenerator() == DimensionChunkGenerators.FLOATING))
+        /*if (!(dimensionData.getDimensionChunkGenerator() == DimensionChunkGenerators.FLOATING))
             if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED) || Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED))
                 this.addStructureFeature(Feature.MINESHAFT.configure(new MineshaftFeatureConfig((Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) ? 0.016D : 0.004D,
-                        MineshaftFeature.Type.NORMAL)));
+                        MineshaftFeature.Type.NORMAL)));*/
 
-        Features.addDefaultCarvers(this, dimensionData);
-        Features.addDefaultSprings(this, dimensionData);
+//        Features.addDefaultCarvers(this, dimensionData);
+//        Features.addDefaultSprings(this, dimensionData);
 
         DefaultBiomeFeatures.addDefaultLakes(this);
         DefaultBiomeFeatures.addDungeons(this);
-        if (Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()) == SurfaceBuilders.HYPER_FLAT) {
-            DefaultBiomeFeatures.addMoreSeagrass(this);
+        /*if (Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()) == SurfaceBuilders.HYPER_FLAT) {
+            DefaultBiomeFeatures.addSeagrassOnStone(this);
             DefaultBiomeFeatures.addKelp(this);
-        }
+        }*/
 
         if (Rands.chance(4) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.DRY) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.MOLTEN)) {
             DefaultBiomeFeatures.addPlainsTallGrass(this);
@@ -84,16 +73,22 @@ public class CustomDimensionalBiome extends Biome {
         DefaultBiomeFeatures.addDefaultOres(this);
         DefaultBiomeFeatures.addDefaultDisks(this);
 
-        if (!Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.CORRUPTED)) {
+        /*if (!Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.CORRUPTED)) {
             for (DimensionTreeData treeData : biomeData.getTreeData()) {
                 if (treeData.getTreeType() == DimensionTreeTypes.MEGA_JUNGLE || treeData.getTreeType() == DimensionTreeTypes.MEGA_SPRUCE || treeData.getTreeType() == DimensionTreeTypes.DARK_OAK) {
-                    MegaTreeFeatureConfig config = (new MegaTreeFeatureConfig.Builder(new SimpleBlockStateProvider(treeData.getWoodType().woodType.getLog().getDefaultState()), new SimpleBlockStateProvider(treeData.getWoodType().woodType.getLeaves().getDefaultState())))
-                            .baseHeight(treeData.getBaseHeight()).heightInterval(treeData.getFoliageHeightRandom()).build();
+                    TreeFeatureConfig config = (new TreeFeatureConfig.Builder(
+                            new SimpleBlockStateProvider(treeData.getWoodType().woodType.getLog().getDefaultState()),
+                            new SimpleBlockStateProvider(treeData.getWoodType().woodType.getLeaves().getDefaultState()),
+                            getFoliagePlacer(treeData),
+                            new DarkOakTrunkPlacer(6, 2, 1),
+                            new ThreeLayersFeatureSize(1, 1, 0, 1, 2, OptionalInt.empty())
+                    )).maxWaterDepth(2147483647).heightmap(Heightmap.Type.MOTION_BLOCKING).ignoreVines().build();
                     this.addFeature(GenerationStep.Feature.VEGETAL_DECORATION,
                             getMegaTree(treeData.getTreeType())
                                     .configure(
                                             config
                                     ).createDecoratedFeature(Decorator.COUNT_EXTRA_HEIGHTMAP.configure(new CountExtraChanceDecoratorConfig(0, treeData.getChance(), 1))));
+                    ConfiguredFeatures.DARK_OAK
                 } else {
                     BranchedTreeFeatureConfig config1 = getTreeConfig(treeData);
                     this.addFeature(GenerationStep.Feature.VEGETAL_DECORATION,
@@ -132,7 +127,7 @@ public class CustomDimensionalBiome extends Biome {
             if (biomeData.spawnsCratersInNonCorrupted()) {
                 this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.CRATER_FEATURE.configure(new CorruptedFeatureConfig(false)).createDecoratedFeature(Decorator.COUNT_EXTRA_HEIGHTMAP.configure(new CountExtraChanceDecoratorConfig(0, Rands.randFloatRange(0, 1F), 1))));
             }
-        }
+        }*/
 
         float campfireChance = biomeData.getCampfireChance();
         float outpostChance = biomeData.getOutpostChance();
@@ -154,13 +149,13 @@ public class CustomDimensionalBiome extends Biome {
             towerChance = Rands.randFloatRange(0.002F, 0.003F);
         }
 
-        if (dimensionData.getDimensionChunkGenerator().equals(DimensionChunkGenerators.CAVES)) {
+        /*if (dimensionData.getDimensionChunkGenerator().equals(DimensionChunkGenerators.CAVES)) {
             this.addFeature(GenerationStep.Feature.UNDERGROUND_DECORATION, Feature.BASALT_PILLAR.configure(FeatureConfig.DEFAULT)
                     .createDecoratedFeature(Decorator.COUNT_RANGE.configure(new RangeDecoratorConfig(10, 0, 0, 256))));
-        }
+        }*/
 
         // TODO fix this
-        this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.OUTPOST.configure(new DefaultFeatureConfig()).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, outpostChance, 1))));
+        /*this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.OUTPOST.configure(new DefaultFeatureConfig()).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, outpostChance, 1))));
         this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.CAMPFIRE.configure(new DefaultFeatureConfig()).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, campfireChance, 1))));
         this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.TOWER.configure(new DefaultFeatureConfig()).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, towerChance, 1))));
         this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.FOSSIL.configure(new DefaultFeatureConfig()).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, fossilChance, 1))));
@@ -188,7 +183,7 @@ public class CustomDimensionalBiome extends Biome {
                                 new RangeDecoratorConfig(2, 70, 0, 220)
                         )
                 )
-        );
+        );*/
         /*this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES,
                 Features.HANGING_RUINS.configure(FeatureConfig.DEFAULT).createDecoratedFeature(
                         RAAPlacements.LEDGE_UNDERSIDE_MINI_FEATURE.configure(
@@ -212,14 +207,14 @@ public class CustomDimensionalBiome extends Biome {
         if (biomeData.hasMushrooms()) {
             this.addFeature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
                     ImmutableList.of(
-                            Feature.HUGE_BROWN_MUSHROOM.configure(DefaultBiomeFeatures.HUGE_BROWN_MUSHROOM_CONFIG).withChance(1)),
-                    Feature.NORMAL_TREE.configure(DefaultBiomeFeatures.OAK_TREE_CONFIG)
-            )).createDecoratedFeature(Decorator.COUNT_EXTRA_HEIGHTMAP.configure(new CountExtraChanceDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
+                            ConfiguredFeatures.BROWN_MUSHROOM_GIANT.withChance(1)),
+                    ConfiguredFeatures.OAK
+            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
             this.addFeature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
                     ImmutableList.of(
-                            Feature.HUGE_RED_MUSHROOM.configure(DefaultBiomeFeatures.HUGE_RED_MUSHROOM_CONFIG).withChance(1)),
-                    Feature.NORMAL_TREE.configure(DefaultBiomeFeatures.OAK_TREE_CONFIG)
-            )).createDecoratedFeature(Decorator.COUNT_EXTRA_HEIGHTMAP.configure(new CountExtraChanceDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
+                            ConfiguredFeatures.RED_MUSHROOM_GIANT.withChance(1)),
+                    ConfiguredFeatures.OAK
+            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
         }
         if (biomeData.hasMossyRocks())
             DefaultBiomeFeatures.addMossyRocks(this);
@@ -229,7 +224,7 @@ public class CustomDimensionalBiome extends Biome {
         DefaultBiomeFeatures.addSprings(this);
         DefaultBiomeFeatures.addFrozenTopLayer(this);
 
-        if ((Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) || (Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED))) {
+        /*if ((Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) || (Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED))) {
             StoneCircleFeature STONE_CIRCLE = Features.register(String.format("%s_stone_circle", dimensionData.getName().toLowerCase()), new StoneCircleFeature(dimensionData));
             this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, STONE_CIRCLE.configure(FeatureConfig.DEFAULT).createDecoratedFeature(Decorator.CHANCE_HEIGHTMAP.configure(new ChanceDecoratorConfig(120))));
 
@@ -237,52 +232,52 @@ public class CustomDimensionalBiome extends Biome {
 
             TombFeature tomb = Features.register(String.format("%s_tomb", dimensionData.getName().toLowerCase()), new TombFeature(dimensionData));
             this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, tomb.configure(FeatureConfig.DEFAULT).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, 0.015f, 1))));
-        }
+        }*/
 
         if (dimensionData.getMobs().containsKey("sheep"))
-            this.addSpawn(EntityCategory.CREATURE, new SpawnEntry(EntityType.SHEEP, dimensionData.getMobs().get("sheep")[0], dimensionData.getMobs().get("sheep")[1], dimensionData.getMobs().get("sheep")[2]));
+            this.addSpawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.SHEEP, dimensionData.getMobs().get("sheep")[0], dimensionData.getMobs().get("sheep")[1], dimensionData.getMobs().get("sheep")[2]));
         if (dimensionData.getMobs().containsKey("pig"))
-            this.addSpawn(EntityCategory.CREATURE, new SpawnEntry(EntityType.PIG, dimensionData.getMobs().get("pig")[0], dimensionData.getMobs().get("pig")[1], dimensionData.getMobs().get("pig")[2]));
+            this.addSpawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.PIG, dimensionData.getMobs().get("pig")[0], dimensionData.getMobs().get("pig")[1], dimensionData.getMobs().get("pig")[2]));
         if (dimensionData.getMobs().containsKey("chicken"))
-            this.addSpawn(EntityCategory.CREATURE, new SpawnEntry(EntityType.CHICKEN, dimensionData.getMobs().get("chicken")[0], dimensionData.getMobs().get("chicken")[1], dimensionData.getMobs().get("chicken")[2]));
+            this.addSpawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.CHICKEN, dimensionData.getMobs().get("chicken")[0], dimensionData.getMobs().get("chicken")[1], dimensionData.getMobs().get("chicken")[2]));
         if (dimensionData.getMobs().containsKey("cow"))
-            this.addSpawn(EntityCategory.CREATURE, new SpawnEntry(EntityType.COW, dimensionData.getMobs().get("cow")[0], dimensionData.getMobs().get("cow")[1], dimensionData.getMobs().get("cow")[2]));
+            this.addSpawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.COW, dimensionData.getMobs().get("cow")[0], dimensionData.getMobs().get("cow")[1], dimensionData.getMobs().get("cow")[2]));
         if (dimensionData.getMobs().containsKey("horse"))
-            this.addSpawn(EntityCategory.CREATURE, new SpawnEntry(EntityType.HORSE, dimensionData.getMobs().get("horse")[0], dimensionData.getMobs().get("horse")[1], dimensionData.getMobs().get("horse")[2]));
+            this.addSpawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.HORSE, dimensionData.getMobs().get("horse")[0], dimensionData.getMobs().get("horse")[1], dimensionData.getMobs().get("horse")[2]));
         if (dimensionData.getMobs().containsKey("donkey"))
-            this.addSpawn(EntityCategory.CREATURE, new SpawnEntry(EntityType.DONKEY, dimensionData.getMobs().get("donkey")[0], dimensionData.getMobs().get("donkey")[1], dimensionData.getMobs().get("donkey")[2]));
+            this.addSpawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.DONKEY, dimensionData.getMobs().get("donkey")[0], dimensionData.getMobs().get("donkey")[1], dimensionData.getMobs().get("donkey")[2]));
 
         if (dimensionData.getMobs().containsKey("bat"))
-            this.addSpawn(EntityCategory.AMBIENT, new SpawnEntry(EntityType.BAT, dimensionData.getMobs().get("bat")[0], dimensionData.getMobs().get("bat")[1], dimensionData.getMobs().get("bat")[2]));
+            this.addSpawn(SpawnGroup.AMBIENT, new SpawnEntry(EntityType.BAT, dimensionData.getMobs().get("bat")[0], dimensionData.getMobs().get("bat")[1], dimensionData.getMobs().get("bat")[2]));
 
         if (dimensionData.getMobs().containsKey("spider"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.SPIDER, dimensionData.getMobs().get("spider")[0], dimensionData.getMobs().get("spider")[1], dimensionData.getMobs().get("spider")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SPIDER, dimensionData.getMobs().get("spider")[0], dimensionData.getMobs().get("spider")[1], dimensionData.getMobs().get("spider")[2]));
         if (dimensionData.getMobs().containsKey("zombie"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.ZOMBIE, dimensionData.getMobs().get("zombie")[0], dimensionData.getMobs().get("zombie")[1], dimensionData.getMobs().get("zombie")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ZOMBIE, dimensionData.getMobs().get("zombie")[0], dimensionData.getMobs().get("zombie")[1], dimensionData.getMobs().get("zombie")[2]));
         if (dimensionData.getMobs().containsKey("zombie_villager"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.ZOMBIE_VILLAGER, dimensionData.getMobs().get("zombie_villager")[0], dimensionData.getMobs().get("zombie_villager")[1], dimensionData.getMobs().get("zombie_villager")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ZOMBIE_VILLAGER, dimensionData.getMobs().get("zombie_villager")[0], dimensionData.getMobs().get("zombie_villager")[1], dimensionData.getMobs().get("zombie_villager")[2]));
         if (dimensionData.getMobs().containsKey("skeleton"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.SKELETON, dimensionData.getMobs().get("skeleton")[0], dimensionData.getMobs().get("skeleton")[1], dimensionData.getMobs().get("skeleton")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SKELETON, dimensionData.getMobs().get("skeleton")[0], dimensionData.getMobs().get("skeleton")[1], dimensionData.getMobs().get("skeleton")[2]));
         if (dimensionData.getMobs().containsKey("creeper"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.CREEPER, dimensionData.getMobs().get("creeper")[0], dimensionData.getMobs().get("creeper")[1], dimensionData.getMobs().get("creeper")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.CREEPER, dimensionData.getMobs().get("creeper")[0], dimensionData.getMobs().get("creeper")[1], dimensionData.getMobs().get("creeper")[2]));
         if (dimensionData.getMobs().containsKey("slime"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.SLIME, dimensionData.getMobs().get("slime")[0], dimensionData.getMobs().get("slime")[1], dimensionData.getMobs().get("slime")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SLIME, dimensionData.getMobs().get("slime")[0], dimensionData.getMobs().get("slime")[1], dimensionData.getMobs().get("slime")[2]));
         if (dimensionData.getMobs().containsKey("enderman"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.ENDERMAN, dimensionData.getMobs().get("enderman")[0], dimensionData.getMobs().get("enderman")[1], dimensionData.getMobs().get("enderman")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ENDERMAN, dimensionData.getMobs().get("enderman")[0], dimensionData.getMobs().get("enderman")[1], dimensionData.getMobs().get("enderman")[2]));
         if (dimensionData.getMobs().containsKey("witch"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("witch")[0], dimensionData.getMobs().get("witch")[1], dimensionData.getMobs().get("witch")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("witch")[0], dimensionData.getMobs().get("witch")[1], dimensionData.getMobs().get("witch")[2]));
 
         if (dimensionData.getMobs().containsKey("blaze"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("blaze")[0], dimensionData.getMobs().get("blaze")[1], dimensionData.getMobs().get("blaze")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("blaze")[0], dimensionData.getMobs().get("blaze")[1], dimensionData.getMobs().get("blaze")[2]));
         if (dimensionData.getMobs().containsKey("piglin"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("piglin")[0], dimensionData.getMobs().get("piglin")[1], dimensionData.getMobs().get("piglin")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("piglin")[0], dimensionData.getMobs().get("piglin")[1], dimensionData.getMobs().get("piglin")[2]));
         if (dimensionData.getMobs().containsKey("zombified_piglin"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("zombified_piglin")[0], dimensionData.getMobs().get("zombified_piglin")[1], dimensionData.getMobs().get("zombified_piglin")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("zombified_piglin")[0], dimensionData.getMobs().get("zombified_piglin")[1], dimensionData.getMobs().get("zombified_piglin")[2]));
         if (dimensionData.getMobs().containsKey("ghast"))
-            this.addSpawn(EntityCategory.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("ghast")[0], dimensionData.getMobs().get("ghast")[1], dimensionData.getMobs().get("ghast")[2]));
+            this.addSpawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("ghast")[0], dimensionData.getMobs().get("ghast")[1], dimensionData.getMobs().get("ghast")[2]));
     }
 
-    public static BranchedTreeFeatureConfig getTreeConfig(DimensionTreeData treeData) {
+    /*public static BranchedTreeFeatureConfig getTreeConfig(DimensionTreeData treeData) {
         BranchedTreeFeatureConfig config;
         int height = treeData.getBaseHeight();
         int foliageHeight = treeData.getFoliageHeight();
@@ -412,17 +407,17 @@ public class CustomDimensionalBiome extends Biome {
 
         }
         return config;
-    }
+    }*/
 
     private static FoliagePlacer getFoliagePlacer(DimensionTreeData treeData) {
         switch (treeData.getFoliagePlacerType()) {
             case ACACIA:
-                return new AcaciaFoliagePlacer(treeData.getFoliageRange(), 0);
+                return new AcaciaFoliagePlacer(UniformIntDistribution.of(treeData.getFoliageRange()), UniformIntDistribution.of(0));
             case SPRUCE:
-                return new SpruceFoliagePlacer(treeData.getFoliageRange(), 0);
+                return new SpruceFoliagePlacer(UniformIntDistribution.of(treeData.getFoliageRange()), UniformIntDistribution.of(0), UniformIntDistribution.of(treeData.getFoliageHeight()));
             case PINE:
-                return new PineFoliagePlacer(treeData.getFoliageRange(), 0);
-            case LONG:
+                return new PineFoliagePlacer(UniformIntDistribution.of(treeData.getFoliageRange()), UniformIntDistribution.of(0), UniformIntDistribution.of(treeData.getFoliageHeight()));
+            /*case LONG:
                 return new LongOakFoliagePlacer(treeData.getFoliageRange(), 0);
             case UPSIDE_DOWN:
                 return new UpsideDownOakFoliagePlacer(treeData.getFoliageRange(), 0);
@@ -431,37 +426,11 @@ public class CustomDimensionalBiome extends Biome {
             case RANDOM:
                 return new RandomSpruceFoliagePlacer(treeData.getFoliageRange(), 0);
             case CYLINDER:
-                return new CylinderFoliagePlacer(treeData.getFoliageRange(), 0);
+                return new CylinderFoliagePlacer(treeData.getFoliageRange(), 0);*/
             case OAK:
             default:
-                return new BlobFoliagePlacer(treeData.getFoliageRange(), 0);
+                return new BlobFoliagePlacer(UniformIntDistribution.of(treeData.getFoliageRange()), UniformIntDistribution.of(0), treeData.getFoliageHeight());
         }
-    }
-
-    private static Feature<MegaTreeFeatureConfig> getMegaTree(DimensionTreeTypes treeTypes) {
-        switch (treeTypes) {
-            case MEGA_JUNGLE:
-                return Feature.MEGA_JUNGLE_TREE;
-            case MEGA_SPRUCE:
-                return Feature.MEGA_SPRUCE_TREE;
-            case DARK_OAK:
-                return Feature.DARK_OAK_TREE;
-        }
-        return null;
-    }
-
-    private static Feature<BranchedTreeFeatureConfig> getNormalTree(DimensionTreeTypes treeTypes) {
-        switch (treeTypes) {
-            case NORMAL:
-                return Feature.NORMAL_TREE;
-            case ACACIA:
-                return Feature.ACACIA_TREE;
-            case DOUBLE:
-                return Features.DOUBLE_TREE;
-            case BENT:
-                return Features.BENT_TREE;
-        }
-        return null;
     }
 
     @Override

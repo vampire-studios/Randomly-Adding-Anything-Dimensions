@@ -2,6 +2,7 @@ package io.github.vampirestudios.raa_dimension.generation.surface;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.Biome;
@@ -36,7 +37,7 @@ public class ClassicCliffsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCo
                 basaltLayers += 1;
             }
             for (int i = 0; i < basaltLayers; i++) {
-                chunk.setBlockState(pos, DIRT, false);
+                chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
                 pos.offset(Direction.UP);
             }
             for (int i = 0; i < 3; i++) {

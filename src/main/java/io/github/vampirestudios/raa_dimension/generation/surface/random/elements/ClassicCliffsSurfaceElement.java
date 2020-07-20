@@ -4,12 +4,12 @@ import com.google.gson.JsonObject;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Random;
@@ -49,7 +49,7 @@ public class ClassicCliffsSurfaceElement extends SurfaceElement {
                 basaltLayers += 1;
             }
             for (int i = 0; i < basaltLayers; i++) {
-                chunk.setBlockState(pos, SurfaceBuilder.DIRT, false);
+                chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
                 pos.offset(Direction.UP);
             }
             for (int i = 0; i < 3; i++) {

@@ -37,6 +37,7 @@ import net.minecraft.item.Item.Settings;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 
@@ -86,7 +87,7 @@ public class RegistryUtils {
     }
 
     public static Biome registerBiome(Identifier name, Biome biome) {
-        return Registry.register(Registry.BIOME, name, biome);
+        return Registry.register(BuiltinRegistries.BIOME, name, biome);
     }
 
     public static Item registerItem(Item item, Identifier name) {
@@ -96,18 +97,6 @@ public class RegistryUtils {
             return item;
         }
     }
-
-    /**
-     * Called to register and create new instance of the ChunkGeneratorType.
-     *
-     * @param id                 registry ID of the ChunkGeneratorType
-     * @param factory            factory instance to provide a ChunkGenerator
-     * @param settingsSupplier   config supplier
-     * @param buffetScreenOption whether or not the ChunkGeneratorType should appear in the buffet screen options page
-     */
-    /*public static <C extends ChunkGeneratorConfig, T extends ChunkGenerator<C>> ChunkGeneratorType<C, T> registerChunkGenerator(Identifier id, ChunkGeneratorFactory<C, T> factory, Supplier<C> settingsSupplier, boolean buffetScreenOption) {
-        return Registry.register(Registry.CHUNK_GENERATOR_TYPE, id, new ChunkGeneratorType<>(factory, buffetScreenOption, settingsSupplier));
-    }*/
 
     public static <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(Builder<T> builder, Identifier name) {
         BlockEntityType<T> blockEntityType = builder.build(null);

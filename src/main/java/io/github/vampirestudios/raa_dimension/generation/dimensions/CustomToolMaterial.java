@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
-import io.github.vampirestudios.raa.utils.Utils;
+import io.github.vampirestudios.raa_dimension.utils.Utils;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.util.Identifier;

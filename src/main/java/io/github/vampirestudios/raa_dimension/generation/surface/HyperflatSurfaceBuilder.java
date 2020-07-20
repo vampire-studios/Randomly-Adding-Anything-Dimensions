@@ -2,6 +2,7 @@ package io.github.vampirestudios.raa_dimension.generation.surface;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.noise.OctaveSimplexNoiseSampler;
@@ -26,7 +27,7 @@ public class HyperflatSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
     public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState stone, BlockState water, int var11, long seed, TernarySurfaceConfig config) {
         BlockPos.Mutable delPos = new BlockPos.Mutable(x, height, z);
         for (int i = 0; i < height; i++) {
-            chunk.setBlockState(delPos, AIR, false);
+            chunk.setBlockState(delPos, Blocks.AIR.getDefaultState(), false);
             delPos.offset(Direction.DOWN);
         }
 
@@ -37,14 +38,14 @@ public class HyperflatSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
             pos.offset(Direction.UP);
         }
         for (int i = 0; i < 3; i++) {
-            chunk.setBlockState(pos, DIRT, false);
+            chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
             pos.offset(Direction.UP);
         }
         if (noiseHeight > 0) {
             chunk.setBlockState(pos.add(0, -1, 0), config.getTopMaterial(), false);
-            if (pos.getY() == 84) chunk.setBlockState(pos.add(0, -1, 0), SAND, false);
+            if (pos.getY() == 84) chunk.setBlockState(pos.add(0, -1, 0), Blocks.SAND.getDefaultState(), false);
         } else {
-            chunk.setBlockState(pos.add(0, -1, 0), WATER_NOISE.sample(x * 0.05, z * 0.05, false) > 0.2 ? GRAVEL : SAND, false);
+            chunk.setBlockState(pos.add(0, -1, 0), WATER_NOISE.sample(x * 0.05, z * 0.05, false) > 0.2 ? Blocks.GRAVEL.getDefaultState() : Blocks.SAND.getDefaultState(), false);
             while (pos.getY() < 84) {
                 chunk.setBlockState(pos, water, false);
                 pos.offset(Direction.UP);

@@ -14,7 +14,7 @@ import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 import java.util.Random;
 
 public class RedDesertSurfaceElement extends SurfaceElement {
-    private static final TernarySurfaceConfig CONFIG = new TernarySurfaceConfig(SurfaceBuilder.RED_SAND, Blocks.RED_SANDSTONE.getDefaultState(), SurfaceBuilder.GRAVEL);
+    private static final TernarySurfaceConfig CONFIG = new TernarySurfaceConfig(Blocks.RED_SAND.getDefaultState(), Blocks.RED_SANDSTONE.getDefaultState(), Blocks.GRAVEL.getDefaultState());
     private double chance;
 
     public RedDesertSurfaceElement() {

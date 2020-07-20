@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions.data;
 
-import io.github.vampirestudios.raa.utils.Utils;
+import io.github.vampirestudios.raa_dimension.utils.Utils;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 

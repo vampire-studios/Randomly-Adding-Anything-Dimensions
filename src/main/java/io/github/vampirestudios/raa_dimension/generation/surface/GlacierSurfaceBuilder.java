@@ -23,7 +23,7 @@ public class GlacierSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> 
     private DoubleFunction<TernarySurfaceConfig> configProvider;
 
     public GlacierSurfaceBuilder(DoubleFunction<TernarySurfaceConfig> config) {
-        super(TernarySurfaceConfig::deserialize, TernarySurfaceConfig::method_26680);
+        super(TernarySurfaceConfig.CODEC);
         configProvider = config;
     }
 
@@ -46,30 +46,30 @@ public class GlacierSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> 
 
         if (glacierDifference != 0) {
             pos.setY(height);
-            chunk.setBlockState(pos, AIR, false);
+            chunk.setBlockState(pos, Blocks.AIR.getDefaultState(), false);
 
             pos.setY(height - 1);
-            chunk.setBlockState(pos, AIR, false);
+            chunk.setBlockState(pos, Blocks.AIR.getDefaultState(), false);
 
             height -= 2;
         }
 
         for (int y = height; y >= 0; --y) {
             pos.setY(y);
-            BlockState toSet = STONE;
+            BlockState toSet = Blocks.STONE.getDefaultState();
 
             if (y - height > glacierDifference) {
                 toSet = (y - height == -1) ? bICE : pICE;
             } else {
                 if (y < 255) {
                     BlockState upState = chunk.getBlockState(pos.up());
-                    if (upState == AIR) {
+                    if (upState == Blocks.AIR.getDefaultState()) {
                         toSet = config.getTopMaterial();
                     } else if (upState == WATER) {
                         toSet = config.getUnderwaterMaterial();
                     } else {
                         if (y < 253) {
-                            if (chunk.getBlockState(pos.up(3)) == AIR || chunk.getBlockState(pos.up(2)) == AIR) {
+                            if (chunk.getBlockState(pos.up(3)) == Blocks.AIR.getDefaultState() || chunk.getBlockState(pos.up(2)) == Blocks.AIR.getDefaultState()) {
                                 toSet = config.getUnderMaterial();
                             }
                         }

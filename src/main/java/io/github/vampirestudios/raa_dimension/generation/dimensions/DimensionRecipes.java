@@ -1,3 +1,4 @@
+/*
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
 import com.swordglowsblue.artifice.api.Artifice;
@@ -208,3 +209,4 @@ public class DimensionRecipes {
     }
 
 }
+*/

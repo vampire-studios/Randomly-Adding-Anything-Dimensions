@@ -1,35 +1,17 @@
 package io.github.vampirestudios.raa_dimension.init;
 
-import io.github.vampirestudios.raa.RandomlyAddingAnything;
-import io.github.vampirestudios.raa.api.dimension.DimensionChunkGenerators;
-import io.github.vampirestudios.raa.api.dimension.PlayerPlacementHandlers;
-import io.github.vampirestudios.raa.api.enums.TextureTypes;
-import io.github.vampirestudios.raa.api.namegeneration.NameGenerator;
-import io.github.vampirestudios.raa.blocks.DimensionalBlock;
-import io.github.vampirestudios.raa.blocks.DimensionalStone;
-import io.github.vampirestudios.raa.blocks.PortalBlock;
-import io.github.vampirestudios.raa.generation.dimensions.CustomDimension;
-import io.github.vampirestudios.raa.generation.dimensions.CustomDimensionalBiome;
-import io.github.vampirestudios.raa.generation.dimensions.data.*;
-import io.github.vampirestudios.raa.generation.feature.tree.TreeType;
-import io.github.vampirestudios.raa.history.Civilization;
-import io.github.vampirestudios.raa.history.ProtoDimension;
-import io.github.vampirestudios.raa.items.RAABlockItemAlt;
-import io.github.vampirestudios.raa.items.dimension.*;
-import io.github.vampirestudios.raa.utils.Rands;
-import io.github.vampirestudios.raa.utils.RegistryUtils;
-import io.github.vampirestudios.raa.utils.Utils;
-import io.github.vampirestudios.raa.utils.debug.ConsolePrinting;
+import com.mojang.serialization.Lifecycle;
 import io.github.vampirestudios.raa_core.RAACore;
 import io.github.vampirestudios.raa_core.api.name_generation.NameGenerator;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.api.enums.TextureTypes;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLanguageManager;
 import io.github.vampirestudios.raa_dimension.blocks.DimensionalBlock;
+import io.github.vampirestudios.raa_dimension.blocks.DimensionalStone;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.CustomDimensionalBiome;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.*;
 import io.github.vampirestudios.raa_dimension.history.Civilization;
 import io.github.vampirestudios.raa_dimension.history.ProtoDimension;
-import io.github.vampirestudios.raa_dimension.item.RAABlockItemAlt;
 import io.github.vampirestudios.raa_dimension.utils.RegistryUtils;
 import io.github.vampirestudios.raa_dimension.utils.Utils;
 import io.github.vampirestudios.vampirelib.blocks.SlabBaseBlock;
@@ -37,11 +19,8 @@ import io.github.vampirestudios.vampirelib.blocks.StairsBaseBlock;
 import io.github.vampirestudios.vampirelib.blocks.WallBaseBlock;
 import io.github.vampirestudios.vampirelib.utils.Color;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.recipe.Ingredient;
@@ -49,27 +28,23 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.HorizontalVoronoiBiomeAccessType;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.*;
 
-import static io.github.vampirestudios.raa.RandomlyAddingAnything.MOD_ID;
-import static io.github.vampirestudios.raa.api.dimension.DimensionChunkGenerators.*;
-
 public class Dimensions {
     public static final Set<Identifier> DIMENSION_NAMES = new HashSet<>();
-    public static final DefaultedRegistry<DimensionData> DIMENSIONS = Registry.create("raa:dimensions", "null", () -> null);
+    public static final DefaultedRegistry<DimensionData> DIMENSIONS = new DefaultedRegistry<>("raa_dimensions:dimensions", RegistryKey.ofRegistry(new Identifier(RAADimensionAddon.MOD_ID, "dimensions")), Lifecycle.experimental());
 
     public static void generate() {
         //pre generation of dimensions: basic data, flags, and name
         //This is only the data needed for civilization simulation
         ArrayList<ProtoDimension> protoDimensions = new ArrayList<>();
-        for (int a = 0; a < RandomlyAddingAnything.CONFIG.dimensionGenAmount; a++) {
+        for (int a = 0; a < RAADimensionAddon.CONFIG.dimensionGenAmount; a++) {
             float temperature = Rands.randFloat(2.0F);
             int flags = generateDimensionFlags();
 
@@ -91,7 +66,7 @@ public class Dimensions {
         Set<Identifier> civNames = new HashSet<>();
         Set<ProtoDimension> usedDimensions = new HashSet<>();
         for (int i = 0; i < 15; i++) {
-            NameGenerator nameGenerator = RandomlyAddingAnything.CONFIG.namingLanguage.getCivilizationNameGenerator();
+            NameGenerator nameGenerator = RAACore.CONFIG.getLanguage().getNameGenerator(DimensionLanguageManager.DIMENSION_NAME);
             Pair<String, Identifier> name = nameGenerator.generateUnique(civNames, RAADimensionAddon.MOD_ID);
             civNames.add(name.getRight());
             ProtoDimension generatedDimension = Rands.list(protoDimensions);
@@ -206,12 +181,6 @@ public class Dimensions {
 
             int stoneAmount = Rands.randIntRange(1, 3);
 
-            List<Identifier> stoneNames = new ArrayList<>();
-            NameGenerator stoneNameGenerator = RandomlyAddingAnything.CONFIG.namingLanguage.getStoneNameGenerator();
-            for (int i = 1; i < stoneAmount; i++) {
-                stoneNames.add(new Identifier(RAADimensionAddon.MOD_ID, name.getRight().getPath() + "_" + stoneNameGenerator.asId(stoneNameGenerator.generate())));
-            }
-
             DimensionData.Builder builder = DimensionData.Builder.create(name.getRight(), WordUtils.capitalizeFully(name.getLeft()))
                     .canSleep(Rands.chance(4))
                     .waterVaporize(Rands.chance(100))
@@ -224,9 +193,7 @@ public class Dimensions {
                     .cloudHeight(Rands.randFloatRange(80F, 256F))
                     .stoneHardness(Rands.randFloatRange(0.2f, 5f), Rands.randFloatRange(3, 18))
                     .stoneJumpHeight(Rands.randFloatRange(1.0F, 10.0F))
-                    .gravity(gravity)
-                    .stoneAmount(stoneAmount)
-                    .stones(stoneNames.toArray(new Identifier[0]));
+                    .gravity(gravity);
 
             DimensionTextureData texturesInformation = DimensionTextureData.Builder.create()
                     .stoneTexture(Rands.list(TextureTypes.STONE_TEXTURES))
@@ -339,61 +306,57 @@ public class Dimensions {
 
     public static void createDimensions() {
         DIMENSIONS.forEach(dimensionData -> {
+            Identifier identifier1 = dimensionData.getId();
 
-            for(Identifier identifier1 : dimensionData.getStones()) {
-                for (int i = 0; i < dimensionData.getStones().length; i++) {
-                    System.out.println("Stone block: " + identifier1);
-                    Block stoneBlock = RegistryUtils.register(new DimensionalStone(identifier1, dimensionData), Utils.addSuffixToPath(identifier1,
-                            "_stone"), RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stone");
+            Block stoneBlock = RegistryUtils.register(new DimensionalStone(dimensionData), Utils.addSuffixToPath(identifier1,
+                    "_stone"), RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stone");
 
-                    RegistryUtils.register(new StairsBaseBlock(stoneBlock.getDefaultState()), Utils.addSuffixToPath(identifier1, "_stone_stairs"),
-                            RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stoneStairs");
-                    RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_stone_slab"),
-                            RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stoneSlab");
-                    RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_stone_wall"),
-                            RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stoneWall");
-                }
+            RegistryUtils.register(new StairsBaseBlock(stoneBlock.getDefaultState()), Utils.addSuffixToPath(identifier1, "_stone_stairs"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneStairs");
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_stone_slab"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneSlab");
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_stone_wall"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneWall");
 
-                Block stoneBrick = RegistryUtils.register(new DimensionalBlock(), Utils.addSuffixToPath(identifier1, "_stone_bricks"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stoneBricks");
-                RegistryUtils.register(new StairsBaseBlock(stoneBrick.getDefaultState()), Utils.addSuffixToPath(identifier1, "_stone_brick_stairs"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stoneBrickStairs");
-                RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_stone_brick_slab"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stoneBrickSlab");
-                RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_stone_brick_wall"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "stoneBrickWall");
-                RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_stone_bricks"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "mossyStoneBricks");
-                RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "cracked_", "_stone_bricks"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "crackedStoneBricks");
-                Block cobblestone = RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
-                                dimensionData.getId().getPath().toLowerCase() + "_cobblestone"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "cobblestone");
-                RegistryUtils.register(new StairsBaseBlock(cobblestone.getDefaultState()), Utils.addSuffixToPath(identifier1, "_cobblestone_stairs"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "cobblestoneStairs");
-                RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_cobblestone_slab"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "cobblestoneSlab");
-                RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_cobblestone_wall"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "cobblestoneWall");
-                RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_cobblestone"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "mossyCobblestone");
-                RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
-                                "chiseled_" + dimensionData.getId().getPath().toLowerCase() + "_stone_bricks"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "chiseled_stone_bricks");
-                RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "cracked_", "_chiseled_stone_bricks"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "crackedChiseledStoneBricks");
-                RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_chiseled_stone_bricks"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "mossyChiseledStoneBricks");
-                Block polished = RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
-                                "polished_" + dimensionData.getId().getPath().toLowerCase()),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "polished");
-                RegistryUtils.register(new StairsBaseBlock(polished.getDefaultState()), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_stairs"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "polishedStairs");
-                RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_slab"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "polishedSlab");
-                RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_wall"),
-                        RAADimensionAddon.RAA_DIMENSION_BLOCKS, WordUtils.capitalizeFully(identifier1.getPath()), "polishedWall");
-            }
+            Block stoneBrick = RegistryUtils.register(new DimensionalBlock(), Utils.addSuffixToPath(identifier1, "_stone_bricks"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBricks");
+            RegistryUtils.register(new StairsBaseBlock(stoneBrick.getDefaultState()), Utils.addSuffixToPath(identifier1, "_stone_brick_stairs"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickStairs");
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_stone_brick_slab"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickSlab");
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_stone_brick_wall"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickWall");
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_stone_bricks"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyStoneBricks");
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "cracked_", "_stone_bricks"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "crackedStoneBricks");
+            Block cobblestone = RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
+                            dimensionData.getId().getPath().toLowerCase() + "_cobblestone"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestone");
+            RegistryUtils.register(new StairsBaseBlock(cobblestone.getDefaultState()), Utils.addSuffixToPath(identifier1, "_cobblestone_stairs"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneStairs");
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_cobblestone_slab"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneSlab");
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_cobblestone_wall"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneWall");
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_cobblestone"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyCobblestone");
+            RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
+                            "chiseled_" + dimensionData.getId().getPath().toLowerCase() + "_stone_bricks"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "chiseled_stone_bricks");
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "cracked_", "_chiseled_stone_bricks"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "crackedChiseledStoneBricks");
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_chiseled_stone_bricks"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyChiseledStoneBricks");
+            Block polished = RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
+                            "polished_" + dimensionData.getId().getPath().toLowerCase()),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polished");
+            RegistryUtils.register(new StairsBaseBlock(polished.getDefaultState()), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_stairs"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polishedStairs");
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_slab"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polishedSlab");
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_wall"),
+                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polishedWall");
             Set<Biome> biomes = new LinkedHashSet<>();
             for (int i = 0; i < dimensionData.getBiomeData().size(); i++) {
                 CustomDimensionalBiome biome = new CustomDimensionalBiome(dimensionData, dimensionData.getBiomeData().get(i));
@@ -453,7 +416,7 @@ public class Dimensions {
 
                 @Override
                 public Ingredient getRepairIngredient() {
-                    return Ingredient.ofItems(Registry.ITEM.get(Utils.addSuffixToPath(dimensionData.getStones()[1], "_cobblestone")));
+                    return Ingredient.ofItems(Registry.ITEM.get(Utils.addSuffixToPath(dimensionData.getId(), "_cobblestone")));
                 }
             };
 
@@ -510,10 +473,10 @@ public class Dimensions {
             /*RegistryUtils.register(new IceBlock(Block.Settings.copy(Blocks.ICE)), Utils.addSuffixToPath(dimensionData.getId(), "_ice"),
                     RandomlyAddingAnything.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "ice");*/
 
-            Block portalBlock = RegistryUtils.registerBlockWithoutItem(new PortalBlock(dimensionType, dimensionData),
+            /*Block portalBlock = RegistryUtils.registerBlockWithoutItem(new PortalBlock(dimensionType, dimensionData),
                     new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));
             RegistryUtils.registerItem(new RAABlockItemAlt(dimensionData.getName(), "portal", portalBlock, new Item.Settings().group(ItemGroup.TRANSPORTATION)),
-                    new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));
+                    new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));*/
         });
     }
 

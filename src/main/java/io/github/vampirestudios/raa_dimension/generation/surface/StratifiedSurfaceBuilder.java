@@ -2,6 +2,7 @@ package io.github.vampirestudios.raa_dimension.generation.surface;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.Biome;
@@ -31,7 +32,7 @@ public class StratifiedSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfi
             }
             int dirtHeight = (int) noise * 2;
             for (int i = 0; i < dirtHeight; i++) {
-                chunk.setBlockState(pos, DIRT, false);
+                chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
                 pos.offset(Direction.UP);
             }
             chunk.setBlockState(pos, config.getTopMaterial(), false);
