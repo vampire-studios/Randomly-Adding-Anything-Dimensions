@@ -136,10 +136,10 @@ public class RAADimensionAddon implements RAAAddon {
 									.seaLevel(Rands.randIntRange(0,255)).noiseConfig(noiseConfigBuilder -> {
 										noiseConfigBuilder.amplified(Rands.chance(3))
 												.densityFactor(Rands.randFloatRange(0.0F,1F))
-												.densityOffset(Rands.randIntRange(0,2))
+												.densityOffset(Rands.randFloatRange(0,1))
 												.height(Rands.randIntRange(0,255))
-												.sizeVertical(Rands.randIntRange(1,5))
-												.sizeHorizontal(Rands.randIntRange(1,5))
+												.sizeVertical(Rands.randIntRange(1,4))
+												.sizeHorizontal(Rands.randIntRange(1,4))
 												.simplexSurfaceNoise(Rands.chance(3))
 												.randomDensityOffset(Rands.chance(3))
 												.islandNoiseOverride(Rands.chance(3))
