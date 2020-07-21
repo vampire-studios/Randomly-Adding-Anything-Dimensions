@@ -10,6 +10,13 @@ public class Textures {
 
     public static void init() {
         blockTextures();
+
+        addTextureToList(TextureTypes.SUNS, new Identifier(RAADimensionAddon.MOD_ID, "textures/environment/sun.png"));
+        addTextureToList(TextureTypes.SUNS, new Identifier(RAADimensionAddon.MOD_ID, "textures/environment/sun_2.png"));
+        addTextureToList(TextureTypes.SUNS, new Identifier(RAADimensionAddon.MOD_ID, "textures/environment/sun_3.png"));
+
+        addTextureToList(TextureTypes.MOONS, new Identifier(RAADimensionAddon.MOD_ID, "textures/environment/moon_phases.png"));
+        addTextureToList(TextureTypes.MOONS, new Identifier(RAADimensionAddon.MOD_ID, "textures/environment/moon_phases_2.png"));
     }
 
     private static void blockTextures() {

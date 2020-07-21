@@ -1,6 +1,5 @@
 package io.github.vampirestudios.raa_dimension;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.swordglowsblue.artifice.api.Artifice;
 import io.github.vampirestudios.raa_core.api.RAAAddon;
@@ -29,7 +28,6 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class RAADimensionAddon implements RAAAddon {
 
@@ -61,14 +59,6 @@ public class RAADimensionAddon implements RAAAddon {
 		String[] fluids = new String[]{"minecraft:water","minecraft:air","minecraft:lava"};
 		DimensionLanguageManager.init();
 		CivsLanguageManager.init();
-		List<String> CHUNK_GENERATOR_TYPES = ImmutableList.of(
-				"overworld",
-				"amplified",
-				"nether",
-				"end",
-				"caves",
-				"floating_islands"
-		);
 		Textures.init();
 		SurfaceBuilders.init();
 

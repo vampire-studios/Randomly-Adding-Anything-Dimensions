@@ -20,4 +20,6 @@ public class TextureTypes {
 
     public static List<Identifier> ICE_TEXTURES = new ArrayList<>();
 
+    public static List<Identifier> MOONS = new ArrayList<>();
+    public static List<Identifier> SUNS = new ArrayList<>();
 }
