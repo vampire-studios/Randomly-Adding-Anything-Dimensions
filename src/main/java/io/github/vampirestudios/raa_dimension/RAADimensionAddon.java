@@ -27,8 +27,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 
-import java.util.Arrays;
-
 public class RAADimensionAddon implements RAAAddon {
 
 	public static final String MOD_ID = "raa_dimensions";
@@ -107,8 +105,8 @@ public class RAADimensionAddon implements RAAAddon {
 					noiseSettingsBuilder.defaultBlock(stateDataBuilder -> {
 						stateDataBuilder.name(Utils.appendToPath(dimensionData.getId(), "_stone").toString());
 					}).defaultFluid(blockStateBuilder -> {
-						blockStateBuilder.name(Rands.list(Arrays.asList(fluids)));
-						blockStateBuilder.setProperty("level", "0");
+						blockStateBuilder.name(/*Rands.list(Arrays.asList(fluids))*/"minecraft:air");
+//						blockStateBuilder.setProperty("level", "0");
 						/*blockStateBuilder.jsonString("Name", Rands.list(Arrays.asList(fluids)))
 								.jsonObject("Properties", jsonArrayBuilder -> jsonArrayBuilder.with("level", 0)jsonArrayBuilder.buildTo(new JsonObject()));*/
 					}).bedrockFloorPosition(Rands.randIntRange(0, 255))
@@ -117,8 +115,8 @@ public class RAADimensionAddon implements RAAAddon {
 						.seaLevel(Rands.randIntRange(0, 255))
 						.noiseConfig(noiseConfigBuilder -> {
 							noiseConfigBuilder.amplified(Rands.chance(3))
-								.densityFactor(Rands.randFloatRange(0.0F, 1F))
-								.densityOffset(Rands.randFloatRange(0, 1))
+								.densityFactor(Rands.randFloatRange(0.5F, 4F))
+								.densityOffset(Rands.randFloatRange(-0.25F, -1.0F))
 								.height(Rands.randIntRange(0, 255))
 								.sizeVertical(Rands.randIntRange(1, 4))
 								.sizeHorizontal(Rands.randIntRange(1, 4))
@@ -134,8 +132,8 @@ public class RAADimensionAddon implements RAAAddon {
 										.size(Rands.randIntRange(0, 255))
 										.target(Rands.randInt(5));
 								}).sampling(noiseSamplingConfigBuilder -> {
-									noiseSamplingConfigBuilder.xzFactor(Rands.randFloatRange(0.001F, 10))
-										.xzScale(Rands.randFloatRange(0.001F, 10))
+									noiseSamplingConfigBuilder.xzFactor(Rands.randFloatRange(20, 320))
+										.xzScale(Rands.randFloatRange(0.25F, 1))
 										.yFactor(Rands.randFloatRange(0.001F, 10))
 										.yScale(Rands.randFloatRange(0.001F, 10.0F));
 								});
