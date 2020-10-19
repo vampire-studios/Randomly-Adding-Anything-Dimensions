@@ -28,11 +28,12 @@ public class DimensionBiomeData {
     private boolean hasMossyRocks;
     private Identifier surfaceBuilder;
     private Identifier surfaceConfig;
+    private List<CarverType> carvers;
 
     DimensionBiomeData(Identifier id, String biomeName, float depth, float scale, float temperature, float downfall, int waterColor,
                        int grassColor, int foliageColor, List<DimensionTreeData> treeData, float corruptedCratersChance, float nonCorruptedCratersChance,
                        boolean spawnsCratersInNonCorrupted, float largeSkeletonTreeChance, float campfireChance, float outpostChance, float towerChance,
-                       boolean hasMushrooms, boolean hasMossyRocks, Identifier surfaceBuilder, Identifier surfaceConfig) {
+                       boolean hasMushrooms, boolean hasMossyRocks, Identifier surfaceBuilder, Identifier surfaceConfig, List<CarverType> carvers) {
         this.id = id;
         this.biomeName = biomeName;
         this.depth = depth;
@@ -54,6 +55,7 @@ public class DimensionBiomeData {
         this.hasMossyRocks = hasMossyRocks;
         this.surfaceBuilder = surfaceBuilder;
         this.surfaceConfig = surfaceConfig;
+        this.carvers = carvers;
     }
 
     public Identifier getId() {
@@ -180,6 +182,10 @@ public class DimensionBiomeData {
         this.surfaceConfig = new Identifier(surfaceConfig);
     }
 
+    public List<CarverType> getCarvers() {
+        return carvers;
+    }
+
     public static class Builder {
         private Identifier id;
         private String name;
@@ -202,6 +208,7 @@ public class DimensionBiomeData {
         private boolean hasMossyRocks;
         private Identifier surfaceBuilder;
         private Identifier surfaceConfig;
+        private List<CarverType> carvers;
 
         private Builder() {
 
@@ -324,10 +331,15 @@ public class DimensionBiomeData {
             return this;
         }
 
+        public Builder carvers(List<CarverType> carvers) {
+            this.carvers = carvers;
+            return this;
+        }
+
         public DimensionBiomeData build() {
             return new DimensionBiomeData(id, name, depth, scale, temperature, downfall, waterColor, grassColor, foliageColor, treeData,
                     corruptedCratersChance, nonCorruptedCratersChance, spawnsCratersInNonCorrupted, largeSkeletonTreeChance, campfireChance, outpostChance,
-                    towerChance, hasMushrooms, hasMossyRocks, surfaceBuilder, surfaceConfig);
+                    towerChance, hasMushrooms, hasMossyRocks, surfaceBuilder, surfaceConfig, carvers);
         }
     }
 }
