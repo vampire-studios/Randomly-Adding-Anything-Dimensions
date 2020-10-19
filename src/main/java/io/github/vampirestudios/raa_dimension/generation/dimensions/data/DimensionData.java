@@ -10,6 +10,8 @@ import java.util.List;
 public class DimensionData {
     private Identifier id;
     private String name;
+    private DimensionTypeData typeData;
+    private DimensionNoiseSettingsData noiseSettingsData;
     private final List<DimensionBiomeData> biomeData;
     private final DimensionColorPalette dimensionColorPalette;
     private final DimensionTextureData texturesInformation;
@@ -29,17 +31,19 @@ public class DimensionData {
     private float gravity;
 
     public DimensionData() {
-        this(null, null, null, null, null, null, false,
+        this(null, null, null, null, null, null, null, null, false,
                 false, false/*, null*/, 0, null, 0, null,
                 0, 0, 0, 0, 0);
     }
 
-    public DimensionData(Identifier id, String name, List<DimensionBiomeData> biomeData, DimensionColorPalette dimensionColorPalette, DimensionTextureData texturesInformation,
+    public DimensionData(Identifier id, String name, DimensionTypeData typeData, DimensionNoiseSettingsData noiseSettingsData, List<DimensionBiomeData> biomeData, DimensionColorPalette dimensionColorPalette, DimensionTextureData texturesInformation,
                          DimensionCustomSkyInformation customSkyInformation, boolean canSleep, boolean waterVaporize, boolean renderFog/*, DimensionChunkGenerators dimensionChunkGenerator*/,
                          int flags, HashMap<String, int[]> mobs, int difficulty, HashMap<String, Double> civilizationInfluences, float cloudHeight, float stoneJumpHeight, float stoneHardness,
                          float stoneResistance, float gravity) {
         this.id = id;
         this.name = name;
+        this.typeData = typeData;
+        this.noiseSettingsData = noiseSettingsData;
         this.biomeData = biomeData;
         this.dimensionColorPalette = dimensionColorPalette;
         this.texturesInformation = texturesInformation;
@@ -77,6 +81,14 @@ public class DimensionData {
 
     public List<DimensionBiomeData> getBiomeData() {
         return biomeData;
+    }
+
+    public DimensionTypeData getTypeData() {
+        return typeData;
+    }
+
+    public DimensionNoiseSettingsData getNoiseSettingsData() {
+        return noiseSettingsData;
     }
 
     public DimensionColorPalette getDimensionColorPalette() {
@@ -179,6 +191,8 @@ public class DimensionData {
         HashMap<String, int[]> mobs;
         private Identifier id;
         private String name;
+        private DimensionTypeData typeData;
+        private DimensionNoiseSettingsData noiseSettingsData;
         private List<DimensionBiomeData> biomeData;
         private DimensionColorPalette dimensionColorPalette;
         private DimensionTextureData texturesInformation;
@@ -233,6 +247,16 @@ public class DimensionData {
 
         public Builder biome(DimensionBiomeData biomeData) {
             this.biomeData.add(biomeData);
+            return this;
+        }
+
+        public Builder dimensionType(DimensionTypeData typeData) {
+            this.typeData = typeData;
+            return this;
+        }
+
+        public Builder noiseSettings(DimensionNoiseSettingsData noiseSettingsData) {
+            this.noiseSettingsData = noiseSettingsData;
             return this;
         }
 
@@ -309,7 +333,7 @@ public class DimensionData {
         }
 
         public DimensionData build() {
-            return new DimensionData(id, name, biomeData, dimensionColorPalette, texturesInformation, customSkyInformation, canSleep, waterVaporize,
+            return new DimensionData(id, name, typeData, noiseSettingsData, biomeData, dimensionColorPalette, texturesInformation, customSkyInformation, canSleep, waterVaporize,
                     renderFog/*, dimensionChunkGenerator*/, flags, mobs, difficulty, civilizationInfluences, cloudHeight, stoneJumpHeight, stoneHardness,
                     stoneResistance, gravity);
         }

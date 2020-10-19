@@ -15,14 +15,12 @@ import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
 import io.github.vampirestudios.raa_dimension.init.Textures;
 import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import io.github.vampirestudios.vampirelib.utils.Utils;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -54,7 +52,6 @@ public class RAADimensionAddon implements RAAAddon {
 		AutoConfig.register(GeneralConfig.class, GsonConfigSerializer::new);
 		CONFIG = AutoConfig.getConfigHolder(GeneralConfig.class).getConfig();
 		DIMENSION_NUMBER = CONFIG.dimensionGenAmount;
-		String[] fluids = new String[]{"minecraft:water","minecraft:air","minecraft:lava"};
 		DimensionLanguageManager.init();
 		CivsLanguageManager.init();
 		Textures.init();
@@ -80,66 +77,70 @@ public class RAADimensionAddon implements RAAAddon {
 		}
 		Dimensions.createDimensions();
 
-		Artifice.registerData(new Identifier(getId(), "data_pack"), serverResourcePackBuilder -> {
+		Artifice.registerDataNew(new Identifier(getId(), "data_pack"), serverResourcePackBuilder -> {
 			Dimensions.DIMENSIONS.forEach(dimensionData -> {
 				serverResourcePackBuilder.addDimensionType(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_type"), dimensionTypeBuilder -> {
-					dimensionTypeBuilder.bedWorks(dimensionData.canSleep())
-							.piglinSafe(Rands.chance(DIMENSION_NUMBER))
-							.respawnAnchorWorks(Rands.chance(DIMENSION_NUMBER))
-							.hasRaids(Rands.chance(DIMENSION_NUMBER))
-							.shrunk(Rands.chance(DIMENSION_NUMBER))
-							.hasSkylight(dimensionData.getCustomSkyInformation().hasSkyLight())
-							.hasCeiling(Rands.chance(DIMENSION_NUMBER))
-							.ultrawarm(Rands.chance(DIMENSION_NUMBER))
-							.natural(Rands.chance(DIMENSION_NUMBER))
-							.hasEnderDragonFight(Rands.chance(DIMENSION_NUMBER))
-							.logicalHeight(Rands.randIntRange(70, 256))
-							.ambientLight(Rands.randFloatRange(0F, 0.16F))
-							.infiniburn(BlockTags.INFINIBURN_OVERWORLD.getId());
-					if (Rands.chance(DIMENSION_NUMBER)) {
-						dimensionTypeBuilder.fixedTime(Rands.randIntRange(0, 16000));
+					dimensionTypeBuilder.bedWorks(dimensionData.getTypeData().doesBedWork())
+							.piglinSafe(dimensionData.getTypeData().isPiglinSafe())
+							.respawnAnchorWorks(dimensionData.getTypeData().doesRespawnAnchorWork())
+							.hasRaids(dimensionData.getTypeData().isHasRaids())
+							.coordinate_scale(dimensionData.getTypeData().getCoordinateScale())
+							.hasSkylight(dimensionData.getTypeData().hasSkyLight())
+							.hasCeiling(dimensionData.getTypeData().hasCeiling())
+							.ultrawarm(dimensionData.getTypeData().isUltrawarm())
+							.natural(dimensionData.getTypeData().isNatural())
+							.hasEnderDragonFight(dimensionData.getTypeData().hasEnderDragonFight())
+							.logicalHeight(dimensionData.getTypeData().getLogicalHeight())
+							.ambientLight(dimensionData.getTypeData().getAmbientLight())
+							.infiniburn(new Identifier(dimensionData.getTypeData().getInfiniburn()));
+					if (dimensionData.getTypeData().hasFixedTime()) {
+						dimensionTypeBuilder.fixedTime(dimensionData.getTypeData().getFixedTime());
 					}
-					System.out.println("Dimension Type JSON: " + dimensionTypeBuilder.buildTo(new JsonObject()).toOutputString());
+//					System.out.println("Dimension Type JSON: " + dimensionTypeBuilder.buildTo(new JsonObject()).toOutputString());
 				});
+				int sizeHorizontal = Rands.randIntRange(1,3);
+				if (sizeHorizontal == 3) {
+					sizeHorizontal = 4;
+				}
+				int finalSizeHorizontal = sizeHorizontal;
 				serverResourcePackBuilder.addNoiseSettingsBuilder(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings"), noiseSettingsBuilder -> {
 					noiseSettingsBuilder.defaultBlock(stateDataBuilder -> {
-						stateDataBuilder.name(Utils.appendToPath(dimensionData.getId(), "_stone").toString());
+						stateDataBuilder.name(dimensionData.getNoiseSettingsData().getDefaultBlock());
 					}).defaultFluid(blockStateBuilder -> {
-						blockStateBuilder.name(/*Rands.list(Arrays.asList(fluids))*/"minecraft:air");
-//						blockStateBuilder.setProperty("level", "0");
-						/*blockStateBuilder.jsonString("Name", Rands.list(Arrays.asList(fluids)))
-								.jsonObject("Properties", jsonArrayBuilder -> jsonArrayBuilder.with("level", 0)jsonArrayBuilder.buildTo(new JsonObject()));*/
-					}).bedrockFloorPosition(Rands.randIntRange(0, 255))
-						.bedrockRoofPosition(Rands.randIntRange(0, 255))
-						.disableMobGeneration(Rands.chance(3))
-						.seaLevel(Rands.randIntRange(0, 255))
-						.noiseConfig(noiseConfigBuilder -> {
-							noiseConfigBuilder.amplified(Rands.chance(3))
-								.densityFactor(Rands.randFloatRange(0.5F, 4F))
-								.densityOffset(Rands.randFloatRange(-0.25F, -1.0F))
-								.height(Rands.randIntRange(0, 255))
-								.sizeVertical(Rands.randIntRange(1, 4))
-								.sizeHorizontal(Rands.randIntRange(1, 4))
-								.simplexSurfaceNoise(Rands.chance(3))
-								.randomDensityOffset(Rands.chance(3))
-								.islandNoiseOverride(Rands.chance(3))
-								.bottomSlide(slideConfigBuilder -> {
-									slideConfigBuilder.offset(Rands.randInt(5))
-										.size(Rands.randInt(5))
-										.target(Rands.randInt(5));
-								}).topSlide(slideConfigBuilder -> {
-									slideConfigBuilder.offset(Rands.randInt(5))
-										.size(Rands.randIntRange(0, 255))
-										.target(Rands.randInt(5));
+						blockStateBuilder.name(dimensionData.getNoiseSettingsData().getDefaultFluid());
+						if (!dimensionData.getNoiseSettingsData().getDefaultFluid().equals("minecraft:air"))
+							blockStateBuilder.setProperty("level", "0");
+					}).bedrockFloorPosition(dimensionData.getNoiseSettingsData().getBedrockFloorPosition())
+							.bedrockRoofPosition(dimensionData.getNoiseSettingsData().getBedrockRoofPosition())
+							.disableMobGeneration(dimensionData.getNoiseSettingsData().disableMobGeneration())
+							.seaLevel(dimensionData.getNoiseSettingsData().getSeaLevel())
+							.noiseConfig(noiseConfigBuilder -> {
+								noiseConfigBuilder.amplified(dimensionData.getNoiseSettingsData().getNoise().isAmplified())
+										.densityFactor(dimensionData.getNoiseSettingsData().getNoise().getDensityFactor())
+										.densityOffset(dimensionData.getNoiseSettingsData().getNoise().getDensityOffset())
+										.height(dimensionData.getNoiseSettingsData().getNoise().getHeight())
+										.sizeVertical(dimensionData.getNoiseSettingsData().getNoise().getSizeVertical())
+										.sizeHorizontal(dimensionData.getNoiseSettingsData().getNoise().getSizeHorizontal())
+										.simplexSurfaceNoise(dimensionData.getNoiseSettingsData().getNoise().isSimplexSurfaceNoise())
+										.randomDensityOffset(dimensionData.getNoiseSettingsData().getNoise().hasRandomDensityOffset())
+										.islandNoiseOverride(dimensionData.getNoiseSettingsData().getNoise().hasIslandNoiseOverride())
+										.bottomSlide(slideConfigBuilder -> {
+											slideConfigBuilder.offset(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getOffset())
+													.size(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getSize())
+													.target(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getTarget());
+										}).topSlide(slideConfigBuilder -> {
+									slideConfigBuilder.offset(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getOffset())
+											.size(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getSize())
+											.target(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getTarget());
 								}).sampling(noiseSamplingConfigBuilder -> {
-									noiseSamplingConfigBuilder.xzFactor(Rands.randFloatRange(20, 320))
-										.xzScale(Rands.randFloatRange(0.25F, 1))
-										.yFactor(Rands.randFloatRange(0.001F, 10))
-										.yScale(Rands.randFloatRange(0.001F, 10.0F));
+									noiseSamplingConfigBuilder.xzFactor(dimensionData.getNoiseSettingsData().getNoise().getSampling().getXzFactor())
+											.xzScale(dimensionData.getNoiseSettingsData().getNoise().getSampling().getXzScale())
+											.yFactor(dimensionData.getNoiseSettingsData().getNoise().getSampling().getYFactor())
+											.yScale(dimensionData.getNoiseSettingsData().getNoise().getSampling().getYScale());
 								});
-						}).structureManager(structureManagerBuilder -> {
+							}).structureManager(structureManagerBuilder -> {
 
-						});
+					});
 				});
 				serverResourcePackBuilder.addDimension(dimensionData.getId(), dimensionBuilder -> {
 					dimensionBuilder.dimensionType(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_type"));
@@ -158,15 +159,32 @@ public class RAADimensionAddon implements RAAAddon {
 								});
 							});
 							multiNoiseBiomeSourceBuilder.seed((int) Rands.getRandom().nextLong());
+							multiNoiseBiomeSourceBuilder.altitudeNoise(noiseSettings -> {
+								noiseSettings.firstOctave(Rands.randIntRange(1, 4));
+								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 4.0F), Rands.randFloatRange(1.0F, 9.0F));
+							});
+							multiNoiseBiomeSourceBuilder.weirdnessNoise(noiseSettings -> {
+								noiseSettings.firstOctave(Rands.randIntRange(1, 2));
+								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 2.0F), Rands.randFloatRange(1.0F, 5.0F));
+							});
+							multiNoiseBiomeSourceBuilder.temperatureNoise(noiseSettings -> {
+								noiseSettings.firstOctave(Rands.randIntRange(1, 6));
+								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 6.0F), Rands.randFloatRange(1.0F, 6.0F));
+							});
+							multiNoiseBiomeSourceBuilder.humidityNoise(noiseSettings -> {
+								noiseSettings.firstOctave(Rands.randIntRange(1, 9));
+								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 9.0F), Rands.randFloatRange(1.0F, 12.0F));
+							});
 						});
-//						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Utils.appendToPath(dimensionData.getId(), "_biome_0").toString()));
+						//						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Utils.appendToPath(dimensionData.getId(), "_biome_0").toString()));
 						noiseChunkGeneratorTypeBuilder.noiseSettings(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings").toString());
 						noiseChunkGeneratorTypeBuilder.seed((int) Rands.getRandom().nextLong());
 					});
+					System.out.println("Dimension JSON: " + dimensionBuilder.buildTo(new JsonObject()).toOutputString());
 				});
 			});
 		});
-		Dimensions.DIMENSIONS.forEach(dimensionData -> SkyPropertiesAccessor.getBY_DIMENSION_TYPE().put(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId()),
+		Dimensions.DIMENSIONS.forEach(dimensionData -> SkyPropertiesAccessor.getBY_IDENTIFIER().put(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId()),
 				new RAADimensionSkyProperties(dimensionData)));
 	}
 

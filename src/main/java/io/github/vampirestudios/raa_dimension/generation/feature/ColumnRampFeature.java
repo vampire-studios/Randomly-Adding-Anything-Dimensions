@@ -10,7 +10,7 @@ import net.minecraft.block.Material;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.Feature;
 
@@ -29,7 +29,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 	}
 
 	@Override
-	public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random rand, BlockPos position, ColumnBlocksConfig featureConfig) {
+	public boolean generate(StructureWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos position, ColumnBlocksConfig featureConfig) {
 		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
 		int minWidth = 4;
 		int currentHeight = 0;
@@ -90,7 +90,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 		}
 
 		//how much to turn on a range of -1 to 1. -1 for north, 0 for south
-		float randFloat = rand.nextFloat();
+		float randFloat = random.nextFloat();
 		float xTurningValue = (float) Math.sin(randFloat * Math.PI * 2);
 		float zTurningValue = (float) Math.cos(randFloat * Math.PI * 2);
 

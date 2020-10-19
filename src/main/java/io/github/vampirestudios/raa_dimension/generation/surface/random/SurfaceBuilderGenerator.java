@@ -149,8 +149,8 @@ public class SurfaceBuilderGenerator {
     }
 
     private static class SurfaceBuilderHolder {
-        private String type;
-        private List<SurfaceElement> elements;
+        private final String type;
+        private final List<SurfaceElement> elements;
 
         private SurfaceBuilderHolder(String type, List<SurfaceElement> elements) {
             this.type = type;

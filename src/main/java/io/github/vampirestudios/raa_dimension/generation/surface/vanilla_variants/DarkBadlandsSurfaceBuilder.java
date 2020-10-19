@@ -52,7 +52,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
         int n = x & 15;
         int o = z & 15;
         BlockState whiteTerracotta = WHITE_TERRACOTTA;
-        BlockState underMaterial = biome.getSurfaceConfig().getUnderMaterial();
+        BlockState underMaterial = biome.getGenerationSettings().getSurfaceConfig().getUnderMaterial();
         int i = (int) (noise / 3.0D + 3.0D + random.nextDouble() * 0.25D);
         boolean b = Math.cos(noise / 3.0D * 3.141592653589793D) > 0.0D;
         int i1 = -1;
@@ -74,7 +74,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
                             underMaterial = defaultBlock;
                         } else if (y >= seaLevel - 4 && y <= seaLevel + 1) {
                             whiteTerracotta = WHITE_TERRACOTTA;
-                            underMaterial = biome.getSurfaceConfig().getUnderMaterial();
+                            underMaterial = biome.getGenerationSettings().getSurfaceConfig().getUnderMaterial();
                         }
 
                         if (y < seaLevel && (whiteTerracotta == null || whiteTerracotta.isAir())) {
@@ -97,7 +97,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
 
                                 chunk.setBlockState(mutable, state, false);
                             } else {
-                                chunk.setBlockState(mutable, biome.getSurfaceConfig().getTopMaterial(), false);
+                                chunk.setBlockState(mutable, biome.getGenerationSettings().getSurfaceConfig().getTopMaterial(), false);
                                 notSureWhatThisIs = true;
                             }
                         } else {

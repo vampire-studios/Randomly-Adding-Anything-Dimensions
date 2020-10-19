@@ -6,7 +6,7 @@ import io.github.vampirestudios.raa_dimension.utils.OpenSimplexNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.Feature;
 
@@ -15,17 +15,6 @@ import java.util.Random;
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
 public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 	protected OpenSimplexNoise noiseGen;
-	protected long seed;
-
-
-	public void setSeed(long seed)
-	{
-		if (this.seed != seed || this.noiseGen == null)
-		{
-			this.noiseGen = new OpenSimplexNoise(seed);
-			this.seed = seed;
-		}
-	}
 
 
 	public ColumnVerticalFeature(Codec<ColumnBlocksConfig> configDeserializer) {
@@ -33,8 +22,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 	}
 
 	@Override
-	public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos, ColumnBlocksConfig featureConfig) {
-		setSeed(world.getSeed());
+	public boolean generate(StructureWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos, ColumnBlocksConfig featureConfig) {
 		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 		int minWidth = 3;
 		int maxWidth = 10;

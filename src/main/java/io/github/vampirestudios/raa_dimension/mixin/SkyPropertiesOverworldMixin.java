@@ -8,6 +8,10 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(SkyProperties.Overworld.class)
 public class SkyPropertiesOverworldMixin extends SkyProperties implements AstralBodyModifier {
 
+    public SkyPropertiesOverworldMixin(float cloudsHeight, boolean alternateSkyColor, SkyType skyType, boolean shouldRenderSky, boolean darkened) {
+        super(cloudsHeight, alternateSkyColor, skyType, shouldRenderSky, darkened);
+    }
+
     @Override
     public Vec3d adjustSkyColor(Vec3d color, float sunHeight) {
         return color.multiply(sunHeight * 0.94F + 0.06F, sunHeight * 0.94F + 0.06F, sunHeight * 0.91F + 0.09F);
@@ -20,7 +24,7 @@ public class SkyPropertiesOverworldMixin extends SkyProperties implements Astral
 
     @Override
     public boolean shouldRenderSky() {
-
+        return true;
     }
 
     @Override

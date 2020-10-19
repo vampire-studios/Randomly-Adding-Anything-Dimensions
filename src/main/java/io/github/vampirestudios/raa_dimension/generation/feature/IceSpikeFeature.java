@@ -6,7 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
@@ -21,7 +21,7 @@ public class IceSpikeFeature extends Feature<DefaultFeatureConfig> {
       super(configDeserializer);
    }
 
-   public boolean generate(ServerWorldAccess iWorld, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos, DefaultFeatureConfig defaultFeatureConfig) {
+   public boolean generate(StructureWorldAccess iWorld, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos, DefaultFeatureConfig defaultFeatureConfig) {
       while(iWorld.isAir(blockPos) && blockPos.getY() > 2) {
          blockPos = blockPos.down();
       }

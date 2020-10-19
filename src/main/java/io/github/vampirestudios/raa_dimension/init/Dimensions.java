@@ -1,5 +1,6 @@
 package io.github.vampirestudios.raa_dimension.init;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Lifecycle;
 import io.github.vampirestudios.raa_core.RAACore;
 import io.github.vampirestudios.raa_core.api.name_generation.NameGenerator;
@@ -24,6 +25,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.registry.DefaultedRegistry;
@@ -220,7 +222,7 @@ public class Dimensions {
                 SurfaceBuilder<?> surfaceBuilder = Utils.newRandomSurfaceBuilder();
                 TernarySurfaceConfig surfaceConfig = Utils.randomSurfaceBuilderConfig();
 
-                /*List<CarverType> carvers = new ArrayList<>();
+                List<CarverType> carvers = new ArrayList<>();
 
                 //cave generation
                 if (!Rands.chance(5)) { //80% chance of normal caves
@@ -245,7 +247,7 @@ public class Dimensions {
 
                 if (Rands.chance(10)) { //10% chance of big rooms
                     carvers.add(CarverType.BIG_ROOM);
-                }*/
+                }
 
                 DimensionBiomeData biomeData = DimensionBiomeData.Builder.create(Utils.addSuffixToPath(name.getRight(), "_biome" + "_" + i), name.getLeft())
                         .depth(Rands.randFloatRange(-1F, 3F))
@@ -269,7 +271,7 @@ public class Dimensions {
                         .corruptedCratersChance(Rands.randFloatRange(0, 0.05F))
                         .surfaceBuilder(Registry.SURFACE_BUILDER.getId(surfaceBuilder))
                         .surfaceConfig(Utils.fromConfigToIdentifier(surfaceConfig))
-//                        .carvers(carvers)
+                        .carvers(carvers)
                         .build();
                 builder.biome(biomeData);
             }
@@ -283,7 +285,6 @@ public class Dimensions {
             builder.colorPalette(colorPalette);
 
             DimensionCustomSkyInformation customSkyInformation = DimensionCustomSkyInformation.Builder.create()
-                    .hasSkyLight(Rands.chance(1))
                     .hasSky(!Rands.chance(2))
                     .customSun(Rands.chance(2))
                     .sunSize(Rands.randFloatRange(30F, 120F))
@@ -293,14 +294,85 @@ public class Dimensions {
                     .moonTint(MOON_COLOR.getColor()).build();
             builder.customSkyInformation(customSkyInformation);
 
+            DimensionTypeData typeData = DimensionTypeData.Builder.create()
+                    .doesBedsWork(Rands.chance(4))
+                    .isPiglinSafe(Rands.chance(100))
+                    .doesRegenAnchorsWork(Rands.chance(20))
+                    .shouldHaveRaids(Rands.chance(90))
+                    .coordinateScale(Rands.randFloatRange(1.0F, 3.0F))
+                    .hasSkyLight(Rands.chance(1))
+                    .hasCeiling(Rands.chance(10))
+                    .isUltrawarm(Rands.chance(10))
+                    .isNatural(Rands.chance(10))
+                    .hasEnderDragonFight(Rands.chance(1000))
+                    .logicalHeight(Rands.randIntRange(70, 256))
+                    .ambientLight(Rands.randFloatRange(0F, 0.16F))
+                    .infiniburnTag(BlockTags.INFINIBURN_OVERWORLD.getId().toString())
+                    .hasFixedTime(Rands.chance(10))
+                    .fixedTime(Rands.randIntRange(0, 24000))
+                    .build();
+            builder.dimensionType(typeData);
+
+            DimensionNoiseSettingsData.Builder noiseSettingsData = DimensionNoiseSettingsData.Builder.create()
+                    .defaultDlock(io.github.vampirestudios.vampirelib.utils.Utils.appendToPath(name.getRight(), "_stone").toString())
+                    .defaultFluid(Rands.list(ImmutableList.of(
+                            "minecraft:water",
+                            "minecraft:lava",
+                            "minecraft:air"
+                    )))
+                    .bedrockFloorPosition(Rands.randIntRange(0, 255))
+                    .bedrockRoofPosition(Rands.randIntRange(0, 255))
+                    .disableMobGeneration(Rands.chance(10));
+
+            int sizeHorizontal = Rands.randIntRange(1,3);
+            if (sizeHorizontal == 3) {
+                sizeHorizontal = 4;
+            }
+            int finalSizeHorizontal = sizeHorizontal;
+            float densityFactor = Rands.randFloatRange(0.5F,3.0F);
+            if (densityFactor == 3.0F) {
+                densityFactor = 4.0F;
+            }
+            float finalDensityFactor = densityFactor;
+            DimensionNoiseConfigData.Builder noiseConfigData = DimensionNoiseConfigData.Builder.create()
+                    .amplified(Rands.chance(3))
+                    .densityFactor(finalDensityFactor)
+                    .densityOffset(Rands.randFloatRange(-0.25F, -1.0F))
+                    .height(Rands.randIntRange(0, 255))
+                    .sizeVertical(Rands.randIntRange(1, 4))
+                    .sizeHorizontal(finalSizeHorizontal)
+                    .simplexSurfaceNoise(Rands.chance(3))
+                    .islandNoiseOverride(Rands.chance(3))
+                    .randomDensityOffset(Rands.chance(3));
+
+            DimensionNoiseConfigData.SlideData bottomSlideData = DimensionNoiseConfigData.SlideData.Builder.create()
+                    .offset(Rands.randInt(5))
+                    .size(Rands.randInt(5))
+                    .target(Rands.randInt(5))
+                    .build();
+            noiseConfigData.bottomSlide(bottomSlideData);
+
+            DimensionNoiseConfigData.SlideData topSlideData = DimensionNoiseConfigData.SlideData.Builder.create()
+                    .offset(Rands.randInt(5))
+                    .size(Rands.randIntRange(0, 255))
+                    .target(Rands.randInt(5))
+                    .build();
+            noiseConfigData.topSlide(topSlideData);
+
+            DimensionNoiseConfigData.Sampling sampling = DimensionNoiseConfigData.Sampling.Builder.create()
+                    .xzFactor(80)
+                    .xzScale(1)
+                    .yFactor(160)
+                    .yScale(1)
+                    .build();
+            noiseConfigData.sampling(sampling);
+
+            noiseSettingsData.noise(noiseConfigData.build());
+            builder.noiseSettings(noiseSettingsData.build());
+
             DimensionData dimensionData = builder.build();
 
             Registry.register(DIMENSIONS, dimensionData.getId(), dimensionData);
-
-            // Debug Only
-            /*if (RandomlyAddingAnything.CONFIG.debug) {
-                ConsolePrinting.dimensionDebug(dimensionData);
-            }*/
         }
     }
 

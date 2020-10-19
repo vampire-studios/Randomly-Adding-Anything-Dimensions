@@ -126,7 +126,7 @@ public class RavineCarver extends RAACarver<ProbabilityConfig> {
                     if (atomicBoolean_1.getValue()) {
                         blockPos$Mutable_3.set(blockPos$Mutable_1).offset(Direction.DOWN);
                         if (chunk_1.getBlockState(blockPos$Mutable_3).getBlock() == Blocks.DIRT) {
-                            chunk_1.setBlockState(blockPos$Mutable_3, function_1.apply(blockPos$Mutable_1).getSurfaceConfig().getTopMaterial(), false);
+                            chunk_1.setBlockState(blockPos$Mutable_3, function_1.apply(blockPos$Mutable_1).getGenerationSettings().getSurfaceConfig().getTopMaterial(), false);
                         }
                     }
                 }

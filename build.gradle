@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.4-SNAPSHOT'
+	id 'fabric-loom' version '0.5-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -19,6 +19,7 @@ repositories {
 	maven {
 		url = "https://dl.bintray.com/vampirestudios/Minecraft-Libs"
 	}
+	mavenLocal()
 }
 
 minecraft {
@@ -33,6 +34,16 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation 'com.github.shartte.fabric:fabric-dimensions-v1:dimension-api-SNAPSHOT'
+
+	modImplementation ("com.lettuce.fudge:artifice:0.14.3+1.16.3") {
+		force = true
+		exclude group: "net.fabricmc.fabric-api"
+	}
+	include ("com.lettuce.fudge:artifice:0.14.3+1.16.3") {
+		force = true
+		exclude group: "net.fabricmc.fabric-api"
+	}
 
 	modImplementation "io.github.vampirestudios:raa-core:${project.core_version}"
 

@@ -251,7 +251,7 @@ public class WorldStructureManipulation {
 
     public static void spawnEntity(ServerWorldAccess world, BlockPos pos, String entity, Map<String, String> properties, float rotation) {
         if (entity.equals("minecraft:armor_stand")) {
-            Entity armorStand = EntityType.ARMOR_STAND.create(world.getWorld());
+            Entity armorStand = EntityType.ARMOR_STAND.create(world.toServerWorld());
 
             List<ItemStack> helmets = ImmutableList.of(
                     new ItemStack(Items.LEATHER_HELMET),

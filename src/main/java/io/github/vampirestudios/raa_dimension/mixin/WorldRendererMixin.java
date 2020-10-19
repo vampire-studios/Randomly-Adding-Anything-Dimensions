@@ -124,7 +124,7 @@ public abstract class WorldRendererMixin {
                     BufferRenderer.draw(bufferBuilder);
                     t = 20.0F;
                     this.textureManager.bindTexture(MOON_PHASES);
-                    int u = this.world.method_30273();
+                    int u = this.world.getMoonPhase();
                     int v = u % 4;
                     int w = u / 4 % 2;
                     float x = (float) v / 4.0F;

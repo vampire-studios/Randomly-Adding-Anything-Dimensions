@@ -63,7 +63,7 @@ public abstract class RAACarver<C extends CarverConfig> extends Carver<C> {
                     if (atomicBoolean.getValue()) {
                         mutable3.set(mutable).offset(Direction.DOWN);
                         if (chunk.getBlockState(mutable3).getBlock() == Blocks.DIRT) {
-                            chunk.setBlockState(mutable3, posBiomeFunction.apply(mutable).getSurfaceConfig().getTopMaterial(), false);
+                            chunk.setBlockState(mutable3, posBiomeFunction.apply(mutable).getGenerationSettings().getSurfaceConfig().getTopMaterial(), false);
                         }
                     }
                 }

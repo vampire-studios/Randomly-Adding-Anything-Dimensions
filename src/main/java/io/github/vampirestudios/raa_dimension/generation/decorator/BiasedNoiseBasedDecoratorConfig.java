@@ -19,7 +19,7 @@ public class BiasedNoiseBasedDecoratorConfig implements DecoratorConfig {
             return countExtraDecoratorConfig.noiseFactor;
         }), Codec.DOUBLE.fieldOf("noiseOffset").forGetter((countExtraDecoratorConfig) -> {
             return countExtraDecoratorConfig.noiseOffset;
-        }), Heightmap.Type.field_24772.fieldOf("heightmap").forGetter((countExtraDecoratorConfig) -> {
+        }), Heightmap.Type.CODEC.fieldOf("heightmap").forGetter((countExtraDecoratorConfig) -> {
             return countExtraDecoratorConfig.heightmap;
         })).apply(instance, BiasedNoiseBasedDecoratorConfig::new);
     });

@@ -9,7 +9,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
@@ -24,7 +24,7 @@ public class SpiderLairFeature extends Feature<DefaultFeatureConfig> {
     }
 
     @Override
-    public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig defaultFeatureConfig) {
+    public boolean generate(StructureWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig defaultFeatureConfig) {
         if (world.getBlockState(pos.add(0, -1, 0)).isAir() || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
         if (world.getBlockState(pos.down(1)).getBlock() == Blocks.GRASS_BLOCK) {
@@ -38,7 +38,7 @@ public class SpiderLairFeature extends Feature<DefaultFeatureConfig> {
             }
 
             BlockPos chestPos = pos.add(0, -1, 0);
-            world.setBlockState(chestPos, StructurePiece.method_14916(world, chestPos, Blocks.CHEST.getDefaultState()), 2);
+            world.setBlockState(chestPos, StructurePiece.orientateChest(world, chestPos, Blocks.CHEST.getDefaultState()), 2);
             LootableContainerBlockEntity.setLootTable(world, random, chestPos, new Identifier(RAADimensionAddon.MOD_ID, "chest/spider_lair"));
 
 //            Utils.createSpawnsFile("spider_lair", world, pos);
