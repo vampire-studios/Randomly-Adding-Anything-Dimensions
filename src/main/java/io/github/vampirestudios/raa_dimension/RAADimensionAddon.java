@@ -11,6 +11,7 @@ import io.github.vampirestudios.raa_dimension.config.SurfaceBuilderConfig;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.RAADimensionSkyProperties;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
 import io.github.vampirestudios.raa_dimension.init.Dimensions;
+import io.github.vampirestudios.raa_dimension.init.Features;
 import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
 import io.github.vampirestudios.raa_dimension.init.Textures;
 import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
@@ -56,6 +57,8 @@ public class RAADimensionAddon implements RAAAddon {
 		CivsLanguageManager.init();
 		Textures.init();
 		SurfaceBuilders.init();
+		Textures.init();
+		Features.init();
 
 		SurfaceBuilderGenerator.registerElements();
 		SURFACE_BUILDER_CONFIG = new SurfaceBuilderConfig("surface_builders/surface_builder_config");
@@ -128,7 +131,7 @@ public class RAADimensionAddon implements RAAAddon {
 											slideConfigBuilder.offset(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getOffset())
 													.size(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getSize())
 													.target(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getTarget());
-										}).topSlide(slideConfigBuilder -> {
+								}).topSlide(slideConfigBuilder -> {
 									slideConfigBuilder.offset(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getOffset())
 											.size(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getSize())
 											.target(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getTarget());
@@ -176,7 +179,6 @@ public class RAADimensionAddon implements RAAAddon {
 								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 9.0F), Rands.randFloatRange(1.0F, 12.0F));
 							});
 						});
-						//						noiseChunkGeneratorTypeBuilder.fixedBiomeSource(fixedBiomeSourceBuilder -> fixedBiomeSourceBuilder.biome(Utils.appendToPath(dimensionData.getId(), "_biome_0").toString()));
 						noiseChunkGeneratorTypeBuilder.noiseSettings(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings").toString());
 						noiseChunkGeneratorTypeBuilder.seed((int) Rands.getRandom().nextLong());
 					});

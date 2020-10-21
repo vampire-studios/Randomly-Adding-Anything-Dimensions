@@ -31,29 +31,23 @@ public class CustomDimensionalBiome extends Biome {
             .feature(GenerationStep.Feature.VEGETAL_DECORATION, ConfiguredFeatures.SPRING_LAVA)
             .structureFeature(ConfiguredStructureFeatures.FORTRESS);
 
-    private DimensionData dimensionData;
+    private static DimensionData dimensionData;
+    private static DimensionBiomeData biomeData;
 
-    public CustomDimensionalBiome(DimensionData dimensionData, DimensionBiomeData biomeData) {
-        super(new Weather(Utils.checkBitFlag(dimensionData.getFlags(), Utils.FROZEN) ? Precipitation.SNOW : Rands.chance(10) ? Precipitation.RAIN : Precipitation.NONE,
-                biomeData.getTemperature(), TemperatureModifier.NONE, biomeData.getDownfall()),
+    public CustomDimensionalBiome(DimensionData dimensionDataIn, DimensionBiomeData biomeDataIn) {
+        super(new Weather(Utils.checkBitFlag(dimensionDataIn.getFlags(), Utils.FROZEN) ? Precipitation.SNOW : Rands.chance(10) ? Precipitation.RAIN : Precipitation.NONE,
+                biomeDataIn.getTemperature(), TemperatureModifier.NONE, biomeDataIn.getDownfall()),
                 Category.PLAINS,
-                biomeData.getDepth(),
-                biomeData.getScale(),
+                biomeDataIn.getDepth(),
+                biomeDataIn.getScale(),
                 new BiomeEffects.Builder()
-                        .fogColor(dimensionData.getDimensionColorPalette().getFogColor())
-                        .waterColor(biomeData.getWaterColor())
-                        .waterFogColor(biomeData.getWaterColor())
-                        .skyColor(dimensionData.getDimensionColorPalette().getSkyColor())
-                        .build(), GENERATION_SETTINGS.surfaceBuilder(new ConfiguredSurfaceBuilder<>((SurfaceBuilder<TernarySurfaceConfig>) Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()), biomeData.getSurfaceConfig())).build(), SPAWN_SETTINGS.build());
-        this.dimensionData = dimensionData;
-
-        /*if (!(dimensionData.getDimensionChunkGenerator() == DimensionChunkGenerators.FLOATING))
-            if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED) || Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED))
-                this.addStructureFeature(Feature.MINESHAFT.configure(new MineshaftFeatureConfig((Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) ? 0.016D : 0.004D,
-                        MineshaftFeature.Type.NORMAL)));*/
-
-//        Features.addDefaultCarvers(this, dimensionData);
-//        Features.addDefaultSprings(this, dimensionData);
+                        .fogColor(dimensionDataIn.getDimensionColorPalette().getFogColor())
+                        .waterColor(biomeDataIn.getWaterColor())
+                        .waterFogColor(biomeDataIn.getWaterColor())
+                        .skyColor(dimensionDataIn.getDimensionColorPalette().getSkyColor())
+                        .build(), GENERATION_SETTINGS.surfaceBuilder(new ConfiguredSurfaceBuilder<>((SurfaceBuilder<TernarySurfaceConfig>) Registry.SURFACE_BUILDER.get(biomeDataIn.getSurfaceBuilder()), biomeDataIn.getSurfaceConfig())).build(), SPAWN_SETTINGS.build());
+        dimensionData = dimensionDataIn;
+        biomeData = biomeDataIn;
 
         /*if (Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()) == SurfaceBuilders.HYPER_FLAT) {
             DefaultBiomeFeatures.addSeagrassOnStone(this);
@@ -120,21 +114,21 @@ public class CustomDimensionalBiome extends Biome {
             }
         }*/
 
-        float campfireChance = biomeData.getCampfireChance();
-        float outpostChance = biomeData.getOutpostChance();
-        float towerChance = biomeData.getTowerChance();
+        float campfireChance = biomeDataIn.getCampfireChance();
+        float outpostChance = biomeDataIn.getOutpostChance();
+        float towerChance = biomeDataIn.getTowerChance();
         float fossilChance = 0;
         float shrineChance = 0.002F;
 
-        if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED)) {
+        if (Utils.checkBitFlag(dimensionDataIn.getFlags(), Utils.ABANDONED)) {
             outpostChance = Rands.randFloatRange(0.002F, 0.003F);
             towerChance = Rands.randFloatRange(0.002F, 0.00225F);
         }
-        if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD)) {
+        if (Utils.checkBitFlag(dimensionDataIn.getFlags(), Utils.DEAD)) {
             campfireChance = 0;
             fossilChance = Rands.randFloatRange(0.007F, 0.0075F);
         }
-        if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) {
+        if (Utils.checkBitFlag(dimensionDataIn.getFlags(), Utils.CIVILIZED)) {
             campfireChance = Rands.randFloatRange(0.005F, 0.007F);
             outpostChance = Rands.randFloatRange(0.002F, 0.008F);
             towerChance = Rands.randFloatRange(0.002F, 0.003F);
@@ -195,21 +189,6 @@ public class CustomDimensionalBiome extends Biome {
 //        this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.MUSHROOM_RUIN.configure(new DefaultFeatureConfig()).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, 1.0f, 1))));
 //        this.addFeature(GenerationStep.Feature.UNDERGROUND_STRUCTURES, Features.UNDERGROUND_BEE_HIVE.configure(new DefaultFeatureConfig()).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, 1.0f, 1))));
 
-        /*if (biomeData.hasMushrooms()) {
-            GENERATION_SETTINGS.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
-                    ImmutableList.of(
-                            ConfiguredFeatures.BROWN_MUSHROOM_GIANT.withChance(1)),
-                    ConfiguredFeatures.OAK
-            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
-            GENERATION_SETTINGS.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
-                    ImmutableList.of(
-                            ConfiguredFeatures.RED_MUSHROOM_GIANT.withChance(1)),
-                    ConfiguredFeatures.OAK
-            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
-        }
-        if (biomeData.hasMossyRocks())
-            DefaultBiomeFeatures.addMossyRocks(GENERATION_SETTINGS);*/
-
 
 
         /*if ((Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) || (Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED))) {
@@ -221,48 +200,6 @@ public class CustomDimensionalBiome extends Biome {
             TombFeature tomb = Features.register(String.format("%s_tomb", dimensionData.getName().toLowerCase()), new TombFeature(dimensionData));
             this.addFeature(GenerationStep.Feature.SURFACE_STRUCTURES, tomb.configure(FeatureConfig.DEFAULT).createDecoratedFeature(Decorators.RANDOM_EXTRA_HEIGHTMAP_DECORATOR.configure(new CountExtraChanceDecoratorConfig(0, 0.015f, 1))));
         }*/
-
-        /*if (dimensionData.getMobs().containsKey("sheep"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.SHEEP, dimensionData.getMobs().get("sheep")[0], dimensionData.getMobs().get("sheep")[1], dimensionData.getMobs().get("sheep")[2]));
-        if (dimensionData.getMobs().containsKey("pig"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.PIG, dimensionData.getMobs().get("pig")[0], dimensionData.getMobs().get("pig")[1], dimensionData.getMobs().get("pig")[2]));
-        if (dimensionData.getMobs().containsKey("chicken"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.CHICKEN, dimensionData.getMobs().get("chicken")[0], dimensionData.getMobs().get("chicken")[1], dimensionData.getMobs().get("chicken")[2]));
-        if (dimensionData.getMobs().containsKey("cow"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.COW, dimensionData.getMobs().get("cow")[0], dimensionData.getMobs().get("cow")[1], dimensionData.getMobs().get("cow")[2]));
-        if (dimensionData.getMobs().containsKey("horse"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.HORSE, dimensionData.getMobs().get("horse")[0], dimensionData.getMobs().get("horse")[1], dimensionData.getMobs().get("horse")[2]));
-        if (dimensionData.getMobs().containsKey("donkey"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.DONKEY, dimensionData.getMobs().get("donkey")[0], dimensionData.getMobs().get("donkey")[1], dimensionData.getMobs().get("donkey")[2]));
-
-        if (dimensionData.getMobs().containsKey("bat"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.AMBIENT, new SpawnEntry(EntityType.BAT, dimensionData.getMobs().get("bat")[0], dimensionData.getMobs().get("bat")[1], dimensionData.getMobs().get("bat")[2]));
-
-        if (dimensionData.getMobs().containsKey("spider"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SPIDER, dimensionData.getMobs().get("spider")[0], dimensionData.getMobs().get("spider")[1], dimensionData.getMobs().get("spider")[2]));
-        if (dimensionData.getMobs().containsKey("zombie"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ZOMBIE, dimensionData.getMobs().get("zombie")[0], dimensionData.getMobs().get("zombie")[1], dimensionData.getMobs().get("zombie")[2]));
-        if (dimensionData.getMobs().containsKey("zombie_villager"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ZOMBIE_VILLAGER, dimensionData.getMobs().get("zombie_villager")[0], dimensionData.getMobs().get("zombie_villager")[1], dimensionData.getMobs().get("zombie_villager")[2]));
-        if (dimensionData.getMobs().containsKey("skeleton"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SKELETON, dimensionData.getMobs().get("skeleton")[0], dimensionData.getMobs().get("skeleton")[1], dimensionData.getMobs().get("skeleton")[2]));
-        if (dimensionData.getMobs().containsKey("creeper"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.CREEPER, dimensionData.getMobs().get("creeper")[0], dimensionData.getMobs().get("creeper")[1], dimensionData.getMobs().get("creeper")[2]));
-        if (dimensionData.getMobs().containsKey("slime"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SLIME, dimensionData.getMobs().get("slime")[0], dimensionData.getMobs().get("slime")[1], dimensionData.getMobs().get("slime")[2]));
-        if (dimensionData.getMobs().containsKey("enderman"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ENDERMAN, dimensionData.getMobs().get("enderman")[0], dimensionData.getMobs().get("enderman")[1], dimensionData.getMobs().get("enderman")[2]));
-        if (dimensionData.getMobs().containsKey("witch"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("witch")[0], dimensionData.getMobs().get("witch")[1], dimensionData.getMobs().get("witch")[2]));
-
-        if (dimensionData.getMobs().containsKey("blaze"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("blaze")[0], dimensionData.getMobs().get("blaze")[1], dimensionData.getMobs().get("blaze")[2]));
-        if (dimensionData.getMobs().containsKey("piglin"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("piglin")[0], dimensionData.getMobs().get("piglin")[1], dimensionData.getMobs().get("piglin")[2]));
-        if (dimensionData.getMobs().containsKey("zombified_piglin"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("zombified_piglin")[0], dimensionData.getMobs().get("zombified_piglin")[1], dimensionData.getMobs().get("zombified_piglin")[2]));
-        if (dimensionData.getMobs().containsKey("ghast"))
-            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("ghast")[0], dimensionData.getMobs().get("ghast")[1], dimensionData.getMobs().get("ghast")[2]));*/
     }
 
     static {
@@ -275,6 +212,69 @@ public class CustomDimensionalBiome extends Biome {
         DefaultBiomeFeatures.addDefaultVegetation(GENERATION_SETTINGS);
         DefaultBiomeFeatures.addSprings(GENERATION_SETTINGS);
         DefaultBiomeFeatures.addFrozenTopLayer(GENERATION_SETTINGS);
+
+        /*if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED) || Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED))
+            GENERATION_SETTINGS.structureFeature(Registry.register(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE, new Identifier(dimensionData.getId().getNamespace(), dimensionData.getId().getPath() + "_mineshaft"), StructureFeature.MINESHAFT.configure(new MineshaftFeatureConfig((Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) ? 0.016F : 0.004F,
+                    MineshaftFeature.Type.NORMAL))));*/
+
+//        Features.addDefaultCarvers(dimensionData, biomeData);
+
+        /*if (biomeData.hasMushrooms()) {
+            GENERATION_SETTINGS.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
+                    ImmutableList.of(
+                            ConfiguredFeatures.BROWN_MUSHROOM_GIANT.withChance(1)),
+                    ConfiguredFeatures.OAK
+            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
+            GENERATION_SETTINGS.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
+                    ImmutableList.of(
+                            ConfiguredFeatures.RED_MUSHROOM_GIANT.withChance(1)),
+                    ConfiguredFeatures.OAK
+            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
+        }
+        if (biomeData.hasMossyRocks())*/
+            DefaultBiomeFeatures.addMossyRocks(GENERATION_SETTINGS);
+
+//        if (dimensionData.getMobs().containsKey("sheep"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.SHEEP, dimensionData.getMobs().get("sheep")[0], dimensionData.getMobs().get("sheep")[1], dimensionData.getMobs().get("sheep")[2]));
+//        if (dimensionData.getMobs().containsKey("pig"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.PIG, dimensionData.getMobs().get("pig")[0], dimensionData.getMobs().get("pig")[1], dimensionData.getMobs().get("pig")[2]));
+//        if (dimensionData.getMobs().containsKey("chicken"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.CHICKEN, dimensionData.getMobs().get("chicken")[0], dimensionData.getMobs().get("chicken")[1], dimensionData.getMobs().get("chicken")[2]));
+//        if (dimensionData.getMobs().containsKey("cow"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.COW, dimensionData.getMobs().get("cow")[0], dimensionData.getMobs().get("cow")[1], dimensionData.getMobs().get("cow")[2]));
+//        if (dimensionData.getMobs().containsKey("horse"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.HORSE, dimensionData.getMobs().get("horse")[0], dimensionData.getMobs().get("horse")[1], dimensionData.getMobs().get("horse")[2]));
+//        if (dimensionData.getMobs().containsKey("donkey"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.CREATURE, new SpawnEntry(EntityType.DONKEY, dimensionData.getMobs().get("donkey")[0], dimensionData.getMobs().get("donkey")[1], dimensionData.getMobs().get("donkey")[2]));
+//
+//        if (dimensionData.getMobs().containsKey("bat"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.AMBIENT, new SpawnEntry(EntityType.BAT, dimensionData.getMobs().get("bat")[0], dimensionData.getMobs().get("bat")[1], dimensionData.getMobs().get("bat")[2]));
+//
+//        if (dimensionData.getMobs().containsKey("spider"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SPIDER, dimensionData.getMobs().get("spider")[0], dimensionData.getMobs().get("spider")[1], dimensionData.getMobs().get("spider")[2]));
+//        if (dimensionData.getMobs().containsKey("zombie"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ZOMBIE, dimensionData.getMobs().get("zombie")[0], dimensionData.getMobs().get("zombie")[1], dimensionData.getMobs().get("zombie")[2]));
+//        if (dimensionData.getMobs().containsKey("zombie_villager"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ZOMBIE_VILLAGER, dimensionData.getMobs().get("zombie_villager")[0], dimensionData.getMobs().get("zombie_villager")[1], dimensionData.getMobs().get("zombie_villager")[2]));
+//        if (dimensionData.getMobs().containsKey("skeleton"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SKELETON, dimensionData.getMobs().get("skeleton")[0], dimensionData.getMobs().get("skeleton")[1], dimensionData.getMobs().get("skeleton")[2]));
+//        if (dimensionData.getMobs().containsKey("creeper"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.CREEPER, dimensionData.getMobs().get("creeper")[0], dimensionData.getMobs().get("creeper")[1], dimensionData.getMobs().get("creeper")[2]));
+//        if (dimensionData.getMobs().containsKey("slime"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.SLIME, dimensionData.getMobs().get("slime")[0], dimensionData.getMobs().get("slime")[1], dimensionData.getMobs().get("slime")[2]));
+//        if (dimensionData.getMobs().containsKey("enderman"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.ENDERMAN, dimensionData.getMobs().get("enderman")[0], dimensionData.getMobs().get("enderman")[1], dimensionData.getMobs().get("enderman")[2]));
+//        if (dimensionData.getMobs().containsKey("witch"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("witch")[0], dimensionData.getMobs().get("witch")[1], dimensionData.getMobs().get("witch")[2]));
+//
+//        if (dimensionData.getMobs().containsKey("blaze"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("blaze")[0], dimensionData.getMobs().get("blaze")[1], dimensionData.getMobs().get("blaze")[2]));
+//        if (dimensionData.getMobs().containsKey("piglin"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("piglin")[0], dimensionData.getMobs().get("piglin")[1], dimensionData.getMobs().get("piglin")[2]));
+//        if (dimensionData.getMobs().containsKey("zombified_piglin"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("zombified_piglin")[0], dimensionData.getMobs().get("zombified_piglin")[1], dimensionData.getMobs().get("zombified_piglin")[2]));
+//        if (dimensionData.getMobs().containsKey("ghast"))
+//            SPAWN_SETTINGS.spawn(SpawnGroup.MONSTER, new SpawnEntry(EntityType.WITCH, dimensionData.getMobs().get("ghast")[0], dimensionData.getMobs().get("ghast")[1], dimensionData.getMobs().get("ghast")[2]));
     }
 
     /*public static BranchedTreeFeatureConfig getTreeConfig(DimensionTreeData treeData) {

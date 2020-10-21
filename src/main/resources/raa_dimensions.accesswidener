@@ -35,3 +35,15 @@ accessible method net/minecraft/world/gen/chunk/NoiseChunkGenerator sampleNoise 
 accessible field net/minecraft/world/gen/chunk/NoiseChunkGenerator noiseSizeY I
 accessible method net/minecraft/client/world/GeneratorType <init> (Ljava/lang/String;)V
 extendable method net/minecraft/client/world/GeneratorType <init> (Ljava/lang/String;)V
+
+extendable method net/minecraft/world/gen/chunk/NoiseChunkGenerator sampleNoise (IIIDDDD)D
+
+accessible field net/minecraft/world/gen/chunk/ChunkGenerator structuresConfig Lnet/minecraft/world/gen/chunk/StructuresConfig;
+accessible field net/minecraft/world/gen/chunk/ChunkGenerator worldSeed J
+accessible field net/minecraft/world/gen/chunk/ChunkGenerator biomeSource Lnet/minecraft/world/biome/source/BiomeSource;
+mutable field net/minecraft/world/gen/chunk/ChunkGenerator structuresConfig Lnet/minecraft/world/gen/chunk/StructuresConfig;
+mutable field net/minecraft/world/gen/chunk/ChunkGenerator worldSeed J
+mutable field net/minecraft/world/gen/chunk/ChunkGenerator biomeSource Lnet/minecraft/world/biome/source/BiomeSource;
+
+accessible method net/minecraft/world/gen/chunk/NoiseChunkGenerator sampleNoiseColumn (II)[D
+extendable method net/minecraft/world/gen/chunk/NoiseChunkGenerator sampleNoiseColumn (II)[D

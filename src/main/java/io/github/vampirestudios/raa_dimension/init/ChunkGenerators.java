@@ -1,24 +1,67 @@
 package io.github.vampirestudios.raa_dimension.init;
 
-import io.github.vampirestudios.raa.generation.chunkgenerator.*;
-import io.github.vampirestudios.raa.generation.chunkgenerator.caves.CavesChunkGenerator;
-import io.github.vampirestudios.raa.generation.chunkgenerator.caves.FlatCavesChunkGenerator;
-import io.github.vampirestudios.raa.generation.chunkgenerator.caves.HighCavesChunkGenerator;
-import io.github.vampirestudios.raa.generation.chunkgenerator.floating.FloatingIslandsChunkGenerator;
-import io.github.vampirestudios.raa.generation.chunkgenerator.floating.LayeredFloatingIslandsChunkGenerator;
-import io.github.vampirestudios.raa.generation.chunkgenerator.floating.PreClassicFloatingIslandsChunkGenerator;
-import io.github.vampirestudios.raa.generation.chunkgenerator.overworld.*;
-import io.github.vampirestudios.raa.utils.RegistryUtils;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.chunk.CavesChunkGeneratorConfig;
-import net.minecraft.world.gen.chunk.ChunkGeneratorType;
-import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
-import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
-
-import static io.github.vampirestudios.raa.RandomlyAddingAnything.MOD_ID;
+import io.github.vampirestudios.raa_dimension.generation.chunkgenerator.ChaosChunkGenerator;
+import net.minecraft.client.world.GeneratorType;
+import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.biome.source.FixedBiomeSource;
+import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.GeneratorOptions;
+import net.minecraft.world.gen.chunk.*;
 
 public class ChunkGenerators {
-    public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, FloatingIslandsChunkGenerator> FLOATING_ISLANDS;
+    public static final GeneratorType CHAOS = new GeneratorType("raa_surface") {
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new ChaosChunkGenerator(new VanillaLayeredBiomeSource(seed, false, false, biomeRegistry), seed, () ->
+                    chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.OVERWORLD));
+        }
+    };
+    private static final GeneratorType FLAT = new GeneratorType("flat") {
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new FlatChunkGenerator(FlatChunkGeneratorConfig.getDefaultConfig(biomeRegistry));
+        }
+    };
+    private static final GeneratorType LARGE_BIOMES = new GeneratorType("large_biomes") {
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseChunkGenerator(new VanillaLayeredBiomeSource(seed, false, true, biomeRegistry), seed, () -> {
+                return chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.OVERWORLD);
+            });
+        }
+    };
+    public static final GeneratorType AMPLIFIED = new GeneratorType("amplified") {
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseChunkGenerator(new VanillaLayeredBiomeSource(seed, false, false, biomeRegistry), seed, () -> {
+                return chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.AMPLIFIED);
+            });
+        }
+    };
+    private static final GeneratorType SINGLE_BIOME_CAVES = new GeneratorType("single_biome_caves") {
+        public GeneratorOptions createDefaultOptions(DynamicRegistryManager.Impl registryManager, long seed, boolean generateStructures, boolean bonusChest) {
+            Registry<Biome> registry = registryManager.get(Registry.BIOME_KEY);
+            Registry<DimensionType> registry2 = registryManager.get(Registry.DIMENSION_TYPE_KEY);
+            Registry<ChunkGeneratorSettings> registry3 = registryManager.get(Registry.NOISE_SETTINGS_WORLDGEN);
+            return new GeneratorOptions(seed, generateStructures, bonusChest, GeneratorOptions.method_29962(DimensionType.createDefaultDimensionOptions(registry2, registry, registry3, seed), () -> {
+                return registry2.getOrThrow(DimensionType.OVERWORLD_CAVES_REGISTRY_KEY);
+            }, this.getChunkGenerator(registry, registry3, seed)));
+        }
+
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseChunkGenerator(new FixedBiomeSource(biomeRegistry.getOrThrow(BiomeKeys.PLAINS)), seed, () -> {
+                return chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.CAVES);
+            });
+        }
+    };
+    private static final GeneratorType SINGLE_BIOME_FLOATING_ISLANDS = new GeneratorType("single_biome_floating_islands") {
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseChunkGenerator(new FixedBiomeSource(biomeRegistry.getOrThrow(BiomeKeys.PLAINS)), seed, () -> {
+                return chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.FLOATING_ISLANDS);
+            });
+        }
+    };
+    /*public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, FloatingIslandsChunkGenerator> FLOATING_ISLANDS;
     public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, LayeredFloatingIslandsChunkGenerator> LAYERED_FLOATING;
     public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, PreClassicFloatingIslandsChunkGenerator> PRE_CLASSIC_FLOATING;
 
@@ -26,7 +69,6 @@ public class ChunkGenerators {
     public static ChunkGeneratorType<CavesChunkGeneratorConfig, FlatCavesChunkGenerator> FLAT_CAVES;
     public static ChunkGeneratorType<CavesChunkGeneratorConfig, HighCavesChunkGenerator> HIGH_CAVES;
 
-    public static ChunkGeneratorType<OverworldChunkGeneratorConfig, OverworldChunkGenerator> SURFACE;
     public static ChunkGeneratorType<OverworldChunkGeneratorConfig, QuadrupleAmplifiedChunkGenerator> QUADRUPLE_AMPLIFIED;
     public static ChunkGeneratorType<OverworldChunkGeneratorConfig, PillarWorldChunkGenerator> PILLAR_WORLD;
     public static ChunkGeneratorType<OverworldChunkGeneratorConfig, SmoothOverworldChunkGenerator> SMOOTH;
@@ -66,6 +108,6 @@ public class ChunkGenerators {
         CHECKERBOARD = RegistryUtils.registerChunkGenerator(new Identifier(MOD_ID, "checkerboard"), CheckerboardChunkGenerator::new, NoneGeneratorSettings::new, false);
 
         TEST = RegistryUtils.registerChunkGenerator(new Identifier(MOD_ID, "test"), TestChunkGenerator::new, OverworldChunkGeneratorConfig::new, false);
-    }
+    }*/
 
 }
