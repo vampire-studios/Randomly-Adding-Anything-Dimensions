@@ -4,12 +4,14 @@
   "package": "io.github.vampirestudios.raa_dimension.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "EntityMixin",
     "LevelStorageSessionMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "SkyPropertiesMixin"
   ],
   "client": [
     "SkyPropertiesAccessor",
-    "SkyPropertiesOverworldMixin",
+    //    "SkyPropertiesOverworldMixin",
     "WorldRendererMixin"
   ],
   "injectors": {

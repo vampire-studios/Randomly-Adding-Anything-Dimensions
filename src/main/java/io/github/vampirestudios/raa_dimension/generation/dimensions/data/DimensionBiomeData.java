@@ -9,6 +9,7 @@ import java.util.List;
 public class DimensionBiomeData {
     private Identifier id;
     private String biomeName;
+    private BiomeParameters biomeParameters;
     private float depth;
     private float scale;
     private float temperature;
@@ -30,12 +31,13 @@ public class DimensionBiomeData {
     private Identifier surfaceConfig;
     private List<CarverType> carvers;
 
-    DimensionBiomeData(Identifier id, String biomeName, float depth, float scale, float temperature, float downfall, int waterColor,
+    DimensionBiomeData(Identifier id, String biomeName, BiomeParameters biomeParameters, float depth, float scale, float temperature, float downfall, int waterColor,
                        int grassColor, int foliageColor, List<DimensionTreeData> treeData, float corruptedCratersChance, float nonCorruptedCratersChance,
                        boolean spawnsCratersInNonCorrupted, float largeSkeletonTreeChance, float campfireChance, float outpostChance, float towerChance,
                        boolean hasMushrooms, boolean hasMossyRocks, Identifier surfaceBuilder, Identifier surfaceConfig, List<CarverType> carvers) {
         this.id = id;
         this.biomeName = biomeName;
+        this.biomeParameters = biomeParameters;
         this.depth = depth;
         this.scale = scale;
         this.temperature = temperature;
@@ -72,6 +74,10 @@ public class DimensionBiomeData {
 
     public void setName(String biomeName) {
         this.biomeName = biomeName;
+    }
+
+    public BiomeParameters getBiomeParameters() {
+        return biomeParameters;
     }
 
     public float getDepth() {
@@ -189,6 +195,7 @@ public class DimensionBiomeData {
     public static class Builder {
         private Identifier id;
         private String name;
+        private BiomeParameters biomeParameters;
         private float depth;
         private float scale;
         private float temperature;
@@ -233,6 +240,11 @@ public class DimensionBiomeData {
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder biomeParameters(BiomeParameters biomeParameters) {
+            this.biomeParameters = biomeParameters;
             return this;
         }
 
@@ -337,7 +349,7 @@ public class DimensionBiomeData {
         }
 
         public DimensionBiomeData build() {
-            return new DimensionBiomeData(id, name, depth, scale, temperature, downfall, waterColor, grassColor, foliageColor, treeData,
+            return new DimensionBiomeData(id, name, biomeParameters, depth, scale, temperature, downfall, waterColor, grassColor, foliageColor, treeData,
                     corruptedCratersChance, nonCorruptedCratersChance, spawnsCratersInNonCorrupted, largeSkeletonTreeChance, campfireChance, outpostChance,
                     towerChance, hasMushrooms, hasMossyRocks, surfaceBuilder, surfaceConfig, carvers);
         }

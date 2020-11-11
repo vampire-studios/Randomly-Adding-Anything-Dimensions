@@ -16,7 +16,7 @@ import net.minecraft.util.registry.Registry;
 public class RAADimensionAddonClient implements RAAAddonClient {
     @Override
     public void onClientInitialize() {
-        Artifice.registerAssetsNew(new Identifier(RAADimensionAddon.MOD_ID, "pack"), clientResourcePackBuilder -> {
+        Artifice.registerAssetPack(new Identifier(RAADimensionAddon.MOD_ID, "pack"), clientResourcePackBuilder -> {
             Dimensions.DIMENSIONS.forEach(dimensionData -> {
                 Identifier identifier = dimensionData.getId();
 

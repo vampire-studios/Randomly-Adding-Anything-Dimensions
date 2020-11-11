@@ -22,9 +22,6 @@ import io.github.vampirestudios.vampirelib.utils.Color;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.item.ToolMaterial;
-import net.minecraft.item.ToolMaterials;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
@@ -249,7 +246,16 @@ public class Dimensions {
                     carvers.add(CarverType.BIG_ROOM);
                 }
 
+                BiomeParameters biomeParameters = BiomeParameters.Builder.builder()
+                        .altitude(Rands.randFloatRange(-1.0F, 1.0F))
+                        .humidity(Rands.randFloatRange(-1.0F, 1.0F))
+                        .offset(Rands.randFloatRange(0.0F, 1.0F))
+                        .temperature(Rands.randFloatRange(-1.0F, 1.0F))
+                        .weirdness(Rands.randFloatRange(-1.0F, 1.0F))
+                        .create();
+
                 DimensionBiomeData biomeData = DimensionBiomeData.Builder.create(Utils.addSuffixToPath(name.getRight(), "_biome" + "_" + i), name.getLeft())
+                        .biomeParameters(biomeParameters)
                         .depth(Rands.randFloatRange(-1F, 3F))
                         .scale(Math.max(scale + Rands.randFloatRange(-0.75f, 0.75f), 0)) //ensure the scale is never below 0
                         .temperature(dimension.getTemperature() + Rands.randFloatRange(-0.5f, 0.5f))
@@ -313,6 +319,30 @@ public class Dimensions {
                     .build();
             builder.dimensionType(typeData);
 
+            NoiseSettings altitudeNoise = NoiseSettings.Builder.builder()
+                    .firstOctave(Rands.randIntRange(1, 4))
+                    .amplitudes(Rands.randFloatRange(1.0F, 4.0F), Rands.randFloatRange(1.0F, 9.0F))
+                    .create();
+            builder.altitudeNoise(altitudeNoise);
+
+            NoiseSettings weirdnessNoise = NoiseSettings.Builder.builder()
+                    .firstOctave(Rands.randIntRange(1, 2))
+                    .amplitudes(Rands.randFloatRange(1.0F, 2.0F), Rands.randFloatRange(1.0F, 5.0F))
+                    .create();
+            builder.weirdnessNoise(weirdnessNoise);
+
+            NoiseSettings temperatureNoise = NoiseSettings.Builder.builder()
+                    .firstOctave(Rands.randIntRange(1, 6))
+                    .amplitudes(Rands.randFloatRange(1.0F, 6.0F), Rands.randFloatRange(1.0F, 6.0F))
+                    .create();
+            builder.temperatureNoise(temperatureNoise);
+
+            NoiseSettings humidityNoise = NoiseSettings.Builder.builder()
+                    .firstOctave(Rands.randIntRange(1, 9))
+                    .amplitudes(Rands.randFloatRange(1.0F, 9.0F), Rands.randFloatRange(1.0F, 12.0F))
+                    .create();
+            builder.humidityNoise(humidityNoise);
+
             DimensionNoiseSettingsData.Builder noiseSettingsData = DimensionNoiseSettingsData.Builder.create()
                     .defaultDlock(io.github.vampirestudios.vampirelib.utils.Utils.appendToPath(name.getRight(), "_stone").toString())
                     .defaultFluid(Rands.list(ImmutableList.of(
@@ -320,8 +350,6 @@ public class Dimensions {
                             "minecraft:lava",
                             "minecraft:air"
                     )))
-                    .bedrockFloorPosition(Rands.randIntRange(0, 255))
-                    .bedrockRoofPosition(Rands.randIntRange(0, 255))
                     .disableMobGeneration(Rands.chance(10));
 
             int sizeHorizontal = Rands.randIntRange(1,3);
@@ -341,8 +369,8 @@ public class Dimensions {
                     .height(Rands.randIntRange(0, 255))
                     .sizeVertical(Rands.randIntRange(1, 4))
                     .sizeHorizontal(finalSizeHorizontal)
-                    .simplexSurfaceNoise(Rands.chance(3))
-                    .islandNoiseOverride(Rands.chance(3))
+                    .simplexSurfaceNoise(Rands.chance(10))
+                    .islandNoiseOverride(Rands.chance(20))
                     .randomDensityOffset(Rands.chance(3));
 
             DimensionNoiseConfigData.SlideData bottomSlideData = DimensionNoiseConfigData.SlideData.Builder.create()
@@ -378,56 +406,56 @@ public class Dimensions {
 
     public static void createDimensions() {
         DIMENSIONS.forEach(dimensionData -> {
-            Identifier identifier1 = dimensionData.getId();
+            Identifier dimensionDataId = dimensionData.getId();
 
-            Block stoneBlock = RegistryUtils.register(new DimensionalStone(dimensionData), Utils.addSuffixToPath(identifier1,
+            Block stoneBlock = RegistryUtils.register(new DimensionalStone(dimensionData), Utils.addSuffixToPath(dimensionDataId,
                     "_stone"), RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stone");
 
-            RegistryUtils.register(new StairsBaseBlock(stoneBlock.getDefaultState()), Utils.addSuffixToPath(identifier1, "_stone_stairs"),
+            RegistryUtils.register(new StairsBaseBlock(stoneBlock.getDefaultState()), Utils.addSuffixToPath(dimensionDataId, "_stone_stairs"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneStairs");
-            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_stone_slab"),
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(dimensionDataId, "_stone_slab"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneSlab");
-            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_stone_wall"),
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(dimensionDataId, "_stone_wall"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneWall");
 
-            Block stoneBrick = RegistryUtils.register(new DimensionalBlock(), Utils.addSuffixToPath(identifier1, "_stone_bricks"),
+            Block stoneBrick = RegistryUtils.register(new DimensionalBlock(), Utils.addSuffixToPath(dimensionDataId, "_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBricks");
-            RegistryUtils.register(new StairsBaseBlock(stoneBrick.getDefaultState()), Utils.addSuffixToPath(identifier1, "_stone_brick_stairs"),
+            RegistryUtils.register(new StairsBaseBlock(stoneBrick.getDefaultState()), Utils.addSuffixToPath(dimensionDataId, "_stone_brick_stairs"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickStairs");
-            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_stone_brick_slab"),
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(dimensionDataId, "_stone_brick_slab"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickSlab");
-            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_stone_brick_wall"),
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(dimensionDataId, "_stone_brick_wall"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickWall");
-            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_stone_bricks"),
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(dimensionDataId, "mossy_", "_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyStoneBricks");
-            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "cracked_", "_stone_bricks"),
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(dimensionDataId, "cracked_", "_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "crackedStoneBricks");
             Block cobblestone = RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
                             dimensionData.getId().getPath().toLowerCase() + "_cobblestone"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestone");
-            RegistryUtils.register(new StairsBaseBlock(cobblestone.getDefaultState()), Utils.addSuffixToPath(identifier1, "_cobblestone_stairs"),
+            RegistryUtils.register(new StairsBaseBlock(cobblestone.getDefaultState()), Utils.addSuffixToPath(dimensionDataId, "_cobblestone_stairs"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneStairs");
-            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(identifier1, "_cobblestone_slab"),
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addSuffixToPath(dimensionDataId, "_cobblestone_slab"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneSlab");
-            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(identifier1, "_cobblestone_wall"),
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(dimensionDataId, "_cobblestone_wall"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneWall");
-            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_cobblestone"),
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(dimensionDataId, "mossy_", "_cobblestone"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyCobblestone");
             RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
                             "chiseled_" + dimensionData.getId().getPath().toLowerCase() + "_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "chiseled_stone_bricks");
-            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "cracked_", "_chiseled_stone_bricks"),
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(dimensionDataId, "cracked_", "_chiseled_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "crackedChiseledStoneBricks");
-            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(identifier1, "mossy_", "_chiseled_stone_bricks"),
+            RegistryUtils.register(new DimensionalBlock(), Utils.addPrefixAndSuffixToPath(dimensionDataId, "mossy_", "_chiseled_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyChiseledStoneBricks");
             Block polished = RegistryUtils.register(new DimensionalBlock(), new Identifier(RAADimensionAddon.MOD_ID,
                             "polished_" + dimensionData.getId().getPath().toLowerCase()),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polished");
-            RegistryUtils.register(new StairsBaseBlock(polished.getDefaultState()), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_stairs"),
+            RegistryUtils.register(new StairsBaseBlock(polished.getDefaultState()), Utils.addPrefixAndSuffixToPath(dimensionDataId, "polished_", "_stairs"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polishedStairs");
-            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_slab"),
+            RegistryUtils.register(new SlabBaseBlock(Block.Settings.copy(Blocks.STONE_SLAB)), Utils.addPrefixAndSuffixToPath(dimensionDataId, "polished_", "_slab"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polishedSlab");
-            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addPrefixAndSuffixToPath(identifier1, "polished_", "_wall"),
+            RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addPrefixAndSuffixToPath(dimensionDataId, "polished_", "_wall"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polishedWall");
             Set<Biome> biomes = new LinkedHashSet<>();
             for (int i = 0; i < dimensionData.getBiomeData().size(); i++) {
@@ -460,90 +488,7 @@ public class Dimensions {
 
 //            RegistryUtils.registerBlockWithoutItem(new CustomPortalBlock(dimensionData, dimensionType), Utils.addSuffixToPath(dimensionData.getId(), "_custom_portal"));
 
-            ToolMaterial toolMaterial = new ToolMaterial() {
-                @Override
-                public int getDurability() {
-                    return (int) (ToolMaterials.STONE.getDurability() * dimensionData.getStoneHardness() / 2);
-                }
-
-                @Override
-                public float getMiningSpeedMultiplier() {
-                    return ToolMaterials.STONE.getMiningSpeedMultiplier() * dimensionData.getStoneHardness() / 2;
-                }
-
-                @Override
-                public float getAttackDamage() {
-                    return ToolMaterials.STONE.getAttackDamage() * dimensionData.getStoneHardness() / 4;
-                }
-
-                @Override
-                public int getMiningLevel() {
-                    return ToolMaterials.STONE.getMiningLevel();
-                }
-
-                @Override
-                public int getEnchantability() {
-                    return (int) (ToolMaterials.STONE.getEnchantability() * dimensionData.getStoneHardness() / 4);
-                }
-
-                @Override
-                public Ingredient getRepairIngredient() {
-                    return Ingredient.ofItems(Registry.ITEM.get(Utils.addSuffixToPath(dimensionData.getId(), "_cobblestone")));
-                }
-            };
-
-            /*RegistryUtils.registerItem(
-                    new DimensionalPickaxeItem(
-                            dimensionData,
-                            toolMaterial,
-                            1,
-                            -2.8F,
-                            new Item.Settings().group(RandomlyAddingAnything.RAA_TOOLS).recipeRemainder(Registry.ITEM.get(Utils.addSuffixToPath(identifier, "_cobblestone")))
-                    ),
-                    Utils.addSuffixToPath(identifier, "_pickaxe")
-            );
-            RegistryUtils.registerItem(
-                    new DimensionalAxeItem(
-                            dimensionData,
-                            toolMaterial,
-                            7.0F,
-                            -3.2F,
-                            new Item.Settings().group(RAADimensionAddon.RAA_TOOLS).recipeRemainder(Registry.ITEM.get(Utils.addSuffixToPath(identifier, "_cobblestone")))
-                    ),
-                    Utils.addSuffixToPath(identifier, "_axe")
-            );
-            RegistryUtils.registerItem(
-                    new DimensionalShovelItem(
-                            dimensionData,
-                            toolMaterial,
-                            1.5F,
-                            -3.0F,
-                            new Item.Settings().group(RandomlyAddingAnything.RAA_TOOLS).recipeRemainder(Registry.ITEM.get(Utils.addSuffixToPath(identifier, "_cobblestone")))
-                    ),
-                    Utils.addSuffixToPath(identifier, "_shovel")
-            );
-            RegistryUtils.registerItem(
-                    new DimensionalHoeItem(
-                            dimensionData,
-                            toolMaterial,
-                            1.5F,
-                            -2.0F,
-                            new Item.Settings().group(RandomlyAddingAnything.RAA_TOOLS).recipeRemainder(Registry.ITEM.get(Utils.addSuffixToPath(identifier, "_cobblestone")))
-                    ),
-                    Utils.addSuffixToPath(identifier, "_hoe")
-            );
-            RegistryUtils.registerItem(
-                    new DimensionalSwordItem(
-                            toolMaterial,
-                            dimensionData,
-                            new Item.Settings().group(RandomlyAddingAnything.RAA_WEAPONS).recipeRemainder(Registry.ITEM.get(Utils.addSuffixToPath(identifier, "_cobblestone")))
-                    ),
-                    Utils.addSuffixToPath(identifier, "_sword")
-            );*/
-//            RegistryUtils.registerItem(new DimensionalPortalKeyItem(dimensionData), Utils.addSuffixToPath(identifier, "_portal_key"));
-
-            /*RegistryUtils.register(new IceBlock(Block.Settings.copy(Blocks.ICE)), Utils.addSuffixToPath(dimensionData.getId(), "_ice"),
-                    RandomlyAddingAnything.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "ice");*/
+//            RegistryUtils.registerItem(new DimensionalPortalKeyItem(dimensionData), Utils.addSuffixToPath(dimensionDataId, "_portal_key"));
 
             /*Block portalBlock = RegistryUtils.registerBlockWithoutItem(new PortalBlock(dimensionType, dimensionData),
                     new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));

@@ -12,6 +12,10 @@ public class DimensionData {
     private String name;
     private DimensionTypeData typeData;
     private DimensionNoiseSettingsData noiseSettingsData;
+    private NoiseSettings altitudeNoise;
+    private NoiseSettings weirdnessNoise;
+    private NoiseSettings temperatureNoise;
+    private NoiseSettings humidityNoise;
     private final List<DimensionBiomeData> biomeData;
     private final DimensionColorPalette dimensionColorPalette;
     private final DimensionTextureData texturesInformation;
@@ -31,12 +35,12 @@ public class DimensionData {
     private float gravity;
 
     public DimensionData() {
-        this(null, null, null, null, null, null, null, null, false,
+        this(null, null, null, null, null, null, null, null, null, null, null, null, false,
                 false, false/*, null*/, 0, null, 0, null,
                 0, 0, 0, 0, 0);
     }
 
-    public DimensionData(Identifier id, String name, DimensionTypeData typeData, DimensionNoiseSettingsData noiseSettingsData, List<DimensionBiomeData> biomeData, DimensionColorPalette dimensionColorPalette, DimensionTextureData texturesInformation,
+    public DimensionData(Identifier id, String name, DimensionTypeData typeData, DimensionNoiseSettingsData noiseSettingsData, NoiseSettings altitudeNoise, NoiseSettings weirdnessNoise, NoiseSettings temperatureNoise, NoiseSettings humidityNoise, List<DimensionBiomeData> biomeData, DimensionColorPalette dimensionColorPalette, DimensionTextureData texturesInformation,
                          DimensionCustomSkyInformation customSkyInformation, boolean canSleep, boolean waterVaporize, boolean renderFog/*, DimensionChunkGenerators dimensionChunkGenerator*/,
                          int flags, HashMap<String, int[]> mobs, int difficulty, HashMap<String, Double> civilizationInfluences, float cloudHeight, float stoneJumpHeight, float stoneHardness,
                          float stoneResistance, float gravity) {
@@ -44,6 +48,10 @@ public class DimensionData {
         this.name = name;
         this.typeData = typeData;
         this.noiseSettingsData = noiseSettingsData;
+        this.altitudeNoise = altitudeNoise;
+        this.weirdnessNoise = weirdnessNoise;
+        this.temperatureNoise = temperatureNoise;
+        this.humidityNoise = humidityNoise;
         this.biomeData = biomeData;
         this.dimensionColorPalette = dimensionColorPalette;
         this.texturesInformation = texturesInformation;
@@ -89,6 +97,22 @@ public class DimensionData {
 
     public DimensionNoiseSettingsData getNoiseSettingsData() {
         return noiseSettingsData;
+    }
+
+    public NoiseSettings getAltitudeNoise() {
+        return altitudeNoise;
+    }
+
+    public NoiseSettings getWeirdnessNoise() {
+        return weirdnessNoise;
+    }
+
+    public NoiseSettings getTemperatureNoise() {
+        return temperatureNoise;
+    }
+
+    public NoiseSettings getHumidityNoise() {
+        return humidityNoise;
     }
 
     public DimensionColorPalette getDimensionColorPalette() {
@@ -193,6 +217,10 @@ public class DimensionData {
         private String name;
         private DimensionTypeData typeData;
         private DimensionNoiseSettingsData noiseSettingsData;
+        private NoiseSettings altitudeNoise;
+        private NoiseSettings weirdnessNoise;
+        private NoiseSettings temperatureNoise;
+        private NoiseSettings humidityNoise;
         private List<DimensionBiomeData> biomeData;
         private DimensionColorPalette dimensionColorPalette;
         private DimensionTextureData texturesInformation;
@@ -257,6 +285,26 @@ public class DimensionData {
 
         public Builder noiseSettings(DimensionNoiseSettingsData noiseSettingsData) {
             this.noiseSettingsData = noiseSettingsData;
+            return this;
+        }
+
+        public Builder altitudeNoise(NoiseSettings altitudeNoise) {
+            this.altitudeNoise = altitudeNoise;
+            return this;
+        }
+
+        public Builder weirdnessNoise(NoiseSettings weirdnessNoise) {
+            this.weirdnessNoise = weirdnessNoise;
+            return this;
+        }
+
+        public Builder temperatureNoise(NoiseSettings temperatureNoise) {
+            this.temperatureNoise = temperatureNoise;
+            return this;
+        }
+
+        public Builder humidityNoise(NoiseSettings humidityNoise) {
+            this.humidityNoise = humidityNoise;
             return this;
         }
 
@@ -333,7 +381,7 @@ public class DimensionData {
         }
 
         public DimensionData build() {
-            return new DimensionData(id, name, typeData, noiseSettingsData, biomeData, dimensionColorPalette, texturesInformation, customSkyInformation, canSleep, waterVaporize,
+            return new DimensionData(id, name, typeData, noiseSettingsData, altitudeNoise, weirdnessNoise, temperatureNoise, humidityNoise, biomeData, dimensionColorPalette, texturesInformation, customSkyInformation, canSleep, waterVaporize,
                     renderFog/*, dimensionChunkGenerator*/, flags, mobs, difficulty, civilizationInfluences, cloudHeight, stoneJumpHeight, stoneHardness,
                     stoneResistance, gravity);
         }

@@ -16,7 +16,7 @@ public class RAADimensionSkyProperties extends SkyProperties implements AstralBo
 	private final DimensionData dimensionData;
 
 	public RAADimensionSkyProperties(DimensionData dimensionData) {
-		super(dimensionData.getCloudHeight(), false, SkyType.NONE, dimensionData.getCustomSkyInformation().hasSky(), false);
+		super(dimensionData.getCloudHeight(), false, SkyType.NORMAL, dimensionData.getCustomSkyInformation().hasSky(), false);
 		this.dimensionData = dimensionData;
 	}
 
@@ -29,11 +29,6 @@ public class RAADimensionSkyProperties extends SkyProperties implements AstralBo
 		int fogColor2 = dimensionData.getDimensionColorPalette().getFogColor();
 		int[] rgbColor = Color.intToRgb(fogColor2);
 		return new Vec3d(rgbColor[0] / 255.0, rgbColor[1] / 255.0, rgbColor[2] / 255.0);
-	}
-
-	@Override
-	public float[] getSkyColor(float skyAngle, float tickDelta) {
-		return super.getSkyColor(skyAngle, tickDelta);
 	}
 
 	@Override

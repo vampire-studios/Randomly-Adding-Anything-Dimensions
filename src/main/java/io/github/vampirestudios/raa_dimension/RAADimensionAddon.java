@@ -1,6 +1,5 @@
 package io.github.vampirestudios.raa_dimension;
 
-import com.google.gson.JsonObject;
 import com.swordglowsblue.artifice.api.Artifice;
 import io.github.vampirestudios.raa_core.api.RAAAddon;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.CivsLanguageManager;
@@ -17,7 +16,7 @@ import io.github.vampirestudios.raa_dimension.init.Textures;
 import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer;
+import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -50,7 +49,7 @@ public class RAADimensionAddon implements RAAAddon {
 
 	@Override
 	public void onInitialize() {
-		AutoConfig.register(GeneralConfig.class, GsonConfigSerializer::new);
+		AutoConfig.register(GeneralConfig.class, JanksonConfigSerializer::new);
 		CONFIG = AutoConfig.getConfigHolder(GeneralConfig.class).getConfig();
 		DIMENSION_NUMBER = CONFIG.dimensionGenAmount;
 		DimensionLanguageManager.init();
@@ -80,7 +79,7 @@ public class RAADimensionAddon implements RAAAddon {
 		}
 		Dimensions.createDimensions();
 
-		Artifice.registerDataNew(new Identifier(getId(), "data_pack"), serverResourcePackBuilder -> {
+		Artifice.registerDataPack(new Identifier(getId(), "data_pack"), serverResourcePackBuilder -> {
 			Dimensions.DIMENSIONS.forEach(dimensionData -> {
 				serverResourcePackBuilder.addDimensionType(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_type"), dimensionTypeBuilder -> {
 					dimensionTypeBuilder.bedWorks(dimensionData.getTypeData().doesBedWork())
@@ -99,13 +98,7 @@ public class RAADimensionAddon implements RAAAddon {
 					if (dimensionData.getTypeData().hasFixedTime()) {
 						dimensionTypeBuilder.fixedTime(dimensionData.getTypeData().getFixedTime());
 					}
-//					System.out.println("Dimension Type JSON: " + dimensionTypeBuilder.buildTo(new JsonObject()).toOutputString());
 				});
-				int sizeHorizontal = Rands.randIntRange(1,3);
-				if (sizeHorizontal == 3) {
-					sizeHorizontal = 4;
-				}
-				int finalSizeHorizontal = sizeHorizontal;
 				serverResourcePackBuilder.addNoiseSettingsBuilder(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings"), noiseSettingsBuilder -> {
 					noiseSettingsBuilder.defaultBlock(stateDataBuilder -> {
 						stateDataBuilder.name(dimensionData.getNoiseSettingsData().getDefaultBlock());
@@ -113,8 +106,8 @@ public class RAADimensionAddon implements RAAAddon {
 						blockStateBuilder.name(dimensionData.getNoiseSettingsData().getDefaultFluid());
 						if (!dimensionData.getNoiseSettingsData().getDefaultFluid().equals("minecraft:air"))
 							blockStateBuilder.setProperty("level", "0");
-					}).bedrockFloorPosition(dimensionData.getNoiseSettingsData().getBedrockFloorPosition())
-							.bedrockRoofPosition(dimensionData.getNoiseSettingsData().getBedrockRoofPosition())
+					}).bedrockFloorPosition(0)
+							.bedrockRoofPosition(0)
 							.disableMobGeneration(dimensionData.getNoiseSettingsData().disableMobGeneration())
 							.seaLevel(dimensionData.getNoiseSettingsData().getSeaLevel())
 							.noiseConfig(noiseConfigBuilder -> {
@@ -142,7 +135,6 @@ public class RAADimensionAddon implements RAAAddon {
 											.yScale(dimensionData.getNoiseSettingsData().getNoise().getSampling().getYScale());
 								});
 							}).structureManager(structureManagerBuilder -> {
-
 					});
 				});
 				serverResourcePackBuilder.addDimension(dimensionData.getId(), dimensionBuilder -> {
@@ -153,36 +145,35 @@ public class RAADimensionAddon implements RAAAddon {
 								dimensionData.getBiomeData().forEach(dimensionBiomeData -> {
 									biomeBuilder.biome(dimensionBiomeData.getId().toString());
 									biomeBuilder.parameters(biomeParametersBuilder -> {
-										biomeParametersBuilder.altitude(Rands.randFloatRange(-1.0F, 1.0F));
-										biomeParametersBuilder.humidity(Rands.randFloatRange(-1.0F, 1.0F));
-										biomeParametersBuilder.offset(Rands.randFloatRange(0.0F, 1.0F));
-										biomeParametersBuilder.temperature(Rands.randFloatRange(-1.0F, 1.0F));
-										biomeParametersBuilder.weirdness(Rands.randFloatRange(-1.0F, 1.0F));
+										biomeParametersBuilder.altitude(dimensionBiomeData.getBiomeParameters().getAltitude());
+										biomeParametersBuilder.humidity(dimensionBiomeData.getBiomeParameters().getHumidity());
+										biomeParametersBuilder.offset(dimensionBiomeData.getBiomeParameters().getOffset());
+										biomeParametersBuilder.temperature(dimensionBiomeData.getBiomeParameters().getTemperature());
+										biomeParametersBuilder.weirdness(dimensionBiomeData.getBiomeParameters().getWeirdness());
 									});
 								});
 							});
 							multiNoiseBiomeSourceBuilder.seed((int) Rands.getRandom().nextLong());
 							multiNoiseBiomeSourceBuilder.altitudeNoise(noiseSettings -> {
-								noiseSettings.firstOctave(Rands.randIntRange(1, 4));
-								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 4.0F), Rands.randFloatRange(1.0F, 9.0F));
+								noiseSettings.firstOctave(dimensionData.getAltitudeNoise().getFirstOctave());
+								noiseSettings.amplitudes(dimensionData.getAltitudeNoise().getAmplitudes());
 							});
 							multiNoiseBiomeSourceBuilder.weirdnessNoise(noiseSettings -> {
-								noiseSettings.firstOctave(Rands.randIntRange(1, 2));
-								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 2.0F), Rands.randFloatRange(1.0F, 5.0F));
+								noiseSettings.firstOctave(dimensionData.getWeirdnessNoise().getFirstOctave());
+								noiseSettings.amplitudes(dimensionData.getWeirdnessNoise().getAmplitudes());
 							});
 							multiNoiseBiomeSourceBuilder.temperatureNoise(noiseSettings -> {
-								noiseSettings.firstOctave(Rands.randIntRange(1, 6));
-								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 6.0F), Rands.randFloatRange(1.0F, 6.0F));
+								noiseSettings.firstOctave(dimensionData.getTemperatureNoise().getFirstOctave());
+								noiseSettings.amplitudes(dimensionData.getTemperatureNoise().getAmplitudes());
 							});
 							multiNoiseBiomeSourceBuilder.humidityNoise(noiseSettings -> {
-								noiseSettings.firstOctave(Rands.randIntRange(1, 9));
-								noiseSettings.amplitudes(Rands.randFloatRange(1.0F, 9.0F), Rands.randFloatRange(1.0F, 12.0F));
+								noiseSettings.firstOctave(dimensionData.getHumidityNoise().getFirstOctave());
+								noiseSettings.amplitudes(dimensionData.getHumidityNoise().getAmplitudes());
 							});
 						});
 						noiseChunkGeneratorTypeBuilder.noiseSettings(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings").toString());
 						noiseChunkGeneratorTypeBuilder.seed((int) Rands.getRandom().nextLong());
 					});
-					System.out.println("Dimension JSON: " + dimensionBuilder.buildTo(new JsonObject()).toOutputString());
 				});
 			});
 		});
