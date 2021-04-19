@@ -463,12 +463,6 @@ public class Dimensions {
                 biomes.add(RegistryUtils.registerBiome(dimensionData.getBiomeData().get(i).getId(), biome));
             }
 
-            /*FabricDimensionType.Builder builder = FabricDimensionType.builder()
-                    .biomeAccessStrategy(HorizontalVoronoiBiomeAccessType.INSTANCE)
-                    .skyLight(dimensionData.getCustomSkyInformation().hasSkyLight())
-                    .factory((world, dimensionType) -> new CustomDimension(world, dimensionType, dimensionData, biomes, Rands.chance(50) ? Blocks.STONE :
-                            Registry.BLOCK.get(dimensionData.getStones()[1])));*/
-
             /*if (dimensionData.getDimensionChunkGenerator() == CAVES || dimensionData.getDimensionChunkGenerator() == FLAT_CAVES || dimensionData.getDimensionChunkGenerator() == HIGH_CAVES) {
                 builder.defaultPlacer(PlayerPlacementHandlers.CAVE_WORLD.getEntityPlacer());
             } else if (dimensionData.getDimensionChunkGenerator() == FLOATING || dimensionData.getDimensionChunkGenerator() == LAYERED_FLOATING || dimensionData.getDimensionChunkGenerator() == PRE_CLASSIC_FLOATING) {

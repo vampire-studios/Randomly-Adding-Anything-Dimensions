@@ -16,7 +16,8 @@ public class LevelStorageSessionMixin {
     @Shadow @Final private Path directory;
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
-    public void createDimensionDatapacks(CallbackInfo ci) {
+    public void createDimensionDatapacks(LevelStorage outer, String directoryName, CallbackInfo ci) {
         System.out.println(this.directory);
     }
+
 }
