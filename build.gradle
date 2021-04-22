@@ -39,6 +39,8 @@ dependencies {
 
 	modImplementation "com.github.vampire-studios:Customized-Astral-Body:bab88029f7"
 	include "com.github.vampire-studios:Customized-Astral-Body:bab88029f7"
+
+    modImplementation "com.terraformersmc:modmenu:2.0.0-beta.4"
 }
 
 processResources {
