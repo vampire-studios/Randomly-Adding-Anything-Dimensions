@@ -33,6 +33,9 @@ import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeEffects;
+import net.minecraft.world.biome.GenerationSettings;
+import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 import org.apache.commons.lang3.text.WordUtils;
@@ -463,8 +466,30 @@ public class Dimensions {
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polishedWall");
             Set<Biome> biomes = new LinkedHashSet<>();
             for (int i = 0; i < dimensionData.getBiomeData().size(); i++) {
-                CustomDimensionalBiome biome = new CustomDimensionalBiome(dimensionData, dimensionData.getBiomeData().get(i));
-                biomes.add(RegistryUtils.registerBiome(dimensionData.getBiomeData().get(i).getId(), biome));
+                Biome.Builder biome = new Biome.Builder();
+                SpawnSettings.Builder SPAWN_SETTINGS = new SpawnSettings.Builder();
+                GenerationSettings.Builder GENERATION_SETTINGS = new GenerationSettings.Builder();
+                biome.precipitation(Utils.checkBitFlag(dimensionData.getFlags(), Utils.FROZEN) ? Biome.Precipitation.SNOW : Rands.chance(10) ? Biome.Precipitation.RAIN : Biome.Precipitation.NONE)
+                        .temperature(dimensionData.getBiomeData().get(i).getTemperature())
+                        .temperatureModifier(Biome.TemperatureModifier.NONE)
+                        .downfall(dimensionData.getBiomeData().get(i).getDownfall())
+                        .category(Biome.Category.PLAINS)
+                        .effects(new BiomeEffects.Builder()
+                            .fogColor(dimensionData.getDimensionColorPalette().getFogColor())
+                            .waterColor(dimensionData.getBiomeData().get(i).getWaterColor())
+                            .waterFogColor(dimensionData.getBiomeData().get(i).getWaterColor())
+                            .skyColor(dimensionData.getDimensionColorPalette().getSkyColor())
+                            .grassColor(dimensionData.getDimensionColorPalette().getGrassColor())
+                            .foliageColor(dimensionData.getDimensionColorPalette().getFoliageColor())
+                            .build()
+                        )
+                        .scale(dimensionData.getBiomeData().get(i).getScale())
+                        .depth(dimensionData.getBiomeData().get(i).getDepth());
+                CustomDimensionalBiome.addFeatures(dimensionData, dimensionData.getBiomeData().get(i), GENERATION_SETTINGS, SPAWN_SETTINGS);
+                biome.generationSettings(GENERATION_SETTINGS.build())
+                        .spawnSettings(SPAWN_SETTINGS.build());
+//                CustomDimensionalBiome biome = new CustomDimensionalBiome(dimensionData, dimensionData.getBiomeData().get(i));
+                biomes.add(RegistryUtils.registerBiome(dimensionData.getBiomeData().get(i).getId(), biome.build()));
             }
 
             /*if (dimensionData.getDimensionChunkGenerator() == CAVES || dimensionData.getDimensionChunkGenerator() == FLAT_CAVES || dimensionData.getDimensionChunkGenerator() == HIGH_CAVES) {
