@@ -1,25 +1,28 @@
-package io.github.vampirestudios.raa_dimension.generation.carvers;
+package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 
 import com.google.common.collect.ImmutableSet;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.Blocks;
+import net.minecraft.class_6350;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ProbabilityConfig;
+import net.minecraft.world.gen.carver.CarverContext;
+import net.minecraft.world.gen.carver.CaveCarverConfig;
 
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CaveCarver extends RAACarver<ProbabilityConfig> {
+public class CaveCarver extends RAACarver {
 
     public CaveCarver(DimensionData dimensionData) {
-        super(ProbabilityConfig.CODEC, dimensionData);
+        super(dimensionData);
         this.alwaysCarvableBlocks = ImmutableSet.of(Registry.BLOCK.get(new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")),
                 Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL,
                 Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA,
@@ -29,23 +32,25 @@ public class CaveCarver extends RAACarver<ProbabilityConfig> {
                 Blocks.SNOW, Blocks.PACKED_ICE);
     }
 
-    public boolean shouldCarve(Random random, int chunkX, int chunkZ, ProbabilityConfig config) {
+    @Override
+    public boolean shouldCarve(CaveCarverConfig config, Random random) {
         return random.nextFloat() <= config.probability;
     }
 
-    public boolean carve(Chunk chunk, Function<BlockPos, Biome> posBiomeFunction, Random random, int chunkX, int chunkZ, int mainChunkX, int mainChunkZ, int i, BitSet bitSet, ProbabilityConfig config) {
+    @Override
+    public boolean carve(CarverContext context, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, class_6350 arg, ChunkPos pos, BitSet carvingMask) {
         int i5 = (this.getBranchFactor() * 2 - 1) * 16;
         int int_7 = random.nextInt(random.nextInt(random.nextInt(this.getMaxCaveCount()) + 1) + 1);
 
         for (int i1 = 0; i1 < int_7; ++i1) {
-            double z = chunkZ * 16 + random.nextInt(16);
+            double z = pos.z * 16 + random.nextInt(16);
             double y = this.getCaveY(random);
-            double x = mainChunkX * 16 + random.nextInt(16);
+            double x = pos.x * 16 + random.nextInt(16);
             int i2 = 1;
             float v;
             if (random.nextInt(4) == 0) {
                 v = 1.0F + random.nextFloat() * 6.0F;
-                this.carveCave(chunk, posBiomeFunction, random.nextLong(), chunkX, mainChunkZ, i, z, y, x, v, bitSet);
+                this.carveCave(chunk, posToBiome, random.nextLong(), pos.x, pos.z, i, z, y, x, v, bitSet);
                 i2 += random.nextInt(4);
             }
 

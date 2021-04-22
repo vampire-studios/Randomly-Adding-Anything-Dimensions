@@ -9,10 +9,12 @@ import io.github.vampirestudios.raa_dimension.api.enums.TextureTypes;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLanguageManager;
 import io.github.vampirestudios.raa_dimension.blocks.DimensionalBlock;
 import io.github.vampirestudios.raa_dimension.blocks.DimensionalStone;
+import io.github.vampirestudios.raa_dimension.blocks.PortalBlock;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.CustomDimensionalBiome;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.*;
 import io.github.vampirestudios.raa_dimension.history.Civilization;
 import io.github.vampirestudios.raa_dimension.history.ProtoDimension;
+import io.github.vampirestudios.raa_dimension.item.RAABlockItemAlt;
 import io.github.vampirestudios.raa_dimension.utils.RegistryUtils;
 import io.github.vampirestudios.raa_dimension.utils.Utils;
 import io.github.vampirestudios.vampirelib.blocks.SlabBaseBlock;
@@ -22,6 +24,8 @@ import io.github.vampirestudios.vampirelib.utils.Color;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
@@ -483,11 +487,10 @@ public class Dimensions {
 //            RegistryUtils.registerBlockWithoutItem(new CustomPortalBlock(dimensionData, dimensionType), Utils.addSuffixToPath(dimensionData.getId(), "_custom_portal"));
 
 //            RegistryUtils.registerItem(new DimensionalPortalKeyItem(dimensionData), Utils.addSuffixToPath(dimensionDataId, "_portal_key"));
-
-            /*Block portalBlock = RegistryUtils.registerBlockWithoutItem(new PortalBlock(dimensionType, dimensionData),
+            Block portalBlock = RegistryUtils.registerBlockWithoutItem(new PortalBlock(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionDataId), dimensionData),
                     new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));
             RegistryUtils.registerItem(new RAABlockItemAlt(dimensionData.getName(), "portal", portalBlock, new Item.Settings().group(ItemGroup.TRANSPORTATION)),
-                    new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));*/
+                    new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));
         });
     }
 

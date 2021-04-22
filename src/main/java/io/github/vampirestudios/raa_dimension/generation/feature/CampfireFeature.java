@@ -1,29 +1,24 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.todo;
+package io.github.vampirestudios.raa_dimension.generation.feature;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.serialization.Codec;
-import io.github.vampirestudios.raa.registries.RAALootTables;
-import io.github.vampirestudios.raa.utils.Rands;
-import io.github.vampirestudios.raa.utils.Utils;
+import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
+import net.minecraft.loot.LootTables;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Function;
 
 public class CampfireFeature extends Feature<DefaultFeatureConfig> {
     public CampfireFeature(Codec<DefaultFeatureConfig> configCodec) {
@@ -31,13 +26,17 @@ public class CampfireFeature extends Feature<DefaultFeatureConfig> {
     }
 
     @Override
-    public boolean generate(ServerWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
+        BlockPos pos = context.getOrigin();
+        StructureWorldAccess world = context.getWorld();
+        Random rand = context.getRandom();
+        DefaultFeatureConfig config = context.getConfig();
         if (world.getBlockState(pos.add(0, -1, 0)).isAir() || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (j == -1 || j == 1 || i == -1 || i == 1)
-                    world.setBlockState(pos.add(i, -1, j), Blocks.GRASS_PATH.getDefaultState(), 2);
+                    world.setBlockState(pos.add(i, -1, j), Blocks.DIRT_PATH.getDefaultState(), 2);
             }
         }
         List<Block> stairs = new ArrayList<>(
@@ -67,8 +66,9 @@ public class CampfireFeature extends Feature<DefaultFeatureConfig> {
 
         //half of all campfires have chests
         if (Rands.chance(2)) {
-            world.setBlockState(pos.add(-2, 0, 0), StructurePiece.method_14916(world, pos, Blocks.CHEST.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.EAST)), 2);
-            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(-2, 0, 0), RAALootTables.CAMPFIRE_LOOT);
+            world.setBlockState(pos.add(-2, 0, 0), StructurePiece.orientateChest(world, pos, Blocks.CHEST.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.EAST)), 2);
+//            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(-2, 0, 0), RAALootTables.CAMPFIRE_LOOT);
+            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(-2, 0, 0), LootTables.DESERT_PYRAMID_CHEST);
         } else {
             if (Rands.chance(2))
                 world.setBlockState(pos.add(-2, 0, 0), stair.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.WEST), 2);
@@ -125,14 +125,15 @@ public class CampfireFeature extends Feature<DefaultFeatureConfig> {
             if (Rands.chance(2))
                 world.setBlockState(pos.add(3, 1, -1), Blocks.LANTERN.getDefaultState().with(Properties.HANGING, true), 2);
 
-            world.setBlockState(pos.add(3, 0, 2), StructurePiece.method_14916(world, pos, Blocks.CHEST.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.WEST)), 2);
-            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(3, 0, 2), RAALootTables.CAMPFIRE_TENT_LOOT);
+            world.setBlockState(pos.add(3, 0, 2), StructurePiece.orientateChest(world, pos, Blocks.CHEST.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.WEST)), 2);
+//            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(3, 0, 2), RAALootTables.CAMPFIRE_TENT_LOOT);
+            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(3, 0, 2), LootTables.DESERT_PYRAMID_CHEST);
         } else {
             if (Rands.chance(2))
                 world.setBlockState(pos.add(2, 0, 0), stair.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.EAST), 2);
         }
 
-        Utils.createSpawnsFile("campfire", world, pos);
+//        Utils.createSpawnsFile("campfire", world, pos);
         return true;
     }
 }

@@ -20,7 +20,7 @@ public class ClassicCliffsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCo
     }
 
     @Override
-    public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState stone, BlockState water, int seaLevel, long seed, TernarySurfaceConfig config) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig config) {
         x &= 15;
         z &= 15;
         height -= 1;
@@ -46,7 +46,7 @@ public class ClassicCliffsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCo
             }
             chunk.setBlockState(pos, config.getTopMaterial(), false);
         } else {
-            SurfaceBuilder.DEFAULT.generate(rand, chunk, biome, x, z, height, noise, stone, water, seaLevel, seed, config);
+            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownValue, seed, config);
         }
     }
 

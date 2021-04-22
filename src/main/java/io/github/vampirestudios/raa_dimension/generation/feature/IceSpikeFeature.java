@@ -7,21 +7,22 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import java.util.Random;
 
 public class IceSpikeFeature extends Feature<DefaultFeatureConfig> {
 
-   private Block blockToUse;
-
    public IceSpikeFeature(Codec<DefaultFeatureConfig> configDeserializer) {
       super(configDeserializer);
    }
 
-   public boolean generate(StructureWorldAccess iWorld, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos, DefaultFeatureConfig defaultFeatureConfig) {
+   public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
+      BlockPos blockPos = context.getOrigin();
+      StructureWorldAccess iWorld = context.getWorld();
+      Random random = context.getRandom();
       while(iWorld.isAir(blockPos) && blockPos.getY() > 2) {
          blockPos = blockPos.down();
       }
@@ -47,14 +48,14 @@ public class IceSpikeFeature extends Feature<DefaultFeatureConfig> {
                if ((m == 0 && n == 0 || g * g + h * h <= f * f) && (m != -l && m != l && n != -l && n != l || random.nextFloat() <= 0.75F)) {
                   BlockState blockState = iWorld.getBlockState(blockPos.add(m, k, n));
                   Block block = blockState.getBlock();
-                  if (blockState.isAir() || isSoil(block)) {
+                  if (blockState.isAir() || isSoil(block.getDefaultState())) {
                      this.setBlockState(iWorld, blockPos.add(m, k, n), Blocks.PACKED_ICE.getDefaultState());
                   }
 
                   if (k != 0 && l > 1) {
                      blockState = iWorld.getBlockState(blockPos.add(m, -k, n));
                      block = blockState.getBlock();
-                     if (blockState.isAir() || isSoil(block)) {
+                     if (blockState.isAir() || isSoil(block.getDefaultState())) {
                         this.setBlockState(iWorld, blockPos.add(m, -k, n), Blocks.PACKED_ICE.getDefaultState());
                      }
                   }

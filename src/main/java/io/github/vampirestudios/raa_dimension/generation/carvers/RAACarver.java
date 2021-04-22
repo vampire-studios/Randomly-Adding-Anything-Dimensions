@@ -1,11 +1,12 @@
 package io.github.vampirestudios.raa_dimension.generation.carvers;
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.class_6350;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -14,19 +15,20 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.carver.Carver;
 import net.minecraft.world.gen.carver.CarverConfig;
+import net.minecraft.world.gen.carver.CarverContext;
+import net.minecraft.world.gen.carver.CaveCarverConfig;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
 
 //Carver abstraction not place lava in floating island dimensions
-public abstract class RAACarver<C extends CarverConfig> extends Carver<C> {
-    private final DimensionData data;
+public abstract class RAACarver extends Carver<CaveCarverConfig> {
 
-    public RAACarver(Codec<C> codec, DimensionData data) {
-        super(codec, 256);
-        this.data = data;
+    public RAACarver(DimensionData data) {
+        super(CaveCarverConfig.CAVE_CODEC);
         this.alwaysCarvableBlocks = ImmutableSet.of(Registry.BLOCK.get(new Identifier(RAADimensionAddon.MOD_ID, data.getName().toLowerCase() + "_stone")),
                 Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL,
                 Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA,
@@ -37,38 +39,60 @@ public abstract class RAACarver<C extends CarverConfig> extends Carver<C> {
     }
 
     @Override
-    protected boolean carveAtPoint(Chunk chunk, Function<BlockPos, Biome> posBiomeFunction, BitSet bitSet, Random random, BlockPos.Mutable mutable, BlockPos.Mutable mutable2, BlockPos.Mutable mutable3, int mainChunkX, int mainChunkZ, int i, int j, int k, int l, int m, int n, MutableBoolean atomicBoolean) {
-        int i1 = l | n << 4 | m << 8;
-        if (bitSet.get(i1)) {
+    protected boolean carveAtPoint(CarverContext carverContext, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, BitSet carvingMask, Random random, BlockPos.Mutable pos, BlockPos.Mutable downPos, class_6350 arg, MutableBoolean foundSurface) {
+        BlockState blockState = chunk.getBlockState(pos);
+        BlockState blockState2 = chunk.getBlockState(downPos.set(pos, Direction.UP));
+        if (blockState.isOf(Blocks.GRASS_BLOCK) || blockState.isOf(Blocks.MYCELIUM)) {
+            foundSurface.setTrue();
+        }
+
+        if (!this.canCarveBlock(blockState, blockState2) && !config.debugConfig.isDebugMode()) {
             return false;
         } else {
-            bitSet.set(i1);
-            mutable.set(j, m, k);
-            BlockState blockState = chunk.getBlockState(mutable);
-            BlockState upState = chunk.getBlockState(mutable2.set(mutable).offset(Direction.UP));
-            if (blockState.getBlock() == Blocks.GRASS_BLOCK || blockState.getBlock() == Blocks.MYCELIUM) {
-                atomicBoolean.setValue(true);
-            }
-
-            if (!this.canCarveBlock(blockState, upState)) {
+            BlockState blockState3 = this.method_36418(carverContext, config, pos, arg);
+            if (blockState3 == null) {
                 return false;
             } else {
-                if (m < 11) {
-                    /*DimensionChunkGenerators generator = data.getDimensionChunkGenerator();
-                    if (generator == DimensionChunkGenerators.FLOATING || generator == DimensionChunkGenerators.PRE_CLASSIC_FLOATING || generator == DimensionChunkGenerators.LAYERED_FLOATING)
-                        return true;*/
-                    chunk.setBlockState(mutable, LAVA.getBlockState(), false);
-                } else {
-                    chunk.setBlockState(mutable, CAVE_AIR, false);
-                    if (atomicBoolean.getValue()) {
-                        mutable3.set(mutable).offset(Direction.DOWN);
-                        if (chunk.getBlockState(mutable3).getBlock() == Blocks.DIRT) {
-                            chunk.setBlockState(mutable3, posBiomeFunction.apply(mutable).getGenerationSettings().getSurfaceConfig().getTopMaterial(), false);
-                        }
+                chunk.setBlockState(pos, blockState3, false);
+                if (foundSurface.isTrue()) {
+                    downPos.set(pos, Direction.DOWN);
+                    if (chunk.getBlockState(downPos).isOf(Blocks.DIRT)) {
+                        chunk.setBlockState(downPos, posToBiome.apply(pos).getGenerationSettings().getSurfaceConfig().getTopMaterial(), false);
                     }
                 }
 
                 return true;
+            }
+        }
+    }
+
+    private static boolean isDebug(CarverConfig config) {
+        return config.debugConfig.isDebugMode();
+    }
+
+    private static BlockState method_36417(CarverConfig carverConfig, BlockState blockState) {
+        if (blockState.isOf(Blocks.AIR)) {
+            return carverConfig.debugConfig.getDebugState();
+        } else if (blockState.isOf(Blocks.WATER)) {
+            BlockState blockState2 = carverConfig.debugConfig.method_36414();
+            return blockState2.contains(Properties.WATERLOGGED) ? blockState2.with(Properties.WATERLOGGED, true) : blockState2;
+        } else {
+            return blockState.isOf(Blocks.LAVA) ? carverConfig.debugConfig.method_36415() : blockState;
+        }
+    }
+
+    @Nullable
+    private BlockState method_36418(CarverContext carverContext, CaveCarverConfig carverConfig, BlockPos blockPos, class_6350 arg) {
+        if (blockPos.getY() <= carverConfig.lavaLevel.getY(carverContext)) {
+            return LAVA.getBlockState();
+        } else if (!carverConfig.field_33610) {
+            return isDebug(carverConfig) ? method_36417(carverConfig, AIR) : AIR;
+        } else {
+            BlockState blockState = arg.a(field_33614, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D);
+            if (blockState == Blocks.STONE.getDefaultState()) {
+                return isDebug(carverConfig) ? carverConfig.debugConfig.method_36416() : null;
+            } else {
+                return isDebug(carverConfig) ? method_36417(carverConfig, blockState) : blockState;
             }
         }
     }

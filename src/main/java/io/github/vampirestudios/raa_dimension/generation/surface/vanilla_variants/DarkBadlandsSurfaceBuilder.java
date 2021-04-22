@@ -48,7 +48,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
         super(ternarySurfaceConfigCodec);
     }
 
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
         int n = x & 15;
         int o = z & 15;
         BlockState whiteTerracotta = WHITE_TERRACOTTA;

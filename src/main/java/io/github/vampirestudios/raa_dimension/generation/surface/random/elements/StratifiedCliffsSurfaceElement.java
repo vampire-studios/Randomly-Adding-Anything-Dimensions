@@ -16,7 +16,7 @@ import java.util.Random;
 public class StratifiedCliffsSurfaceElement extends SurfaceElement {
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         if (noise > 1.5) {
             BlockPos.Mutable pos = new BlockPos.Mutable(x, height, z);
             BlockPos.Mutable posTilHeight = new BlockPos.Mutable(x, 0, z);
@@ -35,7 +35,7 @@ public class StratifiedCliffsSurfaceElement extends SurfaceElement {
             }
             chunk.setBlockState(pos, surfaceBlocks.getTopMaterial(), false);
         } else {
-            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, seed, surfaceBlocks);
+            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownNumber, seed, surfaceBlocks);
         }
     }
 

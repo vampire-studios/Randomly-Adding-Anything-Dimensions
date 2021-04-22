@@ -1,11 +1,8 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.todo;
+package io.github.vampirestudios.raa_dimension.generation.feature;
 
-import com.mojang.datafixers.Dynamic;
 import com.mojang.serialization.Codec;
-import io.github.vampirestudios.raa.RandomlyAddingAnything;
 import io.github.vampirestudios.raa_core.RAACore;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.Structure;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructurePlacementData;
@@ -14,15 +11,13 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import java.util.Random;
-import java.util.function.Function;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
 public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
@@ -32,7 +27,11 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 	}
 
 	@Override
-	public boolean generate(ServerWorldAccess world, ChunkGenerator changedBlock, Random rand, BlockPos position, DefaultFeatureConfig config) {
+	public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
+		BlockPos position = context.getOrigin();
+		StructureWorldAccess world = context.getWorld();
+		Random rand = context.getRandom();
+		DefaultFeatureConfig config = context.getConfig();
 		//makes sure this ruins does not spawn too close to world height border.
 		if (position.getY() < world.getSeaLevel() + 5) {
 			return false;
@@ -67,7 +66,7 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 		}
 
 		//UltraAmplified.LOGGER.debug("Hanging Ruins | " + position.getX() + " " + position.getY() + " "+position.getZ());
-		StructureManager templatemanager = ((ServerWorld) world.getWorld()).getSaveHandler().getStructureManager();
+		StructureManager templatemanager = world.getServer().getStructureManager();
 		Structure template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":hanging_ruins"));
 
 		if (template == null)
@@ -77,10 +76,10 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 		}
 
 		StructurePlacementData placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(rot)
-				.setIgnoreEntities(false).setChunkPosition(null);
+				.setIgnoreEntities(false).setPosition(null);
 
 		BlockPos pos = mutable.move(4, -8, 4).toImmutable();
-		template.place(world, pos, pos, placementsettings, 2);
+		template.place(world, pos, pos, placementsettings, rand, 2);
 
 		return true;
 

@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.carvers;
+package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 
 import com.google.common.collect.ImmutableSet;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;

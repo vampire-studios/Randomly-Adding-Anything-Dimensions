@@ -61,11 +61,11 @@ public class SurfaceBuilderGenerator {
             List<SurfaceElement> elements = new ArrayList<>();
             for (int j = 0; j < Rands.randIntRange(2, 4); j++) { //add 2 elements
                 try { //catch exceptions because yay reflection
-                    SurfaceElement e = WEIGHTED_ELEMENTS.pickRandom(Rands.getRandom()).newInstance();
+                    SurfaceElement e = WEIGHTED_ELEMENTS.shuffle().stream().findFirst().get().newInstance();
 
                     //ensure that every element is unique
                     while (elements.contains(e)) {
-                        e = WEIGHTED_ELEMENTS.pickRandom(Rands.getRandom()).newInstance();
+                        e = WEIGHTED_ELEMENTS.shuffle().stream().findFirst().get().newInstance();
                     }
 
                     //add to list

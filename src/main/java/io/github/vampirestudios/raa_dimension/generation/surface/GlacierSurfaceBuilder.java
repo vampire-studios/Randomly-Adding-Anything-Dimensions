@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
@@ -28,11 +29,11 @@ public class GlacierSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> 
     }
 
     @Override
-    public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
         TernarySurfaceConfig config = configProvider.apply(noise);
 
         if (noiseGenerator == null || seed != currentSeed) {
-            noiseGenerator = new SimplexNoiseSampler(new Random(seed));
+            noiseGenerator = new SimplexNoiseSampler(new ChunkRandom(seed));
             currentSeed = seed;
         }
 
@@ -42,7 +43,7 @@ public class GlacierSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> 
         int localX = x & 15;
         int localZ = z & 15;
 
-        BlockPos.Mutable pos = new BlockPos.Mutable(localX, 255, localZ);
+        BlockPos.Mutable pos = new BlockPos.Mutable(localX, chunk.getTopY() - 1, localZ);
 
         if (glacierDifference != 0) {
             pos.setY(height);

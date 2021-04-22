@@ -21,13 +21,13 @@ public class PatchyDarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurf
     }
 
     @Override
-    public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState state, BlockState state2, int int1, long long1, TernarySurfaceConfig config) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
         double mesaNoise = MESA_NOISE.sample(x * 0.049765625D, z * 0.049765625D, false);
         if (mesaNoise > 0.0D) {
-            SurfaceBuilders.DARK_BADLANDS.initSeed(long1);
-            SurfaceBuilders.DARK_BADLANDS.generate(rand, chunk, biome, x, z, height, noise, state, state2, int1, long1, SurfaceBuilder.BADLANDS_CONFIG);
+            SurfaceBuilders.DARK_BADLANDS.initSeed(seed);
+            SurfaceBuilders.DARK_BADLANDS.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownValue, seed, SurfaceBuilder.BADLANDS_CONFIG);
         } else {
-            SurfaceBuilder.DEFAULT.generate(rand, chunk, biome, x, z, height, noise, state, state2, int1, long1, config);
+            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownValue, seed, surfaceConfig);
         }
     }
 }

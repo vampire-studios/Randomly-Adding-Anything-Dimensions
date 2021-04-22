@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.carvers;
+package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.BlockState;

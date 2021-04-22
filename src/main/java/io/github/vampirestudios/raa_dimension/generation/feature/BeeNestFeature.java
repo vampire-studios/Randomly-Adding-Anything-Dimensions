@@ -1,31 +1,24 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.todo;
+package io.github.vampirestudios.raa_dimension.generation.feature;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.serialization.Codec;
-import io.github.vampirestudios.raa.utils.JsonConverter;
-import io.github.vampirestudios.raa.utils.Utils;
-import io.github.vampirestudios.raa.utils.WorldStructureManipulation;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
+import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
 
 public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
     private JsonConverter converter = new JsonConverter();
@@ -36,10 +29,14 @@ public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
     }
 
     @Override
-    public boolean generate(ServerWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
+        BlockPos pos = context.getOrigin();
+        StructureWorldAccess world = context.getWorld();
+        Random rand = context.getRandom();
+        DefaultFeatureConfig config = context.getConfig();
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/bee_nest.json"));
+            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/bee_nest.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
@@ -74,7 +71,7 @@ public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
             }
         }
 
-        Utils.createSpawnsFile("bee_nest", world, pos);
+//        Utils.createSpawnsFile("bee_nest", world, pos);
 
         return true;
     }

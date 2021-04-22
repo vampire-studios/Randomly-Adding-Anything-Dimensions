@@ -24,7 +24,7 @@ public class HyperflatSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
     }
 
     @Override
-    public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState stone, BlockState water, int var11, long seed, TernarySurfaceConfig config) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
         BlockPos.Mutable delPos = new BlockPos.Mutable(x, height, z);
         for (int i = 0; i < height; i++) {
             chunk.setBlockState(delPos, Blocks.AIR.getDefaultState(), false);
@@ -34,7 +34,7 @@ public class HyperflatSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
         double noiseHeight = HEIGHT.sample(x * 0.05, z * 0.05, false);
         BlockPos.Mutable pos = new BlockPos.Mutable(x, 0, z);
         for (int i = 0; i < 80 + (noiseHeight * 8); i++) {
-            chunk.setBlockState(pos, stone, false);
+            chunk.setBlockState(pos, defaultBlock, false);
             pos.offset(Direction.UP);
         }
         for (int i = 0; i < 3; i++) {
@@ -42,12 +42,12 @@ public class HyperflatSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
             pos.offset(Direction.UP);
         }
         if (noiseHeight > 0) {
-            chunk.setBlockState(pos.add(0, -1, 0), config.getTopMaterial(), false);
+            chunk.setBlockState(pos.add(0, -1, 0), surfaceConfig.getTopMaterial(), false);
             if (pos.getY() == 84) chunk.setBlockState(pos.add(0, -1, 0), Blocks.SAND.getDefaultState(), false);
         } else {
             chunk.setBlockState(pos.add(0, -1, 0), WATER_NOISE.sample(x * 0.05, z * 0.05, false) > 0.2 ? Blocks.GRAVEL.getDefaultState() : Blocks.SAND.getDefaultState(), false);
             while (pos.getY() < 84) {
-                chunk.setBlockState(pos, water, false);
+                chunk.setBlockState(pos, defaultBlock, false);
                 pos.offset(Direction.UP);
             }
         }

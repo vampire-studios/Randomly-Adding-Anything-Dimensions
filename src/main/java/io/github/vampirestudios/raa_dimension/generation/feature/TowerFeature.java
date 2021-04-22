@@ -1,13 +1,9 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.todo;
+package io.github.vampirestudios.raa_dimension.generation.feature;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.Dynamic;
-import io.github.vampirestudios.raa.utils.JsonConverter;
-import io.github.vampirestudios.raa.utils.Rands;
-import io.github.vampirestudios.raa.utils.Utils;
-import io.github.vampirestudios.raa.utils.WorldStructureManipulation;
+import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
 import io.github.vampirestudios.vampirelib.utils.Rands;
@@ -22,24 +18,22 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
-import org.apache.logging.log4j.core.jmx.Server;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.function.Function;
 
 public class TowerFeature extends Feature<DefaultFeatureConfig> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public TowerFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-        super(configDeserializer, function);
+    public TowerFeature(Codec<DefaultFeatureConfig> function) {
+        super(function);
     }
 
     private static void placePiece(ServerWorldAccess world, BlockPos pos, int rotation, JsonConverter.StructureValues piece, int decay) {
@@ -57,10 +51,10 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
             } else {
                 switch (currBlockType) {
                     case "minecraft:stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + (world.getDimension().getType().getSuffix()).substring(4) + "_stone_bricks", new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks", new HashMap<>(), rotation);
                         break;
                     case "minecraft:chiseled_stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + "chiseled_" + (world.getDimension().getType().getSuffix()).substring(4), new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + "chiseled_" + (world.getDimension().getSuffix()).substring(4), new HashMap<>(), rotation);
                         break;
                     case "minecraft:ladder":
                         WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, new HashMap<>(), 4 - rotation);
@@ -83,10 +77,10 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
 
             for (int j = 2; j < 4; j++) {
                 if (!world.isAir(pos.add(MathHelper.floor(xPart2), j, MathHelper.floor(zPart2))) || (fill + 2 == j) || fill == 2) {
-                    world.setBlockState(pos.add(MathHelper.floor(xPart), j, MathHelper.floor(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa:" + (world.getDimension().getType().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                    world.setBlockState(pos.add(MathHelper.floor(xPart), j, MathHelper.floor(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
                 }
                 if (!world.isAir(pos.add(MathHelper.ceil(xPart2), j, MathHelper.ceil(zPart2))) || (fill + 2 == j) || fill == 2) {
-                    world.setBlockState(pos.add(MathHelper.ceil(xPart), j, MathHelper.ceil(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa:" + (world.getDimension().getType().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                    world.setBlockState(pos.add(MathHelper.ceil(xPart), j, MathHelper.ceil(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
                 }
             }
         }
@@ -357,7 +351,11 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
     }
 
     @Override
-    public boolean generate(ServerWorldAccess world, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
+        BlockPos pos = context.getOrigin();
+        StructureWorldAccess world = context.getWorld();
+        Random rand = context.getRandom();
+        DefaultFeatureConfig config = context.getConfig();
         JsonObject towerBase = null;
         JsonObject towerWalls = null;
         JsonObject towerStairs = null;
@@ -365,27 +363,27 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         JsonObject towerPillar = null;
         JsonObject towerRoof = null;
         try {
-            Resource towerBasePath = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/tower/tower_base.json"));
+            Resource towerBasePath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_base.json"));
             towerBase = new Gson().fromJson(new InputStreamReader(towerBasePath.getInputStream()), JsonObject.class);
             JsonObject finalTowerBase = towerBase;
 
-            Resource towerWallsPath = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/tower/tower_walls.json"));
+            Resource towerWallsPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_walls.json"));
             towerWalls = new Gson().fromJson(new InputStreamReader(towerWallsPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerWalls = towerWalls;
 
-            Resource towerStairsPath = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/tower/tower_stairs.json"));
+            Resource towerStairsPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_stairs.json"));
             towerStairs = new Gson().fromJson(new InputStreamReader(towerStairsPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerStairs = towerStairs;
 
-            Resource towerLaddersPath = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/tower/tower_ladders.json"));
+            Resource towerLaddersPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_ladders.json"));
             towerLadders = new Gson().fromJson(new InputStreamReader(towerLaddersPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerLadders = towerLadders;
 
-            Resource towerPillarPath = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/tower/tower_pillar.json"));
+            Resource towerPillarPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_pillar.json"));
             towerPillar = new Gson().fromJson(new InputStreamReader(towerPillarPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerPillar = towerPillar;
 
-            Resource towerRoofPath = world.getWorld().getServer().getDataManager().getResource(new Identifier("raa:structures/tower/tower_roof.json"));
+            Resource towerRoofPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_roof.json"));
             towerRoof = new Gson().fromJson(new InputStreamReader(towerRoofPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerRoof = towerRoof;
 
@@ -470,8 +468,8 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         }
         for (int i = 0; i < 4; i++) {
             if (i == 0) {
-                world.setBlockState(pos.add(MathHelper.floor(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.floor(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(Identifier.tryParse("raa:" + (world.getDimension().getType().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
-                world.setBlockState(pos.add(MathHelper.ceil(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.ceil(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(Identifier.tryParse("raa:" + (world.getDimension().getType().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                world.setBlockState(pos.add(MathHelper.floor(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.floor(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                world.setBlockState(pos.add(MathHelper.ceil(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.ceil(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
             } else {
                 world.setBlockState(pos.add(MathHelper.floor(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.floor(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Blocks.AIR.getDefaultState(), 2);
                 world.setBlockState(pos.add(MathHelper.ceil(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.ceil(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Blocks.AIR.getDefaultState(), 2);

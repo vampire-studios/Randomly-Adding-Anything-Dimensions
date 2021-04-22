@@ -1,6 +1,8 @@
+/*
 package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa.utils.Rands;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -11,21 +13,24 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.ModifiableTestableWorld;
 import net.minecraft.world.TestableWorld;
 import net.minecraft.world.gen.feature.AbstractTreeFeature;
+import net.minecraft.world.gen.feature.TreeFeature;
 import net.minecraft.world.gen.feature.TreeFeatureConfig;
 
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 
+*/
 /**
  * @author Indigo Amann
- */
+ *//*
+
 //Code kindly taken from The Hallow, thanks to everyone who is working on it!
-public class LargeSkeletalTreeFeature extends AbstractTreeFeature<TreeFeatureConfig> {
+public class LargeSkeletalTreeFeature extends TreeFeature {
     private static final BlockState LOG = Blocks.BONE_BLOCK.getDefaultState();
 
-    public LargeSkeletalTreeFeature(Function<Dynamic<?>, ? extends TreeFeatureConfig> configDeserializer, Function<Random, ? extends TreeFeatureConfig> function) {
-        super(configDeserializer, function);
+    public LargeSkeletalTreeFeature(Codec<TreeFeatureConfig> codec) {
+        super(codec);
     }
 
     private static boolean isSurroundedByAir(TestableWorld testableWorld, BlockPos blockPos, Direction ignore) {
@@ -36,9 +41,9 @@ public class LargeSkeletalTreeFeature extends AbstractTreeFeature<TreeFeatureCon
         return true;
     }
 
-    private void addLog(ModifiableTestableWorld modifiableTestableWorld, BlockPos blockPos, Direction.Axis axis, BlockBox mutableIntBoundingBox) {
+    private void addLog(ModifiableTestableWorld modifiableTestableWorld, BlockPos blockPos, Direction.Axis axis) {
         if (canTreeReplace(modifiableTestableWorld, blockPos)) {
-            this.setBlockState(modifiableTestableWorld, blockPos, LOG.with(PillarBlock.AXIS, axis), mutableIntBoundingBox);
+            this.setBlockState(modifiableTestableWorld, blockPos, LOG.with(PillarBlock.AXIS, axis));
         }
     }
 
@@ -75,4 +80,4 @@ public class LargeSkeletalTreeFeature extends AbstractTreeFeature<TreeFeatureCon
             }
         }
     }
-}
+}*/

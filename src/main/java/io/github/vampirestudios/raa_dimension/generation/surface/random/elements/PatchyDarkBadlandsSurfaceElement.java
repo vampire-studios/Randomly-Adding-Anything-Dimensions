@@ -19,13 +19,13 @@ public class PatchyDarkBadlandsSurfaceElement extends SurfaceElement {
     public static final OctaveSimplexNoiseSampler MESA_NOISE = new OctaveSimplexNoiseSampler(new ChunkRandom(79L), IntStream.of(6, 0));
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         double mesaNoise = MESA_NOISE.sample(x * 0.049765625D, z * 0.049765625D, false);
         if (mesaNoise > 0.0D) {
             SurfaceBuilders.DARK_BADLANDS.initSeed(seed);
-            SurfaceBuilders.DARK_BADLANDS.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, seed, SurfaceBuilder.BADLANDS_CONFIG);
+            SurfaceBuilders.DARK_BADLANDS.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownNumber, seed, SurfaceBuilder.BADLANDS_CONFIG);
         } else {
-            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, seed, surfaceBlocks);
+            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownNumber, seed, surfaceBlocks);
         }
     }
 

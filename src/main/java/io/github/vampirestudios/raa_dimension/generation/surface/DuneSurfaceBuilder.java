@@ -25,7 +25,7 @@ public class DuneSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
     }
 
     @Override
-    public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int vHeight, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int vHeight, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig config) {
         vHeight = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG).get(x & 15, z & 15);
         BlockPos.Mutable pos = new BlockPos.Mutable(x, vHeight - 8, z);
 
@@ -53,6 +53,6 @@ public class DuneSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
             chunk.setBlockState(pos, Blocks.SANDSTONE.getDefaultState(), false);
             pos.offset(Direction.UP);
         }
-        chunk.setBlockState(pos, surfaceBlocks.getTopMaterial(), false);
+        chunk.setBlockState(pos, config.getTopMaterial(), false);
     }
 }

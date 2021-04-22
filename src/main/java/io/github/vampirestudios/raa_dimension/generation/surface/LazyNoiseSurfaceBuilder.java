@@ -18,7 +18,7 @@ public class LazyNoiseSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
     }
 
     @Override
-    public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState stone, BlockState water, int var11, long seed, TernarySurfaceConfig config) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
         BlockPos.Mutable delPos = new BlockPos.Mutable(x, height, z);
         for (int i = 0; i < height; i++) {
             chunk.setBlockState(delPos, Blocks.AIR.getDefaultState(), false);
@@ -27,13 +27,13 @@ public class LazyNoiseSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig
 
         BlockPos.Mutable pos = new BlockPos.Mutable(x, 1, z);
         for (int i = 0; i < 80 + (Math.abs(noise) * 8); i++) {
-            chunk.setBlockState(pos, stone, false);
+            chunk.setBlockState(pos, defaultBlock, false);
             pos.offset(Direction.UP);
         }
         for (int i = 0; i < 3; i++) {
             chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
             pos.offset(Direction.UP);
         }
-        chunk.setBlockState(pos, config.getTopMaterial(), false);
+        chunk.setBlockState(pos, surfaceConfig.getTopMaterial(), false);
     }
 }

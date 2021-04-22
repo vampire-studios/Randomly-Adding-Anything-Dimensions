@@ -1,3 +1,4 @@
+/*
 package io.github.vampirestudios.raa_dimension.generation.feature.todo;
 
 import com.mojang.datafixers.Dynamic;
@@ -16,9 +17,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 
+*/
 /**
  * @author Indigo Amann
- */
+ *//*
+
 //Code kindly taken from The Hallow, thanks to everyone who is working on it!
 public class SmallSkeletalTreeFeature extends AbstractTreeFeature<TreeFeatureConfig> {
     private static final BlockState LOG = Blocks.BONE_BLOCK.getDefaultState();
@@ -52,4 +55,4 @@ public class SmallSkeletalTreeFeature extends AbstractTreeFeature<TreeFeatureCon
             this.setBlockState(modifiableTestableWorld, blockPos, LOG.with(PillarBlock.AXIS, axis), mutableIntBoundingBox);
         }
     }
-}
+}*/

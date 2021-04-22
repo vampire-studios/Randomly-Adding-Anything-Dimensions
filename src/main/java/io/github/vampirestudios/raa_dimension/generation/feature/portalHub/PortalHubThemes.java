@@ -1,4 +1,4 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.todo.portalHub;
+package io.github.vampirestudios.raa_dimension.generation.feature.portalHub;
 
 import com.mojang.serialization.Lifecycle;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;

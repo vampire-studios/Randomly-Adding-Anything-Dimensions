@@ -1,13 +1,17 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.caves;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.client.gui.screen.world.CreateWorldScreen;
+import net.minecraft.client.realms.gui.screen.RealmsWorldGeneratorType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
@@ -15,17 +19,21 @@ import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
-public class CavesChunkGenerator extends NoiseChunkGenerator<CavesChunkGeneratorConfig> {
+public class CavesChunkGenerator extends NoiseChunkGenerator {
     private final double[] noiseFalloff = this.buildNoiseFalloff();
 
-    public CavesChunkGenerator(IWorld world, BiomeSource biomeSource, CavesChunkGeneratorConfig config) {
-        super(world, biomeSource, 4, 8, 256, config, true);
+    public CavesChunkGenerator(BiomeSource biomeSource, long seed, Supplier<ChunkGeneratorSettings> settingsSupplier) {
+        super(biomeSource, seed, settingsSupplier);
     }
 
+    @Override
     protected void sampleNoiseColumn(double[] buffer, int x, int z) {
+        CreateWorldScreen
         this.sampleNoiseColumn(buffer, x, z, 684.412D, 2053.236D, 8.555150000000001D, 34.2206D, 3, -10);
-        ChunkGeneratorSettings
     }
 
     protected double[] computeNoiseRange(int x, int z) {

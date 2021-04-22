@@ -18,12 +18,16 @@ import io.github.vampirestudios.vampirelib.utils.Rands;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
+
+import java.util.HashMap;
 
 public class RAADimensionAddon implements RAAAddon {
 
@@ -46,9 +50,15 @@ public class RAADimensionAddon implements RAAAddon {
 	}
 
 	public static int DIMENSION_NUMBER = 0;
+	public static HashMap<Identifier, RegistryKey<World>> dims = new HashMap<>();
 
 	@Override
 	public void onInitialize() {
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+			for (RegistryKey<World> registryKey : server.getWorldRegistryKeys()) {
+				dims.put(registryKey.getValue(), registryKey);
+			}
+		});
 		AutoConfig.register(GeneralConfig.class, JanksonConfigSerializer::new);
 		CONFIG = AutoConfig.getConfigHolder(GeneralConfig.class).getConfig();
 		DIMENSION_NUMBER = CONFIG.dimensionGenAmount;

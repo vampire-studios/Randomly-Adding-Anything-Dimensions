@@ -23,7 +23,7 @@ public class RandomSpiresSurfaceElement extends SurfaceElement {
     }
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         BlockPos.Mutable pos = new BlockPos.Mutable(x, height, z);
 
         //don't place on water
@@ -40,7 +40,7 @@ public class RandomSpiresSurfaceElement extends SurfaceElement {
             }
 
             //generate the top layer of the spire
-            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height + spireHeightRandom + 1, noise, defaultBlock, defaultFluid, seaLevel, seed, surfaceBlocks);
+            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height + spireHeightRandom + 1, noise, defaultBlock, defaultFluid, seaLevel, unknownNumber, seed, surfaceBlocks);
         }
     }
 

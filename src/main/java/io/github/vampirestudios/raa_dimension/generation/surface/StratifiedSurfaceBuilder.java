@@ -18,16 +18,16 @@ public class StratifiedSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfi
     }
 
     @Override
-    public void generate(Random rand, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState stone, BlockState water, int var11, long seed, TernarySurfaceConfig config) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
         if (noise > 1.5) {
             BlockPos.Mutable pos = new BlockPos.Mutable(x, height, z);
             BlockPos.Mutable posTilHeight = new BlockPos.Mutable(x, 0, z);
             for (int i = 0; i <= height; i++) {
-                chunk.setBlockState(posTilHeight, stone, false);
+                chunk.setBlockState(posTilHeight, defaultBlock, false);
                 posTilHeight.offset(Direction.UP);
             }
             for (int i = 0; i < (noise > 2.5 ? 20 : 12); i++) {
-                chunk.setBlockState(pos, stone, false);
+                chunk.setBlockState(pos, defaultBlock, false);
                 pos.offset(Direction.UP);
             }
             int dirtHeight = (int) noise * 2;
@@ -35,9 +35,9 @@ public class StratifiedSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfi
                 chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
                 pos.offset(Direction.UP);
             }
-            chunk.setBlockState(pos, config.getTopMaterial(), false);
+            chunk.setBlockState(pos, surfaceConfig.getTopMaterial(), false);
         } else {
-            SurfaceBuilder.DEFAULT.generate(rand, chunk, biome, x, z, height, noise, stone, water, var11, seed, config);
+            SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownValue, seed, surfaceConfig);
         }
     }
 }

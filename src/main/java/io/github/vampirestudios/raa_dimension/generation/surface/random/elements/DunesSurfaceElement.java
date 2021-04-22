@@ -19,7 +19,7 @@ public class DunesSurfaceElement extends SurfaceElement {
     private static final WorleyNoise NOISE = new WorleyNoise(3445);
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         height = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG).get(x & 15, z & 15);
         BlockPos.Mutable pos = new BlockPos.Mutable(x, height - 8, z);
 

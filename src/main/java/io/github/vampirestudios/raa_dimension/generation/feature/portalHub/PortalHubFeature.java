@@ -1,14 +1,8 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.todo.portalHub;
+package io.github.vampirestudios.raa_dimension.generation.feature.portalHub;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.serialization.Codec;
-import io.github.vampirestudios.raa.generation.dimensions.data.DimensionData;
-import io.github.vampirestudios.raa.registries.Dimensions;
-import io.github.vampirestudios.raa.utils.JsonConverter;
-import io.github.vampirestudios.raa.utils.Rands;
-import io.github.vampirestudios.raa.utils.WorldStructureManipulation;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.init.Dimensions;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
@@ -19,12 +13,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -82,10 +75,12 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
     }
 
     @Override
-    public boolean generate(ServerWorldAccess world, StructureAccessor accessor, ChunkGenerator chunkGenerator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
+        BlockPos pos = context.getOrigin();
+        StructureWorldAccess world = context.getWorld();
         JsonObject jsonObject = null;
         try {
-            Resource path = Objects.requireNonNull(world.getWorld().getServer()).getDataManager().getResource(new Identifier("raa:structures/portal_hub/portal_hub.json"));
+            Resource path = Objects.requireNonNull(world.getServer()).getResourceManager().getResource(new Identifier("raa:structures/portal_hub/portal_hub.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{

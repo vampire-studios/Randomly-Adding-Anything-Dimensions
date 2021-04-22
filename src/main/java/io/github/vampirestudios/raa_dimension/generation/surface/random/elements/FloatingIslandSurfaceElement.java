@@ -16,7 +16,7 @@ import java.util.Random;
 public class FloatingIslandSurfaceElement extends SurfaceElement {
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         if (noise > 1) {
             BlockPos.Mutable pos = new BlockPos.Mutable(x, 50 + height + (noise), z);
             for (int i = 0; i < 2 + (noise / 4); i++) {
@@ -29,7 +29,7 @@ public class FloatingIslandSurfaceElement extends SurfaceElement {
             }
             chunk.setBlockState(pos, surfaceBlocks.getTopMaterial(), false);
         }
-        SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, seed, surfaceBlocks);
+        SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownNumber, seed, surfaceBlocks);
     }
 
     @Override

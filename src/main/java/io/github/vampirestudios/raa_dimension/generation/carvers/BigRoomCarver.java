@@ -1,26 +1,31 @@
 package io.github.vampirestudios.raa_dimension.generation.carvers;
 
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
+import io.github.vampirestudios.raa_dimension.mixin.CaveCarverConfigAccessor;
+import net.minecraft.class_6350;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ProbabilityConfig;
+import net.minecraft.world.gen.carver.Carver;
+import net.minecraft.world.gen.carver.CarverContext;
+import net.minecraft.world.gen.carver.CaveCarverConfig;
 
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
 
-public class BigRoomCarver extends RAACarver<ProbabilityConfig> {
+public class BigRoomCarver extends RAACarver {
     public BigRoomCarver(DimensionData data) {
-        super(ProbabilityConfig.CODEC, data);
+        super(data);
     }
 
     @Override
-    public boolean carve(Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, int seaLevel, int chunkX, int chunkZ, int mainChunkX, int mainChunkZ, BitSet carvingMask, ProbabilityConfig carverConfig) {
+    public boolean carve(CarverContext carverContext, CaveCarverConfig carverConfig, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, class_6350 arg, ChunkPos pos, BitSet carvingMask) {
         //positions
-        double x = (chunkX* 16) + random.nextInt(16);
-        double z = (chunkZ* 16) + random.nextInt(16);
-        double y = random.nextInt(256);
+        double posX = (pos.x* 16) + random.nextInt(16);
+        double posZ = (pos.z* 16) + random.nextInt(16);
+        double posY = random.nextInt(carverContext.getMaxY());
 
         //modifiers
         double xVelocity = random.nextDouble() - 0.5;
@@ -30,21 +35,22 @@ public class BigRoomCarver extends RAACarver<ProbabilityConfig> {
 
         //yaw & pitch
         double yaw = 4 + (random.nextDouble()*4);
-        double pitch = yaw / 2;
+        double pitch;
         double cmod = 1;
 
         int bigIndex = random.nextInt(128) + 64; // some caves won't become massive
 
         for (int i = 0; i < 128; i++) {
+            Carver.SkipPredicate skipPredicate = (context, scaledRelativeX, scaledRelativeY, scaledRelativeZ, y) -> isPositionExcluded(scaledRelativeX, scaledRelativeY, scaledRelativeZ, (int) ((CaveCarverConfigAccessor)carverConfig).getFloorLevel().get(random));
             //calculate per-section modifiers
             double xDirectionMod = (random.nextDouble() - 0.5);
             double zDirectionMod = (random.nextDouble() - 0.5);
             double yOffsetMod = (random.nextDouble() - 0.5);
             double yawOffset = (random.nextDouble() - 0.5);
 
-            y -= (yOffset + yOffsetMod); //lower the carving region
-            x += xVelocity;
-            z += zVoleocity;
+            posY -= (yOffset + yOffsetMod); //lower the carving region
+            posX += xVelocity;
+            posZ += zVoleocity;
             //velocity application
             xVelocity += xDirectionMod;
             if (xVelocity > 1.5) xVelocity = 1.5;
@@ -70,32 +76,19 @@ public class BigRoomCarver extends RAACarver<ProbabilityConfig> {
             if (i == bigIndex) { //big room
                 cmod = 1.01;
             }
-
-            this.carveRegion(chunk,
-                    posToBiome,
-                    random.nextInt(),
-                    seaLevel,
-                    mainChunkX,
-                    mainChunkZ,
-                    x,
-                    y,
-                    z,
-                    yaw,
-                    pitch,
-                    carvingMask);
+            this.carveRegion(carverContext, carverConfig, chunk, posToBiome, random.nextLong(), arg, posX, posY, posZ, yaw, pitch, carvingMask, skipPredicate);
         }
 
         return true;
     }
 
     @Override
-    public boolean shouldCarve(Random random, int chunkX, int chunkZ, ProbabilityConfig config) {
+    public boolean shouldCarve(CaveCarverConfig config, Random random) {
         return random.nextFloat() <= config.probability;
     }
 
-    @Override
-    protected boolean isPositionExcluded(double scaledRelativeX, double scaledRelativeY, double scaledRelativeZ, int y) {
-        return false;
+    private static boolean isPositionExcluded(double scaledRelativeX, double scaledRelativeY, double scaledRelativeZ, double floorY) {
+        return true;
     }
 
 }

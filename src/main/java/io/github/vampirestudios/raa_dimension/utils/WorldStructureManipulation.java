@@ -69,7 +69,7 @@ public class WorldStructureManipulation {
             newPos = trySpawning(world, new BlockPos(xChosen, yChosen, zChosen), size, tolerance);
         }
 
-        if (newPos.compareTo(Vec3i.ZERO) == 0 || newPos.getY() > 255 - size.getY()) {
+        if (newPos.compareTo(Vec3i.ZERO) == 0 || newPos.getY() > world.getTopY() - 1 - size.getY()) {
             return Vec3i.ZERO;
         }
 
@@ -81,14 +81,14 @@ public class WorldStructureManipulation {
             return Vec3i.ZERO;
         }
         Map<Integer, Float> heights = new HashMap<>();
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < world.getTopY(); i++) {
             heights.put(i, 0f);
         }
         int totalHeight = 0;
         float maxFreq = 0f;
         int maxHeight = 0;
         int modeHeight = 0;
-        int minHeight = 256;
+        int minHeight = world.getTopY();
         for (int xIndent = 0; xIndent < 12; xIndent++) {
             for (int zIndent = 0; zIndent < 12; zIndent++) {
                 if (Math.pow(xIndent - (size.getX() - 3) / 2f, 2) + Math.pow(zIndent - (size.getX() - 3) / 2f, 2) < Math.pow((size.getX() - 2) / 2f, 2)) {
@@ -108,7 +108,7 @@ public class WorldStructureManipulation {
                     List<Integer> tempHeights = Arrays.asList(tempHeight, tempHeight - 1, tempHeight - 2);
                     List<Float> tempFloats = Arrays.asList(1f, 0.5f, 0.25f);
                     for (int i = 0; i < 3; i++) {
-                        if (tempHeights.get(i) < 0 || tempHeights.get(i) > 255) {
+                        if (tempHeights.get(i) < 0 || tempHeights.get(i) > world.getTopY() - 1) {
                             return Vec3i.ZERO;
                         }
                         float tempFreqs = heights.get(tempHeights.get(i)) + tempFloats.get(i);

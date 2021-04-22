@@ -1,41 +1,41 @@
-package io.github.vampirestudios.raa_dimension.generation.feature.todo;
+package io.github.vampirestudios.raa_dimension.generation.feature;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.Dynamic;
-import io.github.vampirestudios.raa.utils.JsonConverter;
-import io.github.vampirestudios.raa.utils.Rands;
-import io.github.vampirestudios.raa.utils.Utils;
-import io.github.vampirestudios.raa.utils.WorldStructureManipulation;
+import com.mojang.serialization.Codec;
+import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
+import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
+import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
 
 public class FossilFeature extends Feature<DefaultFeatureConfig> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public FossilFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer, Function<Random, ? extends DefaultFeatureConfig> function) {
-        super(configDeserializer, function);
+    public FossilFeature(Codec<DefaultFeatureConfig> configDeserializer) {
+        super(configDeserializer);
     }
 
     @Override
-    public boolean generate(IWorld world, ChunkGenerator<? extends ChunkGeneratorConfig> generator, Random random, BlockPos pos, DefaultFeatureConfig config) {
+    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
+        BlockPos pos = context.getOrigin();
+        StructureWorldAccess world = context.getWorld();
+        Random rand = context.getRandom();
+        DefaultFeatureConfig config = context.getConfig();
         JsonObject fossil1 = null;
         JsonObject fossil2 = null;
         JsonObject fossil3 = null;
@@ -44,31 +44,31 @@ public class FossilFeature extends Feature<DefaultFeatureConfig> {
         JsonObject fossil6 = null;
         JsonObject fossil7 = null;
         try {
-            Resource towerBasePath = MinecraftClient.getInstance().getServer().getDataManager().getResource(new Identifier("raa:structures/fossils/fossil01.json"));
+            Resource towerBasePath = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/fossils/fossil01.json"));
             fossil1 = new Gson().fromJson(new InputStreamReader(towerBasePath.getInputStream()), JsonObject.class);
             JsonObject finalTowerBase = fossil1;
 
-            Resource towerWallsPath = MinecraftClient.getInstance().getServer().getDataManager().getResource(new Identifier("raa:structures/fossils/fossil02.json"));
+            Resource towerWallsPath = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/fossils/fossil02.json"));
             fossil2 = new Gson().fromJson(new InputStreamReader(towerWallsPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerWalls = fossil2;
 
-            Resource towerStairsPath = MinecraftClient.getInstance().getServer().getDataManager().getResource(new Identifier("raa:structures/fossils/fossil03.json"));
+            Resource towerStairsPath = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/fossils/fossil03.json"));
             fossil3 = new Gson().fromJson(new InputStreamReader(towerStairsPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerStairs = fossil3;
 
-            Resource towerLaddersPath = MinecraftClient.getInstance().getServer().getDataManager().getResource(new Identifier("raa:structures/fossils/fossil04.json"));
+            Resource towerLaddersPath = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/fossils/fossil04.json"));
             fossil4 = new Gson().fromJson(new InputStreamReader(towerLaddersPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerLadders = fossil4;
 
-            Resource towerPillarPath = MinecraftClient.getInstance().getServer().getDataManager().getResource(new Identifier("raa:structures/fossils/fossil05.json"));
+            Resource towerPillarPath = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/fossils/fossil05.json"));
             fossil5 = new Gson().fromJson(new InputStreamReader(towerPillarPath.getInputStream()), JsonObject.class);
             JsonObject finalTowerPillar = fossil5;
 
-            Resource fossil6Path = MinecraftClient.getInstance().getServer().getDataManager().getResource(new Identifier("raa:structures/fossils/fossil06.json"));
+            Resource fossil6Path = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/fossils/fossil06.json"));
             fossil6 = new Gson().fromJson(new InputStreamReader(fossil6Path.getInputStream()), JsonObject.class);
             JsonObject finalFossil6 = fossil6;
 
-            Resource fossil7Path = MinecraftClient.getInstance().getServer().getDataManager().getResource(new Identifier("raa:structures/fossils/fossil07.json"));
+            Resource fossil7Path = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/fossils/fossil07.json"));
             fossil7 = new Gson().fromJson(new InputStreamReader(fossil7Path.getInputStream()), JsonObject.class);
             JsonObject finalFossil7 = fossil7;
 
@@ -112,7 +112,7 @@ public class FossilFeature extends Feature<DefaultFeatureConfig> {
             }
         }
 
-        Utils.createSpawnsFile("fossil", world, pos);
+//        Utils.createSpawnsFile("fossil", world, pos);
 
         return true;
     }

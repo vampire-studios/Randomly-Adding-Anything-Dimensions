@@ -1,5 +1,6 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
+import io.github.vampirestudios.cab.Vector4i;
 import io.github.vampirestudios.cab.api.AstralBodyModifier;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.utils.Color;
@@ -7,7 +8,6 @@ import io.github.vampirestudios.raa_dimension.utils.Utils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.SkyProperties;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
@@ -21,8 +21,7 @@ public class RAADimensionSkyProperties extends SkyProperties implements AstralBo
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
-	public Vec3d adjustSkyColor(Vec3d color, float sunHeight) {
+	public Vec3d adjustFogColor(Vec3d color, float sunHeight) {
 		if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUCID)) {
 			return color.multiply(0.15000000596046448D);
 		}
@@ -50,18 +49,18 @@ public class RAADimensionSkyProperties extends SkyProperties implements AstralBo
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public Vector3f getSunTint() {
-		float fogColor2 = dimensionData.getCustomSkyInformation().getSunTint();
-		float[] rgbColor = Color.floatToRgb(fogColor2);
-		return new Vector3f(rgbColor[0], rgbColor[1], rgbColor[2]);
+	public Vector4i getSunTint() {
+		int fogColor2 = dimensionData.getCustomSkyInformation().getSunTint();
+		int[] rgbColor = Color.intToRgb(fogColor2);
+		return new Vector4i(rgbColor[0], rgbColor[1], rgbColor[2], 255);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public Vector3f getMoonTint() {
-		float fogColor2 = dimensionData.getCustomSkyInformation().getMoonTint();
-		float[] rgbColor = Color.floatToRgb(fogColor2);
-		return new Vector3f(rgbColor[0], rgbColor[1], rgbColor[2]);
+	public Vector4i getMoonTint() {
+		int fogColor2 = dimensionData.getCustomSkyInformation().getMoonTint();
+		int[] rgbColor = Color.intToRgb(fogColor2);
+		return new Vector4i(rgbColor[0], rgbColor[1], rgbColor[2], 255);
 	}
 
 	@Override
