@@ -47,7 +47,7 @@ public class StratifiedCliffsSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "stratified_cliffs");
+        return new Identifier("raa_dimensions", "stratified_cliffs");
     }
 
     @Override

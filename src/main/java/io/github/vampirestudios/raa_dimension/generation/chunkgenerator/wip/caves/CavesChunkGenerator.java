@@ -32,7 +32,6 @@ public class CavesChunkGenerator extends NoiseChunkGenerator {
 
     @Override
     protected void sampleNoiseColumn(double[] buffer, int x, int z) {
-        CreateWorldScreen
         this.sampleNoiseColumn(buffer, x, z, 684.412D, 2053.236D, 8.555150000000001D, 34.2206D, 3, -10);
     }
 

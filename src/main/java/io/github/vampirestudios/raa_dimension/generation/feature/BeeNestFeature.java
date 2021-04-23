@@ -36,7 +36,7 @@ public class BeeNestFeature extends Feature<DefaultFeatureConfig> {
         DefaultFeatureConfig config = context.getConfig();
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/bee_nest.json"));
+            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/bee_nest.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{

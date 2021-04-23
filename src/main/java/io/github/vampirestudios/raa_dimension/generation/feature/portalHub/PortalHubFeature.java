@@ -64,7 +64,7 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
                     case "minecraft:orange_wool":
                         List<DimensionData> dimensionDataList = new ArrayList<>();
                         Dimensions.DIMENSIONS.forEach(dimensionDataList::add);
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + Rands.list(dimensionDataList).getName().toLowerCase() + "_portal", currBlockProp, 0);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + Rands.list(dimensionDataList).getName().toLowerCase() + "_portal", currBlockProp, 0);
                         break;
                     default:
                         WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, 0);
@@ -80,7 +80,7 @@ public class PortalHubFeature extends Feature<DefaultFeatureConfig> {
         StructureWorldAccess world = context.getWorld();
         JsonObject jsonObject = null;
         try {
-            Resource path = Objects.requireNonNull(world.getServer()).getResourceManager().getResource(new Identifier("raa:structures/portal_hub/portal_hub.json"));
+            Resource path = Objects.requireNonNull(world.getServer()).getResourceManager().getResource(new Identifier("raa_dimensions:structures/portal_hub/portal_hub.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{

@@ -5592,7 +5592,7 @@
                     {
                       "tagType": 8,
                       "name": "target_pool",
-                      "value": "raa:abandoned_hut"
+                      "value": "raa_dimensions:abandoned_hut"
                     },
                     {
                       "tagType": 8,
@@ -5607,7 +5607,7 @@
                     {
                       "tagType": 8,
                       "name": "attachement_type",
-                      "value": "raa:hut_interiour"
+                      "value": "raa_dimensions:hut_interiour"
                     }
                   ]
                 },

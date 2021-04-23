@@ -24,6 +24,7 @@
 
 package io.github.vampirestudios.raa_dimension.utils;
 
+import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.item.RAABlockItem;
 import io.github.vampirestudios.raa_dimension.item.RAABlockItemAlt;
 import net.minecraft.block.Block;
@@ -40,6 +41,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.surfacebuilder.ConfiguredSurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilder.ConfiguredSurfaceBuilders;
+import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilder.SurfaceConfig;
 
 public class RegistryUtils {
 
@@ -102,5 +107,39 @@ public class RegistryUtils {
         BlockEntityType<T> blockEntityType = builder.build(null);
         Registry.register(Registry.BLOCK_ENTITY_TYPE, name, blockEntityType);
         return blockEntityType;
+    }
+
+    public static SurfaceBuilder<?> registerSurfaceBuilder(SurfaceBuilder<?> item, Identifier name) {
+        if (Registry.SURFACE_BUILDER.get(name) == SurfaceBuilder.DEFAULT) {
+            return Registry.register(Registry.SURFACE_BUILDER, name, item);
+        } else {
+            return item;
+        }
+    }
+
+    public static SurfaceBuilder<?> registerSurfaceBuilder(String name, SurfaceBuilder<?> item) {
+        Identifier id = new Identifier(RAADimensionAddon.MOD_ID, name);
+        if (Registry.SURFACE_BUILDER.get(id) == SurfaceBuilder.DEFAULT) {
+            return Registry.register(Registry.SURFACE_BUILDER, id, item);
+        } else {
+            return item;
+        }
+    }
+
+    public static ConfiguredSurfaceBuilder<? extends SurfaceConfig> registerConfiguredSurfaceBuilder(ConfiguredSurfaceBuilder<?> item, Identifier name) {
+        if (BuiltinRegistries.CONFIGURED_SURFACE_BUILDER.get(name) == ConfiguredSurfaceBuilders.NOPE) {
+            return Registry.register(BuiltinRegistries.CONFIGURED_SURFACE_BUILDER, name, item);
+        } else {
+            return item;
+        }
+    }
+
+    public static ConfiguredSurfaceBuilder<? extends SurfaceConfig> registerConfiguredSurfaceBuilder(String name, ConfiguredSurfaceBuilder<?> item) {
+        Identifier id = new Identifier(RAADimensionAddon.MOD_ID, name);
+        if (BuiltinRegistries.CONFIGURED_SURFACE_BUILDER.get(id) == ConfiguredSurfaceBuilders.NOPE) {
+            return Registry.register(BuiltinRegistries.CONFIGURED_SURFACE_BUILDER, id, item);
+        } else {
+            return item;
+        }
     }
 }

@@ -2,6 +2,7 @@ package io.github.vampirestudios.raa_dimension.utils;
 
 import com.google.common.collect.ImmutableList;
 import io.github.vampirestudios.vampirelib.utils.Rands;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.*;
 import net.minecraft.entity.Entity;
@@ -133,7 +134,10 @@ public class WorldStructureManipulation {
 
     public static void placeBlock(ServerWorldAccess world, BlockPos pos, String block, Map<String, String> properties, int rotation) {
         //Place block
-        world.setBlockState(pos, Registry.BLOCK.get(Identifier.tryParse(block)).getDefaultState(), 2);
+        Block parsedBlock;
+        if (!Registry.BLOCK.containsId(Identifier.tryParse(block))) parsedBlock = Blocks.STONE;
+        else parsedBlock = Registry.BLOCK.get(Identifier.tryParse(block));;
+        world.setBlockState(pos, parsedBlock.getDefaultState(), 2);
 
         //Rotate stuff
         String facing = "NORTH";

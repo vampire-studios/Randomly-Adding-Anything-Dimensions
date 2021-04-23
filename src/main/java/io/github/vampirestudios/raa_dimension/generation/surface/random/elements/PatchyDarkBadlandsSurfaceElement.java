@@ -37,7 +37,7 @@ public class PatchyDarkBadlandsSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "patchy_dark_badlands");
+        return new Identifier("raa_dimensions", "patchy_dark_badlands");
     }
 
     @Override

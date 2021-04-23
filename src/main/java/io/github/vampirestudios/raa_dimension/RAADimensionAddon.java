@@ -17,15 +17,25 @@ import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.mixin.biome.VanillaLayeredBiomeSourceAccessor;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.gen.GenerationStep;
+import net.minecraft.world.gen.decorator.CountExtraDecoratorConfig;
+import net.minecraft.world.gen.decorator.Decorator;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 
 import java.util.HashMap;
 
@@ -102,9 +112,11 @@ public class RAADimensionAddon implements RAAAddon {
 							.ultrawarm(dimensionData.getTypeData().isUltrawarm())
 							.natural(dimensionData.getTypeData().isNatural())
 							.hasEnderDragonFight(dimensionData.getTypeData().hasEnderDragonFight())
+							.height(dimensionData.getTypeData().getLogicalHeight())
 							.logicalHeight(dimensionData.getTypeData().getLogicalHeight())
 							.ambientLight(dimensionData.getTypeData().getAmbientLight())
-							.infiniburn(new Identifier(dimensionData.getTypeData().getInfiniburn()));
+							.infiniburn(new Identifier(dimensionData.getTypeData().getInfiniburn()))
+							.minimumY(-64);
 					if (dimensionData.getTypeData().hasFixedTime()) {
 						dimensionTypeBuilder.fixedTime(dimensionData.getTypeData().getFixedTime());
 					}
@@ -118,6 +130,11 @@ public class RAADimensionAddon implements RAAAddon {
 							blockStateBuilder.setProperty("level", "0");
 					}).bedrockFloorPosition(0)
 							.bedrockRoofPosition(0)
+							.deepslateEnabled(false)
+							.noiseCavesEnabled(true)
+							.aquifersEnabled(true)
+							.oreVeinsEnabled(true)
+							.minSurfaceLevel(Integer.MIN_VALUE)
 							.disableMobGeneration(dimensionData.getNoiseSettingsData().disableMobGeneration())
 							.seaLevel(dimensionData.getNoiseSettingsData().getSeaLevel())
 							.noiseConfig(noiseConfigBuilder -> {
@@ -130,6 +147,7 @@ public class RAADimensionAddon implements RAAAddon {
 										.simplexSurfaceNoise(dimensionData.getNoiseSettingsData().getNoise().isSimplexSurfaceNoise())
 										.randomDensityOffset(dimensionData.getNoiseSettingsData().getNoise().hasRandomDensityOffset())
 										.islandNoiseOverride(dimensionData.getNoiseSettingsData().getNoise().hasIslandNoiseOverride())
+										.minimumY(-64)
 										.bottomSlide(slideConfigBuilder -> {
 											slideConfigBuilder.offset(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getOffset())
 													.size(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getSize())
@@ -189,6 +207,20 @@ public class RAADimensionAddon implements RAAAddon {
 		});
 		Dimensions.DIMENSIONS.forEach(dimensionData -> SkyPropertiesAccessor.getBY_IDENTIFIER().put(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId()),
 				new RAADimensionSkyProperties(dimensionData)));
+
+		RegistryKey<ConfiguredFeature<?, ?>>  portalHubKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(MOD_ID, "portal_hub"));
+		Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, portalHubKey.getValue(), Features.PORTAL_HUB
+				.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA
+						.configure(new CountExtraDecoratorConfig(0, 0.3F, 1))));
+		if (CONFIG.shouldSpawnPortalHub) {
+			BiomeModifications.addFeature((context) -> {
+				RegistryKey<Biome> biomeKey = context.getBiomeKey();
+				Biome biome = BuiltinRegistries.BIOME.get(biomeKey.getValue());
+				return biomeKey == BiomeKeys.BAMBOO_JUNGLE_HILLS || biomeKey == BiomeKeys.BAMBOO_JUNGLE || VanillaLayeredBiomeSourceAccessor.getBIOMES().contains(biomeKey)
+						|| biome.getCategory() != Biome.Category.OCEAN;
+			}, GenerationStep.Feature.SURFACE_STRUCTURES, portalHubKey);
+		}
+
 	}
 
 }

@@ -58,7 +58,7 @@ public class RandomSpiresSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "spires");
+        return new Identifier("raa_dimensions", "spires");
     }
 
     @Override

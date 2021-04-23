@@ -92,7 +92,7 @@ public class SurfaceBuilderGenerator {
 
     public static void load(JsonObject obj) {
         obj.entrySet().forEach(e -> {
-            if (e.getKey().startsWith("raa")) { //check if the key is a new surface builder key
+            if (e.getKey().startsWith("raa_dimensions")) { //check if the key is a new surface builder key
                 List<SurfaceElement> elements = new ArrayList<>();
                 //blessed code to get the elements in the data
                 e.getValue().getAsJsonObject().get("elements").getAsJsonArray().forEach(se -> {

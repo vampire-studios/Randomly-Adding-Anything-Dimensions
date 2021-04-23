@@ -39,7 +39,7 @@ public class GravelSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "gravel");
+        return new Identifier("raa_dimensions", "gravel");
     }
 
     @Override

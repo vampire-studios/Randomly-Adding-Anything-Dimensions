@@ -34,13 +34,13 @@ public class Utils {
     private static List<String> surfaceBuilders = new ArrayList<>();
 
     static {
-        surfaceBuilders.add("raa:patchy_desert");
-        surfaceBuilders.add("raa:dark_patchy_badlands");
-        surfaceBuilders.add("raa:patchy_badlands");
-        surfaceBuilders.add("raa:classic_cliffs");
-        surfaceBuilders.add("raa:stratified_cliffs");
-        surfaceBuilders.add("raa:sandy_dunes");
-        surfaceBuilders.add("raa:dunes");
+        surfaceBuilders.add("raa_dimensions:patchy_desert");
+        surfaceBuilders.add("raa_dimensions:dark_patchy_badlands");
+        surfaceBuilders.add("raa_dimensions:patchy_badlands");
+        surfaceBuilders.add("raa_dimensions:classic_cliffs");
+        surfaceBuilders.add("raa_dimensions:stratified_cliffs");
+        surfaceBuilders.add("raa_dimensions:sandy_dunes");
+        surfaceBuilders.add("raa_dimensions:dunes");
         surfaceBuilders.add("minecraft:default");
     }
 

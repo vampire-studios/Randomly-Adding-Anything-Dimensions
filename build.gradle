@@ -43,6 +43,15 @@ dependencies {
 	modImplementation "io.github.vampirestudios.cab:Customized-Astral-Body:1.0.0"
 
     modImplementation "com.terraformersmc:modmenu:2.0.0-beta.4"
+
+	modImplementation ("com.lettuce.fudge:artifice:0.15.5+21w16a") {
+		exclude group: "net.fabricmc.fabric-api"
+		force = true
+	}
+	include ("com.lettuce.fudge:artifice:0.15.5+21w16a") {
+		exclude group: "net.fabricmc.fabric-api"
+		force = true
+	}
 }
 
 processResources {

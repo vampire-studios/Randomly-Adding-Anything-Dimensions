@@ -10,7 +10,7 @@ import net.minecraft.util.registry.RegistryKey;
 
 public class PortalHubThemes {
 
-    public static final Registry<PortalHubTheme> PORTAL_HUB_THEMES = new DefaultedRegistry<>("raa:portal_hub_themes", RegistryKey.ofRegistry(new Identifier(RAADimensionAddon.MOD_ID, "portal_hub_themes")), Lifecycle.stable());
+    public static final Registry<PortalHubTheme> PORTAL_HUB_THEMES = new DefaultedRegistry<>("raa_dimensions:portal_hub_themes", RegistryKey.ofRegistry(new Identifier(RAADimensionAddon.MOD_ID, "portal_hub_themes")), Lifecycle.stable());
 
     public static final PortalHubTheme STONE_BRICKS = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "stone_bricks"), new PortalHubTheme(Blocks.STONE_BRICKS, Blocks.STONE_BRICK_WALL, Blocks.STONE_BRICK_SLAB, Blocks.STONE_BRICK_STAIRS));
     public static final PortalHubTheme BRICKS = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "bricks"), new PortalHubTheme(Blocks.BRICKS, Blocks.BRICK_WALL, Blocks.BRICK_SLAB, Blocks.BRICK_STAIRS));
@@ -26,6 +26,11 @@ public class PortalHubThemes {
     public static final PortalHubTheme MOSSY_COBBLESTONE = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "mossy_cobblestone"), new PortalHubTheme(Blocks.MOSSY_COBBLESTONE, Blocks.MOSSY_COBBLESTONE_WALL, Blocks.MOSSY_COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE_STAIRS));
     public static final PortalHubTheme MOSSY_STONE_BRICKS = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "mossy_stone_bricks"), new PortalHubTheme(Blocks.MOSSY_STONE_BRICKS, Blocks.MOSSY_STONE_BRICK_WALL, Blocks.MOSSY_STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICK_STAIRS));
     public static final PortalHubTheme RED_SANDSTONE = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "red_sandstone"), new PortalHubTheme(Blocks.RED_SANDSTONE, Blocks.RED_SANDSTONE_WALL, Blocks.RED_SANDSTONE_SLAB, Blocks.RED_SANDSTONE_STAIRS));
+
+    public static final PortalHubTheme DEEPSLATE_BRICKS = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "deepslate_bricks"), new PortalHubTheme(Blocks.DEEPSLATE_BRICKS, Blocks.DEEPSLATE_BRICK_WALL, Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICK_STAIRS));
+    public static final PortalHubTheme DEEPSLATE_TILES = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "deepslate_tiles"), new PortalHubTheme(Blocks.DEEPSLATE_TILES, Blocks.DEEPSLATE_TILE_WALL, Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILE_STAIRS));
+    public static final PortalHubTheme POLISHED_DEEPSLATE = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "polished_deepslate"), new PortalHubTheme(Blocks.POLISHED_DEEPSLATE, Blocks.POLISHED_DEEPSLATE_WALL, Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.POLISHED_DEEPSLATE_STAIRS));
+    public static final PortalHubTheme COBBLED_DEEPSLATE = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "cobbled_deepslate"), new PortalHubTheme(Blocks.COBBLED_DEEPSLATE, Blocks.COBBLED_DEEPSLATE_WALL, Blocks.COBBLED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE_STAIRS));
 
     public static final PortalHubTheme QUARTZ = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "quartz"), new PortalHubTheme(Blocks.QUARTZ_BLOCK, Blocks.QUARTZ_PILLAR, Blocks.QUARTZ_SLAB, Blocks.QUARTZ_STAIRS));
     public static final PortalHubTheme SMOOTH_QUARTZ = registerTheme(new Identifier(RAADimensionAddon.MOD_ID, "smooth_quartz"), new PortalHubTheme(Blocks.SMOOTH_QUARTZ, Blocks.QUARTZ_PILLAR, Blocks.SMOOTH_QUARTZ_SLAB, Blocks.SMOOTH_QUARTZ_STAIRS));

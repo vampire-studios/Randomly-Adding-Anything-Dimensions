@@ -233,6 +233,11 @@ public class Dimensions {
                     carvers.add(CarverType.CAVES);
                 }
 
+                //cave generation
+                if (!Rands.chance(10)) { //80% chance of normal caves
+                    carvers.add(CarverType.CREVICES);
+                }
+
                 if (!Rands.chance(4)) { //75% chance of normal ravines
                     carvers.add(CarverType.RAVINES);
                 }
@@ -318,7 +323,7 @@ public class Dimensions {
                     .isUltrawarm(Rands.chance(10))
                     .isNatural(Rands.chance(10))
                     .hasEnderDragonFight(Rands.chance(1000))
-                    .logicalHeight(Rands.randIntRange(70, 256))
+                    .logicalHeight(Rands.randIntRange(78 / 16, 1024 / 16) * 16)
                     .ambientLight(Rands.randFloatRange(0F, 0.16F))
                     .infiniburnTag(BlockTags.INFINIBURN_OVERWORLD.getId().toString())
                     .hasFixedTime(Rands.chance(10))
@@ -327,26 +332,26 @@ public class Dimensions {
             builder.dimensionType(typeData);
 
             NoiseSettings altitudeNoise = NoiseSettings.Builder.builder()
-                    .firstOctave(Rands.randIntRange(1, 4))
-                    .amplitudes(Rands.randFloatRange(1.0F, 4.0F), Rands.randFloatRange(1.0F, 9.0F))
+                    .firstOctave(-7)
+                    .amplitudes(1, 1)
                     .create();
             builder.altitudeNoise(altitudeNoise);
 
             NoiseSettings weirdnessNoise = NoiseSettings.Builder.builder()
-                    .firstOctave(Rands.randIntRange(1, 2))
-                    .amplitudes(Rands.randFloatRange(1.0F, 2.0F), Rands.randFloatRange(1.0F, 5.0F))
+                    .firstOctave(-7)
+                    .amplitudes(1, 1)
                     .create();
             builder.weirdnessNoise(weirdnessNoise);
 
             NoiseSettings temperatureNoise = NoiseSettings.Builder.builder()
-                    .firstOctave(Rands.randIntRange(1, 6))
-                    .amplitudes(Rands.randFloatRange(1.0F, 6.0F), Rands.randFloatRange(1.0F, 6.0F))
+                    .firstOctave(-7)
+                    .amplitudes(1, 1)
                     .create();
             builder.temperatureNoise(temperatureNoise);
 
             NoiseSettings humidityNoise = NoiseSettings.Builder.builder()
-                    .firstOctave(Rands.randIntRange(1, 9))
-                    .amplitudes(Rands.randFloatRange(1.0F, 9.0F), Rands.randFloatRange(1.0F, 12.0F))
+                    .firstOctave(-7)
+                    .amplitudes(1, 1)
                     .create();
             builder.humidityNoise(humidityNoise);
 
@@ -373,7 +378,7 @@ public class Dimensions {
                     .amplified(Rands.chance(3))
                     .densityFactor(finalDensityFactor)
                     .densityOffset(Rands.randFloatRange(-0.25F, -1.0F))
-                    .height(Rands.randIntRange(0, 255))
+                    .height(Rands.randIntRange(0, 1024 / 16) * 16)
                     .sizeVertical(Rands.randIntRange(1, 4))
                     .sizeHorizontal(finalSizeHorizontal)
                     .simplexSurfaceNoise(Rands.chance(10))

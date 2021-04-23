@@ -6,19 +6,21 @@ import io.github.vampirestudios.raa_dimension.generation.dimensions.data.CarverT
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionBiomeData;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.generation.feature.*;
+import io.github.vampirestudios.raa_dimension.generation.feature.FossilFeature;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.ColumnBlocksConfig;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.CorruptedFeatureConfig;
 import io.github.vampirestudios.raa_dimension.generation.feature.portalHub.PortalHubFeature;
 import io.github.vampirestudios.raa_dimension.utils.Utils;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.GenerationSettings;
+import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.carver.Carver;
 import net.minecraft.world.gen.carver.CarverConfig;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.carver.ConfiguredCarvers;
+import net.minecraft.world.gen.feature.*;
 
 public class Features {
     public static NetherrackFeature CORRUPTED_NETHRRACK;
@@ -121,7 +123,7 @@ public class Features {
     }
 
     // we use this cursed code to make a new carver per dimension
-    public static void addDefaultCarvers(DimensionData dimensionData, DimensionBiomeData biomeData) {
+    public static void addDefaultCarvers(GenerationSettings.Builder generationSettings, DimensionData dimensionData, DimensionBiomeData biomeData) {
         if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.TECTONIC)) {
 //            CaveCarver caveCarver = registerCarver("cave_carver_" + dimensionData.getId().getPath(), new CaveCarver(dimensionData));
 //            biome.addCarver(GenerationStep.Carver.AIR, Biome.configureCarver(caveCarver, new ProbabilityConfig(1)));
@@ -137,13 +139,24 @@ public class Features {
         } else {
             //TODO: bring this to a dedicated class
             if (biomeData.getCarvers().contains(CarverType.CAVES)) { //80% chance of normal caves
-//                CaveCarver caveCarver = registerCarver("cave_carver_" + dimensionData.getId().getPath(), new CaveCarver(dimensionData));
+//                CaveCarver caveCarver = registerCarver("cave_carver_" + dimensionData.getId().getPath(), new CaveCarver(CaveCarverConfig.CAVE_CODEC));
 //                biome.addCarver(GenerationStep.Carver.AIR, Biome.configureCarver(caveCarver, new ProbabilityConfig(0.14285715F)));
+//                generationSettings.carver(GenerationStep.Carver.AIR, caveCarver.configure(new CaveCarverConfig()));
+                generationSettings.carver(GenerationStep.Carver.AIR, ConfiguredCarvers.PROTOTYPE_CAVE);
+            }
+
+            if (biomeData.getCarvers().contains(CarverType.CREVICES)) { //10% chance of normal caves
+//                CaveCarver caveCarver = registerCarver("cave_carver_" + dimensionData.getId().getPath(), new CaveCarver(CaveCarverConfig.CAVE_CODEC));
+//                biome.addCarver(GenerationStep.Carver.AIR, Biome.configureCarver(caveCarver, new ProbabilityConfig(0.14285715F)));
+//                generationSettings.carver(GenerationStep.Carver.AIR, caveCarver.configure(new CaveCarverConfig()));
+                generationSettings.carver(GenerationStep.Carver.AIR, ConfiguredCarvers.PROTOTYPE_CREVICE);
             }
 
             if (biomeData.getCarvers().contains(CarverType.RAVINES)) { //75% chance of normal ravines
-//                RavineCarver ravineCarver = registerCarver("ravine_carver_" + dimensionData.getId().getPath(), new RavineCarver(dimensionData));
+//                RavineCarver ravineCarver = registerCarver("ravine_carver_" + dimensionData.getId().getPath(), new RavineCarver(RavineCarverConfig.RAVINE_CODEC));
 //                biome.addCarver(GenerationStep.Carver.AIR, Biome.configureCarver(ravineCarver, new ProbabilityConfig(0.02F)));
+//                generationSettings.carver(GenerationStep.Carver.AIR, ravineCarver.configure(new RavineCarverConfig()));
+                generationSettings.carver(GenerationStep.Carver.AIR, ConfiguredCarvers.PROTOTYPE_CANYON);
             }
 
             if (biomeData.getCarvers().contains(CarverType.CAVE_CAVITY)) { //10% chance of cave cavity
@@ -164,6 +177,7 @@ public class Features {
            if (biomeData.getCarvers().contains(CarverType.BIG_ROOM)) { //10% chance of big rooms
                 BigRoomCarver bigRoomCarver = registerCarver("big_room_carver_" + dimensionData.getId().getPath(), new BigRoomCarver(dimensionData));
 //                biome.addCarver(GenerationStep.Carver.AIR, Biome.configureCarver(bigRoomCarver, new ProbabilityConfig(0.04F)));
+//               generationSettings.carver(GenerationStep.Carver.AIR, bigRoomCarver.configure(new CaveCarverConfig()));
            }
         }
     }
@@ -171,6 +185,14 @@ public class Features {
     public static <C extends FeatureConfig, F extends Feature<C>> F register(String name, F feature) {
         if (Registry.FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name)) == null) {
             return Registry.register(Registry.FEATURE, new Identifier(RAADimensionAddon.MOD_ID, name), feature);
+        } else {
+            return feature;
+        }
+    }
+
+    public static ConfiguredFeature<?, ?> register(String name, ConfiguredFeature<?, ?> feature) {
+        if (BuiltinRegistries.CONFIGURED_FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name)) == null) {
+            return Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, new Identifier(RAADimensionAddon.MOD_ID, name), feature);
         } else {
             return feature;
         }

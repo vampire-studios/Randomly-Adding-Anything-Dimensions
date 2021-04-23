@@ -36,7 +36,7 @@ public class UndegroundBeeHiveFeature extends Feature<DefaultFeatureConfig> {
         DefaultFeatureConfig config = context.getConfig();
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/underground_bee_nest.json"));
+            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/underground_bee_nest.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{

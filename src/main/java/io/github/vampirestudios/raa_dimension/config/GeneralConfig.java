@@ -11,4 +11,7 @@ public class GeneralConfig implements ConfigData {
     @Comment("Amount of dimensions to generate")
     public int dimensionGenAmount = 50;
 
+    @Comment("Should portal hubs spawn?")
+    public boolean shouldSpawnPortalHub = true;
+
 }

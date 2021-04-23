@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.Dimension;
 
 public class Testing {
-    private static final Identifier LUCID_SKY = new Identifier("raa:textures/environment/lucid_sky.png");
+    private static final Identifier LUCID_SKY = new Identifier("raa_dimensions:textures/environment/lucid_sky.png");
     
     public static void renderCustomSky(MatrixStack matrixStack, MinecraftClient client, Dimension dimension) {
         if (dimension instanceof CustomDimension) {

@@ -62,7 +62,7 @@ public class SandyDunesSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "sandy_dunes");
+        return new Identifier("raa_dimensions", "sandy_dunes");
     }
 
     @Override

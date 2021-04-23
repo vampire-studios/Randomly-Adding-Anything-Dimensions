@@ -58,7 +58,7 @@ public class DunesSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "dunes");
+        return new Identifier("raa_dimensions", "dunes");
     }
 
     @Override

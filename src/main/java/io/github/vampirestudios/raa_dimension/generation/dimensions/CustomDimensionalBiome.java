@@ -9,6 +9,7 @@ import io.github.vampirestudios.raa_dimension.generation.feature.TombFeature;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.ColumnBlocksConfig;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.CorruptedFeatureConfig;
 import io.github.vampirestudios.raa_dimension.init.Features;
+import io.github.vampirestudios.raa_dimension.utils.RegistryUtils;
 import io.github.vampirestudios.raa_dimension.utils.Utils;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.block.Blocks;
@@ -25,7 +26,6 @@ import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
 import net.minecraft.world.gen.CountConfig;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.YOffset;
-import net.minecraft.world.gen.carver.ConfiguredCarvers;
 import net.minecraft.world.gen.decorator.ChanceDecoratorConfig;
 import net.minecraft.world.gen.decorator.CountExtraDecoratorConfig;
 import net.minecraft.world.gen.decorator.Decorator;
@@ -48,10 +48,10 @@ public class CustomDimensionalBiome {
             DefaultBiomeFeatures.addSeagrassOnStone(this);
             DefaultBiomeFeatures.addKelp(this);
         }*/
-        generationSettings.carver(GenerationStep.Carver.AIR, ConfiguredCarvers.NETHER_CAVE)
-                .feature(GenerationStep.Feature.VEGETAL_DECORATION, ConfiguredFeatures.SPRING_LAVA)
-                .structureFeature(ConfiguredStructureFeatures.FORTRESS);
-        generationSettings.surfaceBuilder(new ConfiguredSurfaceBuilder<>((SurfaceBuilder<TernarySurfaceConfig>) Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()), biomeData.getSurfaceConfig()));
+//        generationSettings.carver(GenerationStep.Carver.AIR, ConfiguredCarvers.NETHER_CAVE)
+//                .feature(GenerationStep.Feature.VEGETAL_DECORATION, ConfiguredFeatures.SPRING_LAVA)
+//                .structureFeature(ConfiguredStructureFeatures.FORTRESS);
+        generationSettings.surfaceBuilder(RegistryUtils.registerConfiguredSurfaceBuilder(dimensionData.getId().getPath() + "_surface_builder", new ConfiguredSurfaceBuilder<>((SurfaceBuilder<TernarySurfaceConfig>) Registry.SURFACE_BUILDER.get(biomeData.getSurfaceBuilder()), biomeData.getSurfaceConfig())));
 
         if (Rands.chance(4) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.DRY) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.MOLTEN)) {
             DefaultBiomeFeatures.addPlainsTallGrass(generationSettings);
@@ -90,32 +90,32 @@ public class CustomDimensionalBiome {
         }*/
 
         if (!Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && !Utils.checkBitFlag(dimensionData.getFlags(), Utils.CORRUPTED)) {
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_PATCH
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_sunflower_patch_cf", dimensionData.getName().toLowerCase()), Feature.RANDOM_PATCH
                     .configure(new RandomPatchFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks.SUNFLOWER.getDefaultState()), new DoublePlantPlacer()).build())
-                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 50 : 20))));
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_PATCH
+                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 50 : 20)))));
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_rose_bush_patch_cf", dimensionData.getName().toLowerCase()), Feature.RANDOM_PATCH
                     .configure(new RandomPatchFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks.ROSE_BUSH.getDefaultState()), new DoublePlantPlacer()).build())
-                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 20 : 5))));
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_PATCH
+                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 20 : 5)))));
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_lilac_patch_cf", dimensionData.getName().toLowerCase()), Feature.RANDOM_PATCH
                     .configure(new RandomPatchFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks.LILAC.getDefaultState()), new DoublePlantPlacer()).build())
-                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 20 : 5))));
+                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 20 : 5)))));
 
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_PATCH
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_sugar_cane_patch_cf", dimensionData.getName().toLowerCase()), Feature.RANDOM_PATCH
                     .configure(new RandomPatchFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks.SUGAR_CANE.getDefaultState()), new ColumnPlacer(BiasedToBottomIntProvider.create(2, 4)))
                             .tries(20).spreadX(4).spreadY(0).spreadZ(4).cannotProject().needsWater().build())
-                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 20 : 5))));
+                    .decorate(Decorator.COUNT.configure(new CountConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 20 : 5)))));
 
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_PATCH
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_pumpkin_patch_cf", dimensionData.getName().toLowerCase()), Feature.RANDOM_PATCH
                     .configure(new RandomPatchFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks.PUMPKIN.getDefaultState()), SimpleBlockPlacer.INSTANCE).build())
-                    .decorate(Decorator.CHANCE.configure(new ChanceDecoratorConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 50 : 20))));
+                    .decorate(Decorator.CHANCE.configure(new ChanceDecoratorConfig(Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUSH) ? 50 : 20)))));
         }
 
         if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.CORRUPTED)) {
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.CRATER_FEATURE.configure(new CorruptedFeatureConfig(true)).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0, 1F), 1))));
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.CORRUPTED_NETHRRACK.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_MULTILAYER.configure(new CountConfig(2))));
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_corrupted_crater_cf", dimensionData.getName().toLowerCase()), Features.CRATER_FEATURE.configure(new CorruptedFeatureConfig(true)).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0, 1F), 1)))));
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_corrupted_netherrack_cf", dimensionData.getName().toLowerCase()), Features.CORRUPTED_NETHRRACK.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_MULTILAYER.configure(new CountConfig(2)))));
         } else {
             if (biomeData.spawnsCratersInNonCorrupted()) {
-                generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.CRATER_FEATURE.configure(new CorruptedFeatureConfig(false)).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0, 1F), 1))));
+                generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_crater_cf", dimensionData.getName().toLowerCase()), Features.CRATER_FEATURE.configure(new CorruptedFeatureConfig(false)).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0, 1F), 1)))));
             }
         }
 
@@ -145,34 +145,34 @@ public class CustomDimensionalBiome {
         }*/
 
         // TODO fix this
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.OUTPOST.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, outpostChance, 1))));
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.CAMPFIRE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, campfireChance, 1))));
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.TOWER.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, towerChance, 1))));
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.FOSSIL.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, fossilChance, 1))));
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.SHRINE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, shrineChance, 1))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_outpost_cf", dimensionData.getName().toLowerCase()), Features.OUTPOST.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, outpostChance, 1)))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_campfire_cf", dimensionData.getName().toLowerCase()), Features.CAMPFIRE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, campfireChance, 1)))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_tower_cf", dimensionData.getName().toLowerCase()), Features.TOWER.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, towerChance, 1)))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_fossil_cf", dimensionData.getName().toLowerCase()), Features.FOSSIL.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, fossilChance, 1)))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_shrine_cf", dimensionData.getName().toLowerCase()), Features.SHRINE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, shrineChance, 1)))));
 
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES,
-                Features.STONE_HENGE.configure(new DefaultFeatureConfig()).decorate(
+        /*generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES,
+                Features.register(String.format("%s_stone_henge_cf", dimensionData.getName().toLowerCase()), Features.STONE_HENGE.configure(new DefaultFeatureConfig()).decorate(
                         Decorator.COUNT_EXTRA.configure(
                                 new CountExtraDecoratorConfig(0, 0.001F, 1)
                         )
-                )
-        );
+                ))
+        );*/
         generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES,
-                Features.COLUMN_RAMP.configure(new ColumnBlocksConfig(Blocks.STONE.getDefaultState(), Blocks.COBBLESTONE.getDefaultState(),
+                Features.register(String.format("%s_something2_cf", dimensionData.getName().toLowerCase()), Features.COLUMN_RAMP.configure(new ColumnBlocksConfig(Blocks.STONE.getDefaultState(), Blocks.COBBLESTONE.getDefaultState(),
                         Blocks.NETHERRACK.getDefaultState())).decorate(
                         Decorator.RANGE.configure(
                                 new RangeDecoratorConfig(UniformHeightProvider.create(YOffset.fixed(0), YOffset.fixed(220)))
                         )
-                )
+                ))
         );
         generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES,
-                Features.COLUMN_VERTICAL.configure(new ColumnBlocksConfig(Blocks.STONE.getDefaultState(), Blocks.COBBLESTONE.getDefaultState(),
+                Features.register(String.format("%s_something_cf", dimensionData.getName().toLowerCase()), Features.COLUMN_VERTICAL.configure(new ColumnBlocksConfig(Blocks.STONE.getDefaultState(), Blocks.COBBLESTONE.getDefaultState(),
                         Blocks.NETHERRACK.getDefaultState())).decorate(
                         Decorator.RANGE.configure(
                                 new RangeDecoratorConfig(UniformHeightProvider.create(YOffset.fixed(0), YOffset.fixed(220)))
                         )
-                )
+                ))
         );
         /*generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES,
                 Features.HANGING_RUINS.configure(FeatureConfig.DEFAULT).decorate(
@@ -189,21 +189,21 @@ public class CustomDimensionalBiome {
                 )
         );*/
 
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.BEE_NEST.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1))));
-        generationSettings.feature(GenerationStep.Feature.UNDERGROUND_STRUCTURES, Features.CAVE_CAMPFIRE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1))));
-        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.MUSHROOM_RUIN.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1))));
-        generationSettings.feature(GenerationStep.Feature.UNDERGROUND_STRUCTURES, Features.UNDERGROUND_BEE_HIVE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_bee_nest_cf", dimensionData.getName().toLowerCase()), Features.BEE_NEST.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1)))));
+        generationSettings.feature(GenerationStep.Feature.UNDERGROUND_STRUCTURES, Features.register(String.format("%s_cave_campfire_cf", dimensionData.getName().toLowerCase()), Features.CAVE_CAMPFIRE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1)))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_mushroom_ruin_cf", dimensionData.getName().toLowerCase()), Features.MUSHROOM_RUIN.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1)))));
+        generationSettings.feature(GenerationStep.Feature.UNDERGROUND_STRUCTURES, Features.register(String.format("%s_underground_bee_hive_cf", dimensionData.getName().toLowerCase()), Features.UNDERGROUND_BEE_HIVE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 1.0f, 1)))));
 
 
 
         if ((Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.CIVILIZED)) || (Utils.checkBitFlag(dimensionData.getFlags(), Utils.DEAD) && Utils.checkBitFlag(dimensionData.getFlags(), Utils.ABANDONED))) {
             StoneCircleFeature STONE_CIRCLE = Features.register(String.format("%s_stone_circle", dimensionData.getName().toLowerCase()), new StoneCircleFeature(dimensionData));
-            generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, STONE_CIRCLE.configure(FeatureConfig.DEFAULT).decorate(Decorator.CHANCE.configure(new ChanceDecoratorConfig(120))));
+            generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_stone_circle_cf", dimensionData.getName().toLowerCase()), STONE_CIRCLE.configure(FeatureConfig.DEFAULT).decorate(Decorator.CHANCE.configure(new ChanceDecoratorConfig(120)))));
 
-            generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.SPIDER_LAIR.configure(FeatureConfig.DEFAULT).decorate(Decorator.CHANCE.configure(new ChanceDecoratorConfig(230))));
+            generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_spider_lair_cf", dimensionData.getName().toLowerCase()), Features.SPIDER_LAIR.configure(FeatureConfig.DEFAULT).decorate(Decorator.CHANCE.configure(new ChanceDecoratorConfig(230)))));
 
             TombFeature tomb = Features.register(String.format("%s_tomb", dimensionData.getName().toLowerCase()), new TombFeature(dimensionData));
-            generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, tomb.configure(FeatureConfig.DEFAULT).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 0.015f, 1))));
+            generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, Features.register(String.format("%s_tomb_cf", dimensionData.getName().toLowerCase()), tomb.configure(FeatureConfig.DEFAULT).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, 0.015f, 1)))));
         }
 
 //        DefaultBiomeFeatures.addDefaultLakes(generationSettings);
@@ -224,19 +224,19 @@ public class CustomDimensionalBiome {
             generationSettings.structureFeature(configuredFeature);
         }
 
-        Features.addDefaultCarvers(dimensionData, biomeData);
+        Features.addDefaultCarvers(generationSettings, dimensionData, biomeData);
 
         if (biomeData.hasMushrooms()) {
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_giant_brown_mushroom_cf", dimensionData.getName().toLowerCase()), Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
                     ImmutableList.of(
                             ConfiguredFeatures.BROWN_MUSHROOM_GIANT.withChance(1)),
                     ConfiguredFeatures.OAK
-            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
+            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1)))));
+            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, Features.register(String.format("%s_giant_red_mushroom_cf", dimensionData.getName().toLowerCase()), Feature.RANDOM_SELECTOR.configure(new RandomFeatureConfig(
                     ImmutableList.of(
                             ConfiguredFeatures.RED_MUSHROOM_GIANT.withChance(1)),
                     ConfiguredFeatures.OAK
-            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1))));
+            )).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, Rands.randFloatRange(0.01F, 1F), 1)))));
         }
         if (biomeData.hasMossyRocks())
             DefaultBiomeFeatures.addMossyRocks(generationSettings);

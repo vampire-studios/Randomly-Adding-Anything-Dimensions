@@ -36,7 +36,7 @@ public class ShrineFeature extends Feature<DefaultFeatureConfig> {
         DefaultFeatureConfig config = context.getConfig();
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa:structures/shrine/shrine.json"));
+            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/shrine/shrine.json"));
             jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
@@ -71,22 +71,22 @@ public class ShrineFeature extends Feature<DefaultFeatureConfig> {
             } else {
                 switch (currBlockType) {
                     case "minecraft:stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks", new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks", new HashMap<>(), rotation);
                         break;
                     case "minecraft:chiseled_stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:chiseled_" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks", new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:chiseled_" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks", new HashMap<>(), rotation);
                         break;
                     case "minecraft:stone":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + (world.getDimension().getSuffix()).substring(4) + "_stone", new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone", new HashMap<>(), rotation);
                         break;
                     case "minecraft:stone_brick_slab":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + (world.getDimension().getSuffix()).substring(4) + "_stone_brick_slab", new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_brick_slab", new HashMap<>(), rotation);
                         break;
                     case "minecraft:stone_slab":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + (world.getDimension().getSuffix()).substring(4) + "_stone_slab", currBlockProp, rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_slab", currBlockProp, rotation);
                         break;
                     case "minecraft:stone_brick_stairs":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa:" + (world.getDimension().getSuffix()).substring(4) + "_stone_brick_stairs", currBlockProp, rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_brick_stairs", currBlockProp, rotation);
                         break;
                     case "minecraft:ladder":
                         WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, new HashMap<>(), 4 - rotation);

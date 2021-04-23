@@ -110,7 +110,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		StructurePlacementData placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.NONE)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(11).west(2), placementsettings, rand, 2);
+		template.place(world, position, blockpos$Mutable.down(2).north(11).west(2), placementsettings, rand, 2);
 
 		//East stone - rotated 90 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);

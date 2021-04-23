@@ -18,7 +18,7 @@ public class DimensionRecipes {
                 Identifier identifier = new Identifier(MOD_ID, dimension.getName().toLowerCase());
 
                 serverResourcePackBuilder.addShapedRecipe(Utils.addSuffixToPath(identifier, "_hoe"), shapedRecipeBuilder -> {
-                    shapedRecipeBuilder.group(new Identifier("raa:hoes"));
+                    shapedRecipeBuilder.group(new Identifier("raa_dimensions:hoes"));
                     shapedRecipeBuilder.pattern(
                             "## ",
                             " % ",
@@ -29,7 +29,7 @@ public class DimensionRecipes {
                     shapedRecipeBuilder.result(Utils.addSuffixToPath(identifier, "_hoe"), 1);
                 });
                 serverResourcePackBuilder.addShapedRecipe(Utils.addSuffixToPath(identifier, "_shovel"), shapedRecipeBuilder -> {
-                    shapedRecipeBuilder.group(new Identifier("raa:shovels"));
+                    shapedRecipeBuilder.group(new Identifier("raa_dimensions:shovels"));
                     shapedRecipeBuilder.pattern(
                             " # ",
                             " % ",
@@ -40,7 +40,7 @@ public class DimensionRecipes {
                     shapedRecipeBuilder.result(Utils.addSuffixToPath(identifier, "_shovel"), 1);
                 });
                 serverResourcePackBuilder.addShapedRecipe(Utils.addSuffixToPath(identifier, "_axe"), shapedRecipeBuilder -> {
-                    shapedRecipeBuilder.group(new Identifier("raa:axes"));
+                    shapedRecipeBuilder.group(new Identifier("raa_dimensions:axes"));
                     shapedRecipeBuilder.pattern(
                             "## ",
                             "#% ",
@@ -51,7 +51,7 @@ public class DimensionRecipes {
                     shapedRecipeBuilder.result(Utils.addSuffixToPath(identifier, "_axe"), 1);
                 });
                 serverResourcePackBuilder.addShapedRecipe(Utils.addSuffixToPath(identifier, "_pickaxe"), shapedRecipeBuilder -> {
-                    shapedRecipeBuilder.group(new Identifier("raa:pickaxes"));
+                    shapedRecipeBuilder.group(new Identifier("raa_dimensions:pickaxes"));
                     shapedRecipeBuilder.pattern(
                             "###",
                             " % ",
@@ -70,7 +70,7 @@ public class DimensionRecipes {
                     tagBuilder.value(Utils.addSuffixToPath(identifier, "_shovel"));
                 });
                 serverResourcePackBuilder.addShapedRecipe(Utils.addSuffixToPath(identifier, "_sword"), shapedRecipeBuilder -> {
-                    shapedRecipeBuilder.group(new Identifier("raa:swords"));
+                    shapedRecipeBuilder.group(new Identifier("raa_dimensions:swords"));
                     shapedRecipeBuilder.pattern(
                             " # ",
                             " # ",

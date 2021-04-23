@@ -2,9 +2,9 @@
 	"name": "text.raa.item.lexicon.name",
 	"landing_text": "text.raa.item.lexicon.landing",
 	"advancement_namespaces": [
-		"raa"
+		"raa_dimensions"
 	],
 	"creative_tab": "misc",
-	"advancements_tab": "raa",
+	"advancements_tab": "raa_dimensions",
 	"version": 1
 }

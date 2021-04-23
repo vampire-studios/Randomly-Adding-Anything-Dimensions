@@ -314,19 +314,19 @@ public class ModelUtils {
         });
 
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_inventory"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/wall_inventory"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/wall_inventory"));
             modelBuilder.texture("wall", textureId);
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_post"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/template_wall_post"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/template_wall_post"));
             modelBuilder.texture("wall", textureId);
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_side"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/template_wall_side"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/template_wall_side"));
             modelBuilder.texture("wall", textureId);
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_side_tall"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/template_wall_side_tall"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/template_wall_side_tall"));
             modelBuilder.texture("wall", textureId);
         });
         pack.addItemModel(id, modelBuilder -> modelBuilder.parent(new Identifier(id.getNamespace(), "block/" + id.getPath() + "_inventory")));
@@ -780,19 +780,19 @@ public class ModelUtils {
             });
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath()), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/stairs"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/stairs"));
             modelBuilder.texture("bottom", textureId);
             modelBuilder.texture("top", textureId);
             modelBuilder.texture("side", textureId);
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_inner"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/inner_stairs"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/inner_stairs"));
             modelBuilder.texture("bottom", textureId);
             modelBuilder.texture("top", textureId);
             modelBuilder.texture("side", textureId);
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_outer"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/outer_stairs"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/outer_stairs"));
             modelBuilder.texture("bottom", textureId);
             modelBuilder.texture("top", textureId);
             modelBuilder.texture("side", textureId);
@@ -834,13 +834,13 @@ public class ModelUtils {
                     variant.model(new Identifier(fullBlockId.getNamespace(), "block/" + fullBlockId.getPath())));
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_bottom"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/slab"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/slab"));
             modelBuilder.texture("bottom", textureId);
             modelBuilder.texture("top", textureId);
             modelBuilder.texture("side", textureId);
         });
         pack.addBlockModel(new Identifier(id.getNamespace(), id.getPath() + "_top"), modelBuilder -> {
-            modelBuilder.parent(new Identifier("raa:block/slab_top"));
+            modelBuilder.parent(new Identifier("raa_dimensions:block/slab_top"));
             modelBuilder.texture("bottom", textureId);
             modelBuilder.texture("top", textureId);
             modelBuilder.texture("side", textureId);

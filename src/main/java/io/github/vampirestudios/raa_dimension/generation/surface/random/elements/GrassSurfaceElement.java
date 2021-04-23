@@ -31,7 +31,7 @@ public class GrassSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "grass");
+        return new Identifier("raa_dimensions", "grass");
     }
 
     @Override

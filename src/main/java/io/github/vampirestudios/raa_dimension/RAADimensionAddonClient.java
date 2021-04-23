@@ -138,20 +138,20 @@ public class RAADimensionAddonClient implements RAAAddonClient {
                     blockStateBuilder.variant("", variant -> variant.model(Utils.addPrefixToPath(portalId, "block/")));
                 });
                 clientResourcePackBuilder.addBlockModel(portalId, modelBuilder -> {
-                    modelBuilder.parent(new Identifier("raa:block/portal"));
+                    modelBuilder.parent(new Identifier("raa_dimensions:block/portal"));
                     modelBuilder.texture("0", dimensionData.getTexturesInformation().getStoneTexture());
-                    modelBuilder.texture("2", new Identifier("raa:block/metal_top_activated"));
-                    modelBuilder.texture("3", new Identifier("raa:block/metal_side"));
-                    modelBuilder.texture("4", new Identifier("raa:block/portal_top"));
+                    modelBuilder.texture("2", new Identifier("raa_dimensions:block/metal_top_activated"));
+                    modelBuilder.texture("3", new Identifier("raa_dimensions:block/metal_side"));
+                    modelBuilder.texture("4", new Identifier("raa_dimensions:block/portal_top"));
                     modelBuilder.texture("particle", dimensionData.getTexturesInformation().getStoneTexture());
                 });
                 /*clientResourcePackBuilder.addBlockModel(Utils.addSuffixToPath(portalId, "_activated"), modelBuilder -> {
-                    modelBuilder.parent(new Identifier("raa:block/portal_activated"));
+                    modelBuilder.parent(new Identifier("raa_dimensions:block/portal_activated"));
                     modelBuilder.texture("0", dimensionData.getTexturesInformation().getStoneTexture());
-                    modelBuilder.texture("2", new Identifier("raa:block/metal_top_activated"));
-                    modelBuilder.texture("3", new Identifier("raa:block/metal_side"));
-                    modelBuilder.texture("4", new Identifier("raa:block/portal_top"));
-                    modelBuilder.texture("5", new Identifier("raa:block/metal_side_activated_overlay"));
+                    modelBuilder.texture("2", new Identifier("raa_dimensions:block/metal_top_activated"));
+                    modelBuilder.texture("3", new Identifier("raa_dimensions:block/metal_side"));
+                    modelBuilder.texture("4", new Identifier("raa_dimensions:block/portal_top"));
+                    modelBuilder.texture("5", new Identifier("raa_dimensions:block/metal_side_activated_overlay"));
                     modelBuilder.texture("particle", dimensionData.getTexturesInformation().getStoneTexture());
                 });*/
                 clientResourcePackBuilder.addItemModel(portalId,
@@ -173,7 +173,7 @@ public class RAADimensionAddonClient implements RAAAddonClient {
 
                 //TODO: Finish this
                 /*clientResourcePackBuilder.addItemModel(Utils.addSuffixToPath(identifier, "_shield"), modelBuilder -> {
-                    modelBuilder.parent(new Identifier("raa", "item/shield"));
+                    modelBuilder.parent(new Identifier("raa_dimensions", "item/shield"));
                     modelBuilder.texture()
                 });*/
 

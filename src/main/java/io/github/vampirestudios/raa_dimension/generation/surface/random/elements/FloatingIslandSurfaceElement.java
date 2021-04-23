@@ -40,7 +40,7 @@ public class FloatingIslandSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "floating_island");
+        return new Identifier("raa_dimensions", "floating_island");
     }
 
     @Override

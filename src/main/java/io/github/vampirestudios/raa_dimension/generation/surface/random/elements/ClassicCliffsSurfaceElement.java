@@ -82,7 +82,7 @@ public class ClassicCliffsSurfaceElement extends SurfaceElement {
 
     @Override
     public Identifier getType() {
-        return new Identifier("raa", "classic_cliffs");
+        return new Identifier("raa_dimensions", "classic_cliffs");
     }
 
     @Override
