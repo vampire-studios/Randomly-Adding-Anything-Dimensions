@@ -9,7 +9,8 @@
     "EntityMixin",
     "LevelStorageSessionMixin",
     "LivingEntityMixin",
-    "SkyPropertiesMixin"
+    "SkyPropertiesMixin",
+    "MixinDynamicRegistryManager"
   ],
   "client": [
     "SkyPropertiesAccessor"

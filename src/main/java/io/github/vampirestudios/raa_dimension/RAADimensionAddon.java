@@ -17,10 +17,8 @@ import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
-import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.mixin.biome.VanillaLayeredBiomeSourceAccessor;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -30,13 +28,13 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.decorator.CountExtraDecoratorConfig;
 import net.minecraft.world.gen.decorator.Decorator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 public class RAADimensionAddon implements RAAAddon {
@@ -129,12 +127,12 @@ public class RAADimensionAddon implements RAAAddon {
 						if (!dimensionData.getNoiseSettingsData().getDefaultFluid().equals("minecraft:air"))
 							blockStateBuilder.setProperty("level", "0");
 					}).bedrockFloorPosition(0)
-							.bedrockRoofPosition(0)
+							.bedrockRoofPosition(-2147483648)
 							.deepslateEnabled(false)
 							.noiseCavesEnabled(true)
 							.aquifersEnabled(true)
 							.oreVeinsEnabled(true)
-							.minSurfaceLevel(Integer.MIN_VALUE)
+							.minSurfaceLevel(0)
 							.disableMobGeneration(dimensionData.getNoiseSettingsData().disableMobGeneration())
 							.seaLevel(dimensionData.getNoiseSettingsData().getSeaLevel())
 							.noiseConfig(noiseConfigBuilder -> {
@@ -173,11 +171,11 @@ public class RAADimensionAddon implements RAAAddon {
 								dimensionData.getBiomeData().forEach(dimensionBiomeData -> {
 									biomeBuilder.biome(dimensionBiomeData.getId().toString());
 									biomeBuilder.parameters(biomeParametersBuilder -> {
-										biomeParametersBuilder.altitude(dimensionBiomeData.getBiomeParameters().getAltitude());
-										biomeParametersBuilder.humidity(dimensionBiomeData.getBiomeParameters().getHumidity());
-										biomeParametersBuilder.offset(dimensionBiomeData.getBiomeParameters().getOffset());
-										biomeParametersBuilder.temperature(dimensionBiomeData.getBiomeParameters().getTemperature());
-										biomeParametersBuilder.weirdness(dimensionBiomeData.getBiomeParameters().getWeirdness());
+										biomeParametersBuilder.altitude(Math.round(dimensionBiomeData.getBiomeParameters().getAltitude()));
+										biomeParametersBuilder.humidity(Math.round(dimensionBiomeData.getBiomeParameters().getHumidity()));
+										biomeParametersBuilder.offset(Math.round(dimensionBiomeData.getBiomeParameters().getOffset()));
+										biomeParametersBuilder.temperature(Math.round(dimensionBiomeData.getBiomeParameters().getTemperature()));
+										biomeParametersBuilder.weirdness(Math.round(dimensionBiomeData.getBiomeParameters().getWeirdness()));
 									});
 								});
 							});
@@ -204,6 +202,11 @@ public class RAADimensionAddon implements RAAAddon {
 					});
 				});
 			});
+			try {
+				serverResourcePackBuilder.dumpResources("testing", "data");
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 		});
 		Dimensions.DIMENSIONS.forEach(dimensionData -> SkyPropertiesAccessor.getBY_IDENTIFIER().put(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId()),
 				new RAADimensionSkyProperties(dimensionData)));
@@ -213,12 +216,9 @@ public class RAADimensionAddon implements RAAAddon {
 				.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA
 						.configure(new CountExtraDecoratorConfig(0, 0.3F, 1))));
 		if (CONFIG.shouldSpawnPortalHub) {
-			BiomeModifications.addFeature((context) -> {
-				RegistryKey<Biome> biomeKey = context.getBiomeKey();
-				Biome biome = BuiltinRegistries.BIOME.get(biomeKey.getValue());
-				return biomeKey == BiomeKeys.BAMBOO_JUNGLE_HILLS || biomeKey == BiomeKeys.BAMBOO_JUNGLE || VanillaLayeredBiomeSourceAccessor.getBIOMES().contains(biomeKey)
-						|| biome.getCategory() != Biome.Category.OCEAN;
-			}, GenerationStep.Feature.SURFACE_STRUCTURES, portalHubKey);
+			DynamicRegistryCallback.callback(Registry.BIOME_KEY).register((manager, id, biome) -> {
+				if (biome.getCategory() != Biome.Category.OCEAN) BiomesRegistry.registerFeature(manager, biome, GenerationStep.Feature.SURFACE_STRUCTURES, portalHubKey);
+			});
 		}
 
 	}

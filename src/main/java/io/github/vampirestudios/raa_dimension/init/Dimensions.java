@@ -259,17 +259,17 @@ public class Dimensions {
                 }
 
                 BiomeParameters biomeParameters = BiomeParameters.Builder.builder()
-                        .altitude(Rands.randFloatRange(-1.0F, 1.0F))
-                        .humidity(Rands.randFloatRange(-1.0F, 1.0F))
+                        .altitude(Rands.randFloatRange(-2.0F, 2.0F))
+                        .humidity(Rands.randFloatRange(-2.0F, 2.0F))
                         .offset(Rands.randFloatRange(0.0F, 1.0F))
-                        .temperature(Rands.randFloatRange(-1.0F, 1.0F))
-                        .weirdness(Rands.randFloatRange(-1.0F, 1.0F))
+                        .temperature(Rands.randFloatRange(-2.0F, 2.0F))
+                        .weirdness(Rands.randFloatRange(-2.0F, 2.0F))
                         .create();
 
-                DimensionBiomeData biomeData = DimensionBiomeData.Builder.create(Utils.addSuffixToPath(name.getRight(), "_biome" + "_" + i), name.getLeft())
+                DimensionBiomeData.Builder biomeData = DimensionBiomeData.Builder.create(Utils.addSuffixToPath(name.getRight(), "_biome" + "_" + i), name.getLeft())
                         .biomeParameters(biomeParameters)
-                        .depth(Rands.randFloatRange(-1F, 3F))
-                        .scale(Math.max(scale + Rands.randFloatRange(-0.75f, 0.75f), 0)) //ensure the scale is never below 0
+                        .depth(Rands.randFloatRange(0F, 3F))
+                        .scale(Math.max(scale + Rands.randFloatRange(-0.75f, 4.0f), 0)) //ensure the scale is never below 0
                         .temperature(dimension.getTemperature() + Rands.randFloatRange(-0.5f, 0.5f))
                         .downfall(Rands.randFloat(1F))
                         .waterColor(WATER_COLOR.getColor())
@@ -278,20 +278,21 @@ public class Dimensions {
 //                        .treeType(treeType)
 //                        .treeData(treeDataList)
                         .largeSkeletonTreeChance(Rands.randFloatRange(0, 0.5F))
-                        .spawnsCratersInNonCorrupted(Rands.chance(4))
+                        .spawnsCratersInNonCorrupted(Rands.chance(4));
                         //TODO: make these based on civ tech level
-                        .campfireChance(Rands.randFloatRange(0.003F, 0.005F))
-                        .outpostChance(Rands.randFloatRange(0.001F, 0.003F))
-                        .towerChance(Rands.randFloatRange(0.001F, 0.0015F))
-                        .hasMushrooms(Rands.chance(6))
-                        .hasMossyRocks(Rands.chance(8))
-                        .nonCorruptedCratersChance(Rands.randFloatRange(0, 0.05F))
-                        .corruptedCratersChance(Rands.randFloatRange(0, 0.05F))
-                        .surfaceBuilder(Registry.SURFACE_BUILDER.getId(surfaceBuilder))
-                        .surfaceConfig(Utils.fromConfigToIdentifier(surfaceConfig))
-                        .carvers(carvers)
-                        .build();
-                builder.biome(biomeData);
+                for (Civilization civ : civs) {
+                    biomeData.campfireChance(Rands.randFloatRange(-civ.getTechLevel() + 1, civ.getTechLevel() + 1))
+                            .outpostChance(Rands.randFloatRange(-civ.getTechLevel() + 1, civ.getTechLevel() + 1))
+                            .towerChance(Rands.randFloatRange(-civ.getTechLevel() + 1, civ.getTechLevel() + 1));
+                }
+                biomeData.hasMushrooms(Rands.chance(6))
+                    .hasMossyRocks(Rands.chance(8))
+                    .nonCorruptedCratersChance(Rands.randFloatRange(0, 0.05F))
+                    .corruptedCratersChance(Rands.randFloatRange(0, 0.05F))
+                    .surfaceBuilder(Registry.SURFACE_BUILDER.getId(surfaceBuilder))
+                    .surfaceConfig(Utils.fromConfigToIdentifier(surfaceConfig))
+                    .carvers(carvers);
+                builder.biome(biomeData.build());
             }
 
             DimensionColorPalette colorPalette = DimensionColorPalette.Builder.create()
@@ -322,7 +323,7 @@ public class Dimensions {
                     .hasCeiling(Rands.chance(10))
                     .isUltrawarm(Rands.chance(10))
                     .isNatural(Rands.chance(10))
-                    .hasEnderDragonFight(Rands.chance(1000))
+                    .hasEnderDragonFight(Rands.chance(10000))
                     .logicalHeight(Rands.randIntRange(78 / 16, 1024 / 16) * 16)
                     .ambientLight(Rands.randFloatRange(0F, 0.16F))
                     .infiniburnTag(BlockTags.INFINIBURN_OVERWORLD.getId().toString())
@@ -378,7 +379,7 @@ public class Dimensions {
                     .amplified(Rands.chance(3))
                     .densityFactor(finalDensityFactor)
                     .densityOffset(Rands.randFloatRange(-0.25F, -1.0F))
-                    .height(Rands.randIntRange(0, 1024 / 16) * 16)
+                    .height(Rands.randIntRange(78 / 16, 1024 / 16) * 16)
                     .sizeVertical(Rands.randIntRange(1, 4))
                     .sizeHorizontal(finalSizeHorizontal)
                     .simplexSurfaceNoise(Rands.chance(10))

@@ -23,6 +23,9 @@
     ],
     "raa:addon_client": [
       "io.github.vampirestudios.raa_dimension.RAADimensionAddonClient"
+    ],
+    "modmenu": [
+      "io.github.vampirestudios.raa_dimension.config.screen.ModMenuCompat"
     ]
   },
   "mixins": [

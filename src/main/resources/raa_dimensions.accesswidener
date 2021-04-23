@@ -47,3 +47,6 @@ mutable field net/minecraft/world/gen/chunk/ChunkGenerator biomeSource Lnet/mine
 
 accessible method net/minecraft/world/gen/chunk/NoiseChunkGenerator sampleNoiseColumn (II)[D
 extendable method net/minecraft/world/gen/chunk/NoiseChunkGenerator sampleNoiseColumn (II)[D
+
+accessible class net/minecraft/util/registry/DynamicRegistryManager$Info
+extendable class net/minecraft/util/registry/DynamicRegistryManager$Info
