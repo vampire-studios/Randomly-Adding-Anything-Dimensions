@@ -36,7 +36,7 @@ public class CraterFeature extends Feature<CorruptedFeatureConfig> {
         BlockPos pos = context.getOrigin();
         StructureWorldAccess world = context.getWorld();
         CorruptedFeatureConfig config = context.getConfig();
-        if (world.getBlockState(pos.add(0, -1, 0)).isAir() || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
+        if (world.getBlockState(pos.down()).isAir() || !world.getBlockState(pos.down()).isOpaque() || world.getBlockState(pos.down()).equals(Blocks.BEDROCK.getDefaultState()))
             return true;
         if (canSpawn(world, pos.add(0, -1, 0))) {
             int amtMax = Rands.randIntRange(1, 3);

@@ -17,16 +17,17 @@ import java.util.*;
 
 public class Utils {
     //dimension bit flags
-    public static final int CORRUPTED = 1; //nether corruption, same as the old corruption feature
-    public static final int DEAD = 2; //No plants or passive animals at all, very harsh
-    public static final int ABANDONED = 4; //only ruins of old civilizations, no living "smart" creatures (like villagers)
-    public static final int LUSH = 8; //A lush overgrowth of plants
-    public static final int CIVILIZED = 16; //Villages/towns of "smart" creatures who will trade with you
-    public static final int MOLTEN = 32; //Instead of water oceans, there are lava oceans.
-    public static final int DRY = 64; //No oceans exist at all.
-    public static final int TECTONIC = 128; //Creates lots of caves and ravines. Usually not visible on the surface.
-    public static final int FROZEN = 256; //Makes the dimension frozen (snow instead of rain)
-    public static final int LUCID = 512; //Makes the dimension be lucid, have faster time and more crazy skybox
+    public static final int CORRUPTED =  0b1; //nether corruption, same as the old corruption feature
+    public static final int DEAD =       0b10; //No plants or passive animals at all, very harsh
+    public static final int ABANDONED =  0b100; //only ruins of old civilizations, no living "smart" creatures (like villagers)
+    public static final int LUSH =       0b1000; //A lush overgrowth of plants
+    public static final int CIVILIZED =  0b10000; //Villages/towns of "smart" creatures who will trade with you
+    public static final int MOLTEN =     0b100000; //Instead of water oceans, there are lava oceans.
+    public static final int DRY =        0b1000000; //No oceans exist at all.
+    public static final int TECTONIC =   0b10000000; //Creates lots of caves and ravines. Usually not visible on the surface.
+    public static final int FROZEN =     0b100000000; //Makes the dimension frozen (snow instead of rain)
+    public static final int LUCID =      0b1000000000; //Makes the dimension be lucid, have faster time and more crazy skybox
+    public static final int SPACE_LIKE = 0b10000000000; //Changes the gravity of the dimension more
 
     public static final int POST_APOCALYPTIC = CORRUPTED | DEAD | ABANDONED | DRY | TECTONIC; //A combination of corrupted, dead, abandoned, dry, and tectonic
 

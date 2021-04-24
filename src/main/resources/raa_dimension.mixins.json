@@ -9,8 +9,9 @@
     "EntityMixin",
     "LevelStorageSessionMixin",
     "LivingEntityMixin",
+    "MixinDynamicRegistryManager",
     "SkyPropertiesMixin",
-    "MixinDynamicRegistryManager"
+    "StepAndDestroyBlockGoalMixin"
   ],
   "client": [
     "SkyPropertiesAccessor"

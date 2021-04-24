@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
 import io.github.vampirestudios.vampirelib.utils.Rands;
@@ -31,43 +32,45 @@ import java.util.*;
 public class TowerFeature extends Feature<DefaultFeatureConfig> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
+    private DimensionData dimensionData;
 
-    public TowerFeature(Codec<DefaultFeatureConfig> function) {
+    public TowerFeature(DimensionData dimensionDataIn, Codec<DefaultFeatureConfig> function) {
         super(function);
+        dimensionData = dimensionDataIn;
     }
 
-    private static void placePiece(ServerWorldAccess world, BlockPos pos, int rotation, JsonConverter.StructureValues piece, int decay) {
+    private void placePiece(ServerWorldAccess world, BlockPos pos, int rotation, JsonConverter.StructureValues piece, int decay) {
         for (int i = 0; i < piece.getBlockPositions().size(); i++) {
             Vec3i currBlockPos = piece.getBlockPositions().get(i);
             String currBlockType = piece.getBlockTypes().get(piece.getBlockStates().get(i));
-//            Map<String, String> currBlockProp = piece.getBlockProperties().get(piece.getBlockStates().get(i));
+            Map<String, String> currBlockProp = piece.getBlockProperties().get(piece.getBlockStates().get(i));
 
             //Rotate
             currBlockPos = WorldStructureManipulation.rotatePos(rotation, currBlockPos, piece.getSize());
 
             //Spawn blocks
             if (currBlockType.equals("minecraft:air") || (decay > 0 && Rands.chance(14 - decay))) {
-                WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "minecraft:air", new HashMap<>(), rotation);
+                WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "minecraft:air", currBlockProp, rotation);
             } else {
                 switch (currBlockType) {
                     case "minecraft:stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks", new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + dimensionData.getId().getPath() + "_stone_bricks", currBlockProp, rotation);
                         break;
                     case "minecraft:chiseled_stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + "chiseled_" + (world.getDimension().getSuffix()).substring(4), new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + "chiseled_" + dimensionData.getId().getPath(), currBlockProp, rotation);
                         break;
                     case "minecraft:ladder":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, new HashMap<>(), 4 - rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, 4 - rotation);
                         break;
                     default:
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, new HashMap<>(), rotation);
+                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
                         break;
                 }
             }
         }
     }
 
-    private static void fillWindows(ServerWorldAccess world, BlockPos pos, int fill) {
+    private void fillWindows(ServerWorldAccess world, BlockPos pos, int fill) {
         //Fill windows part-way if outside or all the way if next to blocks
         for (int i = 0; i < 4; i++) {
             float xPart = 6.5f - 5.5f * MathHelper.cos((float) (Math.PI / 2 * i));
@@ -86,7 +89,7 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         }
     }
 
-    private static void placeDecoration(ServerWorldAccess world, BlockPos pos, int rotation, List<String> blocks, List<Vec3i> blockPos, List<Map<String, String>> blockProps) {
+    private void placeDecoration(ServerWorldAccess world, BlockPos pos, int rotation, List<String> blocks, List<Vec3i> blockPos, List<Map<String, String>> blockProps) {
         if (!world.isAir(pos.add(0, -1, 0))) {
             for (int i = 0; i < blockPos.size(); i++) {
                 String currBlock = blocks.get(i);
@@ -165,7 +168,7 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         }
     }
 
-    private static void placeRoom(ServerWorldAccess world, BlockPos pos, Map<String, JsonConverter.StructureValues> pieces, String type, int decay) {
+    private void placeRoom(ServerWorldAccess world, BlockPos pos, Map<String, JsonConverter.StructureValues> pieces, String type, int decay) {
         //walls
         placePiece(world, pos.add(1, 0, 1), 0, pieces.get("tower_walls"), decay + 2);
         //stairs/ladders
@@ -313,7 +316,7 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         }
     }
 
-    private static void decorateRooms(String blocksString, String posString, String propsString, List<List<String>> blocks, List<List<Vec3i>> pos, List<List<Map<String, String>>> props) {
+    private void decorateRooms(String blocksString, String posString, String propsString, List<List<String>> blocks, List<List<Vec3i>> pos, List<List<Map<String, String>>> props) {
         List<String> temp1;
         temp1 = Arrays.asList(blocksString.split("; "));
         for (String i : temp1) {

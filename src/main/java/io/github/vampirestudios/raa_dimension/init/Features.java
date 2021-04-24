@@ -64,7 +64,6 @@ public class Features {
         CRATER_FEATURE = register("crater_feature", new CraterFeature(CorruptedFeatureConfig.CODEC));
         OUTPOST = register("outpost", new OutpostFeature(DefaultFeatureConfig.CODEC));
         CAMPFIRE = register("campfire", new CampfireFeature(DefaultFeatureConfig.CODEC));
-        TOWER = register("tower", new TowerFeature(DefaultFeatureConfig.CODEC));
         FOSSIL = register("fossil", new FossilFeature(DefaultFeatureConfig.CODEC));
         SHRINE = register("shrine", new ShrineFeature(DefaultFeatureConfig.CODEC));
 //        SMALL_SKELETON_TREE = register("skeleton_tree_small", new SmallSkeletalTreeFeature(TreeFeatureConfig.CODEC));

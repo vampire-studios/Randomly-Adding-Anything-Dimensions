@@ -1,38 +1,38 @@
 package io.github.vampirestudios.raa_dimension.mixin;
 
-import io.github.vampirestudios.raa_dimension.utils.Testing;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import io.github.vampirestudios.raa_dimension.GravityEntity;
+import io.github.vampirestudios.raa_dimension.init.RAAAttributes;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.world.World;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttribute;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 //Thanks to JoeZwet and GalactiCraft Rewoken
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity {
+public abstract class LivingEntityMixin extends EntityMixin implements GravityEntity {
 
-    public LivingEntityMixin(EntityType<?> type, World world) {
-        super(type, world);
+    @Inject(at = @At("RETURN"), method = "createLivingAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;")
+    private static void createLivingAttributesInject(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
+        cir.getReturnValue().add(RAAAttributes.GRAVITY_MULTIPLIER);
     }
 
-    @ModifyVariable(method = "travel", at = @At(value = "FIELD"), ordinal = 0, name = "d")
-    private double modifyGravity(double d) {
-        return Testing.changeGravity(this.world);
+    @Shadow
+    public abstract double getAttributeValue(EntityAttribute attribute);
+
+    @ModifyConstant(method = "travel(Lnet/minecraft/util/math/Vec3d;)V", constant = @Constant(doubleValue = 0.08D, ordinal = 0))
+    private double modifyGravity(double original) {
+        return raa_getGravity();
     }
 
-    @Shadow public abstract StatusEffectInstance getStatusEffect(StatusEffect effect);
-
-    @Inject(method = "computeFallDamage", at = @At("RETURN"), cancellable = true)
-    private void modifyFallDamage(float fallDistance, float damageMultiplier, CallbackInfoReturnable<Integer> info) {
-        Testing.changeGravityDamage(this.getStatusEffect(StatusEffects.JUMP_BOOST), this.world, fallDistance, damageMultiplier, info);
+    @Override
+    public double raa_getGravityMultiplier() {
+        return getAttributeValue(RAAAttributes.GRAVITY_MULTIPLIER);
     }
 
 }

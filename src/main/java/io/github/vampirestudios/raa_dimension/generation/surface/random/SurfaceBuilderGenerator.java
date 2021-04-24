@@ -50,16 +50,16 @@ public class SurfaceBuilderGenerator {
 
     public static void generate() {
         Set<Identifier> names = new HashSet<>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < RAADimensionAddon.CONFIG.surfaceBuilderGenAmount; i++) {
             //generate names
             NameGenerator nameGenerator = RAACore.CONFIG.getLanguage().getNameGenerator(DimensionLanguageManager.DIMENSION_NAME);
             Pair<String, Identifier> name = nameGenerator.generateUnique(names, RAADimensionAddon.MOD_ID);
             names.add(name.getRight());
 
-
             //add the surface builder to the registry
             List<SurfaceElement> elements = new ArrayList<>();
-            for (int j = 0; j < Rands.randIntRange(2, 4); j++) { //add 2 elements
+            String[] amount = RAADimensionAddon.CONFIG.surfaceBuilderSubAmount.split("-");
+            for (int j = 0; j < Rands.randIntRange(Integer.parseInt(amount[0]), Integer.parseInt(amount[1])); j++) { //add 2 elements
                 try { //catch exceptions because yay reflection
                     SurfaceElement e = WEIGHTED_ELEMENTS.shuffle().stream().findFirst().get().newInstance();
 

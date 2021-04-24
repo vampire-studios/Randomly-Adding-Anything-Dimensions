@@ -31,8 +31,8 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		int minWidth = 3;
 		int maxWidth = 10;
 		int currentHeight = 0;
-		int ceilingHeight = currentHeight;
-		int floorHeight = currentHeight;
+		int ceilingHeight;
+		int floorHeight;
 		int heightDiff = 0;
 
 		//checks to see if position is acceptable for pillar gen
@@ -40,7 +40,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		while (!world.getBlockState(blockpos$Mutable).isAir())
 		{
 			//too high for column to generate
-			if (blockpos$Mutable.getY() > 254)
+			if (blockpos$Mutable.getY() > world.getTopY()-2)
 			{
 				return false;
 			}

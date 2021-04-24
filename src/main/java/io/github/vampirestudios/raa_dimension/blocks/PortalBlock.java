@@ -2,18 +2,20 @@ package io.github.vampirestudios.raa_dimension.blocks;
 
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.utils.CustomTeleporter;
+import io.github.vampirestudios.raa_dimension.utils.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -26,38 +28,38 @@ public class PortalBlock extends Block {
     public static final BooleanProperty ACTIVATED = BooleanProperty.of("activated");
 
     private final DimensionData dimensionData;
-    private final RegistryKey<DimensionType> dimensionType;
 
-    public PortalBlock(RegistryKey<DimensionType> dimensionType, DimensionData dimensionData) {
+    public PortalBlock(DimensionData dimensionData) {
         super(Block.Settings.of(Material.STONE).strength(8.0f, 80.f).nonOpaque());
         this.dimensionData = dimensionData;
-        this.dimensionType = dimensionType;
-//        this.setDefaultState(this.getDefaultState().with(ACTIVATED, false));
+        this.setDefaultState(this.getDefaultState().with(ACTIVATED, false));
     }
 
     @Override
     public ActionResult onUse(BlockState blockState_1, World world_1, BlockPos pos, PlayerEntity playerEntity_1, Hand hand_1, BlockHitResult blockHitResult_1) {
         if (!Objects.requireNonNull(world_1).isClient) {
-//            if (blockState_1.get(ACTIVATED)) {
-//
-//            }
-
-//            if (!blockState_1.get(ACTIVATED) && playerEntity_1.getMainHandStack().getItem() == Registry.ITEM.get(Utils.addSuffixToPath(dimensionData.getId(), "_portal_key"))) {
-//                world_1.setBlockState(pos, blockState_1.with(ACTIVATED, true));
-//            }
-            BlockPos playerPos = playerEntity_1.getBlockPos();
-            if (playerPos.getX() == pos.getX() && playerPos.getZ() == pos.getZ() && playerPos.getY() == pos.getY() + 1) {
-                CustomTeleporter.TPToDim(dimensionData.getId(), DimensionType.OVERWORLD_ID, world_1, playerEntity_1, this, pos);
+            if (blockState_1.get(ACTIVATED)) {
+                BlockPos playerPos = playerEntity_1.getBlockPos();
+                if (playerPos.getX() == pos.getX() && playerPos.getZ() == pos.getZ() && playerPos.getY() == pos.getY() + 1) {
+                    if (world_1.getRegistryKey().getValue().equals(dimensionData.getId())) {
+                        CustomTeleporter.TPToDim(DimensionType.OVERWORLD_ID, dimensionData.getId(), world_1, playerEntity_1);
+                    } else {
+                        CustomTeleporter.TPToDim(dimensionData.getId(), DimensionType.OVERWORLD_ID, world_1, playerEntity_1);
+                    }
+                }
             }
 
+            if (!blockState_1.get(ACTIVATED) && playerEntity_1.getMainHandStack().getItem() == Registry.ITEM.get(Utils.addSuffixToPath(dimensionData.getId(), "_portal_key"))) {
+                world_1.setBlockState(pos, blockState_1.with(ACTIVATED, true));
+            }
         }
         return super.onUse(blockState_1, world_1, pos, playerEntity_1, hand_1, blockHitResult_1);
     }
 
-    /*@Override
+    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(ACTIVATED);
-    }*/
+    }
 
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContext.Builder builder) {

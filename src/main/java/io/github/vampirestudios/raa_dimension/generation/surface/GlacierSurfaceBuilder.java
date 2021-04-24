@@ -62,14 +62,14 @@ public class GlacierSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> 
             if (y - height > glacierDifference) {
                 toSet = (y - height == -1) ? bICE : pICE;
             } else {
-                if (y < 255) {
+                if (y < chunk.getTopY()-1) {
                     BlockState upState = chunk.getBlockState(pos.up());
                     if (upState == Blocks.AIR.getDefaultState()) {
                         toSet = config.getTopMaterial();
                     } else if (upState == WATER) {
                         toSet = config.getUnderwaterMaterial();
                     } else {
-                        if (y < 253) {
+                        if (y < chunk.getTopY()-3) {
                             if (chunk.getBlockState(pos.up(3)) == Blocks.AIR.getDefaultState() || chunk.getBlockState(pos.up(2)) == Blocks.AIR.getDefaultState()) {
                                 toSet = config.getUnderMaterial();
                             }

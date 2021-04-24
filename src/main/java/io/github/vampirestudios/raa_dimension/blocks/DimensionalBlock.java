@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.blocks;
 
-import io.github.vampirestudios.vampirelib.utils.Rands;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -12,8 +12,8 @@ import java.util.List;
 
 public class DimensionalBlock extends Block {
 
-    public DimensionalBlock() {
-        super(Block.Settings.copy(Blocks.STONE).strength(Rands.randFloatRange(0.25f, 4), Rands.randFloatRange(4, 20)));
+    public DimensionalBlock(DimensionData dimensionData) {
+        super(Block.Settings.copy(Blocks.STONE).strength(/*Rands.randFloatRange(0.25f, 4)*/dimensionData.getStoneHardness(), /*Rands.randFloatRange(4, 20)*/dimensionData.getStoneResistance()));
     }
 
     @Override

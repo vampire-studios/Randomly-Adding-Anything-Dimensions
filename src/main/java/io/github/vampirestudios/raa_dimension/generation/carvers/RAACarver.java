@@ -88,7 +88,7 @@ public abstract class RAACarver extends Carver<CaveCarverConfig> {
         } else if (!carverConfig.field_33610) {
             return isDebug(carverConfig) ? method_36417(carverConfig, AIR) : AIR;
         } else {
-            BlockState blockState = arg.a(field_33614, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D);
+            BlockState blockState = arg.apply(field_33614, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D);
             if (blockState == Blocks.STONE.getDefaultState()) {
                 return isDebug(carverConfig) ? carverConfig.debugConfig.method_36416() : null;
             } else {

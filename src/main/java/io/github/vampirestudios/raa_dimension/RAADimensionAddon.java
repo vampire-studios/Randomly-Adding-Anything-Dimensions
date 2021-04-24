@@ -9,10 +9,7 @@ import io.github.vampirestudios.raa_dimension.config.GeneralConfig;
 import io.github.vampirestudios.raa_dimension.config.SurfaceBuilderConfig;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.RAADimensionSkyProperties;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
-import io.github.vampirestudios.raa_dimension.init.Dimensions;
-import io.github.vampirestudios.raa_dimension.init.Features;
-import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
-import io.github.vampirestudios.raa_dimension.init.Textures;
+import io.github.vampirestudios.raa_dimension.init.*;
 import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
@@ -76,6 +73,7 @@ public class RAADimensionAddon implements RAAAddon {
 		SurfaceBuilders.init();
 		Textures.init();
 		Features.init();
+		RAAAttributes.initialize();
 
 		SurfaceBuilderGenerator.registerElements();
 		SURFACE_BUILDER_CONFIG = new SurfaceBuilderConfig("surface_builders/surface_builder_config");
