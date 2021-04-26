@@ -10,6 +10,8 @@ import io.github.vampirestudios.raa_dimension.generation.feature.FossilFeature;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.ColumnBlocksConfig;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.CorruptedFeatureConfig;
 import io.github.vampirestudios.raa_dimension.generation.feature.portalHub.PortalHubFeature;
+import io.github.vampirestudios.raa_dimension.generation.feature.portalHub.PortalShrineFeature;
+import io.github.vampirestudios.raa_dimension.generation.feature.portalHub.PortalShrineFeatureConfig;
 import io.github.vampirestudios.raa_dimension.utils.Utils;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.Identifier;
@@ -36,6 +38,7 @@ public class Features {
     public static TowerFeature TOWER;
     public static FossilFeature FOSSIL;
     public static PortalHubFeature PORTAL_HUB;
+    public static PortalShrineFeature PORTAL_SHRINE;
     public static ShrineFeature SHRINE;
 
     public static BeeNestFeature BEE_NEST;
@@ -60,31 +63,32 @@ public class Features {
     public static void init() {
 //        CommandRegistry.INSTANCE.register(false, CommandLocateRAAStructure::register);
 
-        CORRUPTED_NETHRRACK = register("corrupted_netherrack", new NetherrackFeature(DefaultFeatureConfig.CODEC));
-        CRATER_FEATURE = register("crater_feature", new CraterFeature(CorruptedFeatureConfig.CODEC));
-        OUTPOST = register("outpost", new OutpostFeature(DefaultFeatureConfig.CODEC));
-        CAMPFIRE = register("campfire", new CampfireFeature(DefaultFeatureConfig.CODEC));
-        FOSSIL = register("fossil", new FossilFeature(DefaultFeatureConfig.CODEC));
-        SHRINE = register("shrine", new ShrineFeature(DefaultFeatureConfig.CODEC));
+        CORRUPTED_NETHRRACK = (NetherrackFeature) register("corrupted_netherrack", new NetherrackFeature(DefaultFeatureConfig.CODEC));
+        CRATER_FEATURE = (CraterFeature) register("crater_feature", new CraterFeature(CorruptedFeatureConfig.CODEC));
+        OUTPOST = (OutpostFeature) register("outpost", new OutpostFeature(DefaultFeatureConfig.CODEC));
+        CAMPFIRE = (CampfireFeature) register("campfire", new CampfireFeature(DefaultFeatureConfig.CODEC));
+        FOSSIL = (FossilFeature) register("fossil", new FossilFeature(DefaultFeatureConfig.CODEC));
+        SHRINE = (ShrineFeature) register("shrine", new ShrineFeature(DefaultFeatureConfig.CODEC));
 //        SMALL_SKELETON_TREE = register("skeleton_tree_small", new SmallSkeletalTreeFeature(TreeFeatureConfig.CODEC));
 //        LARGE_SKELETON_TREE = register("skeleton_tree_large", new LargeSkeletalTreeFeature(TreeFeatureConfig.CODEC));
-        SPIDER_LAIR = register("spider_lair", new SpiderLairFeature(DefaultFeatureConfig.CODEC));
-//        FIXED_TREE = register("fixed_tree", new FixedTreeFeature(BranchedTreeFeatureConfig.CODEC));
+        SPIDER_LAIR = (SpiderLairFeature) register("spider_lair", new SpiderLairFeature(DefaultFeatureConfig.CODEC));
+//        FIXED_TREE = register("fixed_tree", new FixedTreeFeature(BranchedTreeFeatureConfig.CODEC))
 //        BENT_TREE = register("bent_tree", new BentTreeFeature(BranchedTreeFeatureConfig.CODEC));
 //        DOUBLE_TREE = register("double_tree", new DoubleTreeFeature(BranchedTreeFeatureConfig.CODEC));
-        PORTAL_HUB = register("portal_hub", new PortalHubFeature(DefaultFeatureConfig.CODEC));
+        PORTAL_HUB = (PortalHubFeature) register("portal_hub", new PortalHubFeature(DefaultFeatureConfig.CODEC));
+        PORTAL_SHRINE = (PortalShrineFeature) register("portal_shrine", new PortalShrineFeature(PortalShrineFeatureConfig.CODEC));
 //        ABOVE_GROUND_STORAGE = register("aboveground_storage", new AbovegroundStorageFeature(DefaultFeatureConfig.CODEC));
 //        QUARRY = register("quarry", new QuarryFeature(DefaultFeatureConfig.CODEC));
 
-        BEE_NEST = register("bee_nest", new BeeNestFeature(DefaultFeatureConfig.CODEC));
-        CAVE_CAMPFIRE = register("cave_campfire", new CaveCampfireFeature(DefaultFeatureConfig.CODEC));
-        MUSHROOM_RUIN = register("mushroom_ruin", new MushRuinFeature(DefaultFeatureConfig.CODEC));
-        UNDERGROUND_BEE_HIVE = register("underground_bee_hive", new UndegroundBeeHiveFeature(DefaultFeatureConfig.CODEC));
+        BEE_NEST = (BeeNestFeature) register("bee_nest", new BeeNestFeature(DefaultFeatureConfig.CODEC));
+        CAVE_CAMPFIRE = (CaveCampfireFeature) register("cave_campfire", new CaveCampfireFeature(DefaultFeatureConfig.CODEC));
+        MUSHROOM_RUIN = (MushRuinFeature) register("mushroom_ruin", new MushRuinFeature(DefaultFeatureConfig.CODEC));
+        UNDERGROUND_BEE_HIVE = (UndegroundBeeHiveFeature) register("underground_bee_hive", new UndegroundBeeHiveFeature(DefaultFeatureConfig.CODEC));
 
-        STONE_HENGE = register("stone_henge", new StonehengeFeature(DefaultFeatureConfig.CODEC));
-        COLUMN_RAMP = register("columnn_ramp", new ColumnRampFeature(ColumnBlocksConfig.CODEC));
-        COLUMN_VERTICAL = register("columnn_vertical", new ColumnVerticalFeature(ColumnBlocksConfig.CODEC));
-        HANGING_RUINS = register("hanging_ruins", new HangingRuinsFeature(DefaultFeatureConfig.CODEC));
+        STONE_HENGE = (StonehengeFeature) register("stone_henge", new StonehengeFeature(DefaultFeatureConfig.CODEC));
+        COLUMN_RAMP = (ColumnRampFeature) register("columnn_ramp", new ColumnRampFeature(ColumnBlocksConfig.CODEC));
+        COLUMN_VERTICAL = (ColumnVerticalFeature) register("columnn_vertical", new ColumnVerticalFeature(ColumnBlocksConfig.CODEC));
+        HANGING_RUINS = (HangingRuinsFeature) register("hanging_ruins", new HangingRuinsFeature(DefaultFeatureConfig.CODEC));
 
         /*DUNGEON_FEATURE = Registry.register(
                 Registry.FEATURE,
@@ -181,19 +185,19 @@ public class Features {
         }
     }
 
-    public static <C extends FeatureConfig, F extends Feature<C>> F register(String name, F feature) {
-        if (Registry.FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name)) == null) {
+    public static Feature<?> register(String name, Feature<?> feature) {
+        if (!Registry.FEATURE.containsId(new Identifier(RAADimensionAddon.MOD_ID, name))) {
             return Registry.register(Registry.FEATURE, new Identifier(RAADimensionAddon.MOD_ID, name), feature);
         } else {
-            return feature;
+            return Registry.FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name));
         }
     }
 
     public static ConfiguredFeature<?, ?> register(String name, ConfiguredFeature<?, ?> feature) {
-        if (BuiltinRegistries.CONFIGURED_FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name)) == null) {
+        if (!BuiltinRegistries.CONFIGURED_FEATURE.containsId(new Identifier(RAADimensionAddon.MOD_ID, name))) {
             return Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, new Identifier(RAADimensionAddon.MOD_ID, name), feature);
         } else {
-            return feature;
+            return BuiltinRegistries.CONFIGURED_FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name));
         }
     }
 

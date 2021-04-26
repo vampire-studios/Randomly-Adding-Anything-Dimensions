@@ -6,6 +6,8 @@
   "text.raa_dimensions.block.stoneSlab": "{0} Stone Slab",
   "text.raa_dimensions.block.stoneWall": "{0} Stone Wall",
 
+  "text.raa_dimensions.block.tiles": "{0} Tiles",
+
   "text.raa_dimensions.block.stoneBricks": "{0} Stone Bricks",
   "text.raa_dimensions.block.stoneBrickStairs": "{0} Stone Brick Stairs",
   "text.raa_dimensions.block.stoneBrickSlab": "{0} Stone Brick Slab",
@@ -26,6 +28,8 @@
   "text.raa_dimensions.block.ice": "{0} Ice",
 
   "text.raa_dimensions.block.portal": "{0} Portal",
+
+  "text.raa_dimensions.item.portal_key": "{0} Portal Key",
 
   "config.title.raa_dimensions": "RAA Config",
   "config.title.raa_dimensions.dimension": "RAA Config: Dimensions",

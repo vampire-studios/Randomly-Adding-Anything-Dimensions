@@ -2,8 +2,7 @@ package io.github.vampirestudios.raa_dimension.utils;
 
 import com.google.common.collect.ImmutableList;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
 import net.minecraft.block.enums.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -169,8 +168,10 @@ public class WorldStructureManipulation {
         }
 
         //Give properties to block
-        if (world.getBlockState(pos) == Registry.BLOCK.get(Identifier.tryParse(block)).getDefaultState()) { //Make sure the block you're trying to apply this stuff to *actually exists*
-            if (properties.get("waterlogged") != null) {
+        Block parsedBlock1 = Registry.BLOCK.get(Identifier.tryParse(block));
+        BlockState parsedBlockState = parsedBlock1.getDefaultState();
+        if (world.getBlockState(pos) == parsedBlockState) { //Make sure the block you're trying to apply this stuff to *actually exists*
+            if (properties.get("waterlogged") != null && parsedBlock1 instanceof Waterloggable) {
                 //TODO: ~~
                 world.setBlockState(pos, world.getBlockState(pos).with(Properties.WATERLOGGED, properties.get("waterlogged").equals("TRUE")), 2);
             } if (properties.get("type") != null) {

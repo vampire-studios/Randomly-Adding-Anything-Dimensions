@@ -20,20 +20,23 @@ public class Textures {
     }
 
     private static void blockTextures() {
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 12; i++) {
             addTextureToList(TextureTypes.STONE_BRICKS_TEXTURES, "block/stone/bricks_" + i);
         }
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 21; i++) {
             addTextureToList(TextureTypes.CHISELED_STONE_TEXTURES, "block/stone/chiseled_" + i);
         }
-        for (int i = 1; i < 13; i++) {
+        for (int i = 1; i < 15; i++) {
             addTextureToList(TextureTypes.COBBLESTONE_TEXTURES, "block/stone/cobblestone_" + i);
         }
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i < 9; i++) {
             addTextureToList(TextureTypes.POLISHED_STONE_TEXTURES, "block/stone/polished_" + i);
         }
-        for (int i = 1; i < 13; i++) {
+        for (int i = 1; i < 19; i++) {
             addTextureToList(TextureTypes.STONE_TEXTURES, "block/stone/stone_" + i);
+        }
+        for (int i = 1; i < 11; i++) {
+            addTextureToList(TextureTypes.TILES_TEXTURES, "block/stone/tiles_" + i);
         }
 
         addTextureToList(TextureTypes.MOSSY_STONE_BRICKS_TEXTURES, new Identifier("block/mossy_stone_bricks"));

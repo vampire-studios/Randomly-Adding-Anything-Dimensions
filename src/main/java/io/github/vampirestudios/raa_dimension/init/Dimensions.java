@@ -16,8 +16,7 @@ import io.github.vampirestudios.raa_dimension.history.Civilization;
 import io.github.vampirestudios.raa_dimension.history.ProtoDimension;
 import io.github.vampirestudios.raa_dimension.item.DimensionalPortalKeyItem;
 import io.github.vampirestudios.raa_dimension.item.RAABlockItemAlt;
-import io.github.vampirestudios.raa_dimension.utils.RegistryUtils;
-import io.github.vampirestudios.raa_dimension.utils.Utils;
+import io.github.vampirestudios.raa_dimension.utils.*;
 import io.github.vampirestudios.vampirelib.blocks.SlabBaseBlock;
 import io.github.vampirestudios.vampirelib.blocks.StairsBaseBlock;
 import io.github.vampirestudios.vampirelib.blocks.WallBaseBlock;
@@ -130,38 +129,39 @@ public class Dimensions {
             int difficulty = 0;
             int flags = dimension.getFlags();
             Pair<String, Identifier> name = dimension.getName();
-            float hue = Rands.randFloatRange(0, 1.0F);
+            CustomColor color = ProceduralTextures.makeGemPalette(Rands.getRandom()).getColor(1.0F);
+            float hue = /*Rands.randFloatRange(0, 1.0F)*/color.getHue();
             float foliageColor = hue + Rands.randFloatRange(-0.15F, 0.15F);
             float stoneColor = hue + Rands.randFloatRange(-0.45F, 0.45F);
             float fogHue = hue + 0.3333f;
             float skyHue = fogHue + 0.3333f;
 
-            float saturation = Rands.randFloatRange(0.5F, 1.0F);
+            float saturation = /*Rands.randFloatRange(0.5F, 1.0F)*/color.getSaturation();
             float stoneSaturation = Rands.randFloatRange(0.2F, 0.6F);
             if (Utils.checkBitFlag(flags, Utils.DEAD)) {
-                saturation = Rands.randFloatRange(0.0F, 0.2F);
+                saturation = /*Rands.randFloatRange(0.0F, 0.2F)*/color.getSaturation() / 2;
                 stoneSaturation = saturation;
                 difficulty += 2;
                 if (Utils.checkBitFlag(flags, Utils.CIVILIZED)) difficulty++;
             }
-            if (Utils.checkBitFlag(flags, Utils.LUSH)) saturation = Rands.randFloatRange(0.7F, 1.0F);
+            if (Utils.checkBitFlag(flags, Utils.LUSH)) saturation = /*Rands.randFloatRange(0.7F, 1.0F)*/color.getSaturation() + 2;
             if (Utils.checkBitFlag(flags, Utils.CORRUPTED)) difficulty += 2;
             if (Utils.checkBitFlag(flags, Utils.MOLTEN)) difficulty += 2;
             if (Utils.checkBitFlag(flags, Utils.DRY)) difficulty += 2;
             if (Utils.checkBitFlag(flags, Utils.TECTONIC)) difficulty++;
-            float value = Rands.randFloatRange(0.5F, 1.0F);
-            Color GRASS_COLOR = new Color(Color.HSBtoRGB(hue, saturation, value));
-            Color FOLIAGE_COLOR = new Color(Color.HSBtoRGB(foliageColor, saturation, value));
-            Color FOG_COLOR = new Color(Color.HSBtoRGB(fogHue, saturation, value));
-            Color SKY_COLOR = new Color(Color.HSBtoRGB(skyHue, saturation, value));
-            Color WATER_COLOR = new Color(Color.HSBtoRGB(skyHue, saturation + Rands.randFloatRange(0.3F, 1.0F), value + Rands.randFloatRange(0.3F, 1.0F)));
-            Color STONE_COLOR = new Color(Color.HSBtoRGB(stoneColor, stoneSaturation, value));
-            Color MOON_COLOR = new Color(Color.HSBtoRGB(hue, saturation, value));
-            Color SUN_COLOR = new Color(Color.HSBtoRGB(hue, saturation, value));
+            float value = /*Rands.randFloatRange(0.5F, 1.0F)*/color.getBrightness();
+            CustomColor GRASS_COLOR = new CustomColor(Color.HSBtoRGB(hue, saturation, value));
+            CustomColor FOLIAGE_COLOR = new CustomColor(Color.HSBtoRGB(foliageColor, saturation, value));
+            CustomColor FOG_COLOR = new CustomColor(Color.HSBtoRGB(fogHue, saturation, value));
+            CustomColor SKY_COLOR = new CustomColor(Color.HSBtoRGB(skyHue, saturation, value));
+            CustomColor WATER_COLOR = new CustomColor(Color.HSBtoRGB(skyHue, saturation + Rands.randFloatRange(0.3F, 1.0F), value + Rands.randFloatRange(0.3F, 1.0F)));
+            CustomColor STONE_COLOR = new CustomColor(Color.HSBtoRGB(stoneColor, stoneSaturation, value));
+            CustomColor MOON_COLOR = new CustomColor(Color.HSBtoRGB(hue, saturation, value));
+            CustomColor SUN_COLOR = new CustomColor(Color.HSBtoRGB(hue, saturation, value));
 
-            Color BLOOD_MOON = new Color(Color.HSBtoRGB(0F, 100F, 71F));
-            Color BLUE_MOON = new Color(Color.HSBtoRGB(196F, 69F, 65F));
-            Color VENUS = new Color(Color.HSBtoRGB(345F, 2.7F, 58.04F));
+            CustomColor BLOOD_MOON = new CustomColor(Color.HSBtoRGB(0F, 100F, 71F));
+            CustomColor BLUE_MOON = new CustomColor(Color.HSBtoRGB(196F, 69F, 65F));
+            CustomColor VENUS = new CustomColor(Color.HSBtoRGB(345F, 2.7F, 58.04F));
 
             /*DimensionChunkGenerators gen = Utils.randomCG(Rands.randIntRange(0, 100));
             if (gen == DimensionChunkGenerators.FLOATING) difficulty++;
@@ -205,6 +205,7 @@ public class Dimensions {
 
             DimensionTextureData texturesInformation = DimensionTextureData.Builder.create()
                     .stoneTexture(Rands.list(TextureTypes.STONE_TEXTURES))
+					.tilesTexture(Rands.list(TextureTypes.TILES_TEXTURES))
                     .stoneBricksTexture(Rands.list(TextureTypes.STONE_BRICKS_TEXTURES))
                     .mossyStoneBricksTexture(Rands.list(TextureTypes.MOSSY_STONE_BRICKS_TEXTURES))
                     .crackedStoneBricksTexture(Rands.list(TextureTypes.CRACKED_STONE_BRICKS_TEXTURES))
@@ -268,11 +269,11 @@ public class Dimensions {
 
                 DimensionBiomeData.Builder biomeData = DimensionBiomeData.Builder.create(Utils.addSuffixToPath(name.getRight(), "_biome" + "_" + i), name.getLeft())
                         .biomeParameters(biomeParameters)
-                        .depth(Rands.randFloatRange(0F, 3F))
+                        .depth(Rands.randFloatRange(-2F, 2F))
                         .scale(Math.max(scale + Rands.randFloatRange(-0.75f, 4.0f), 0)) //ensure the scale is never below 0
                         .temperature(dimension.getTemperature() + Rands.randFloatRange(-0.5f, 0.5f))
-                        .downfall(Rands.randFloat(1F))
-                        .waterColor(WATER_COLOR.getColor())
+                        .downfall(Rands.randFloatRange(0F, 1F))
+                        .waterColor(WATER_COLOR.getAsInt())
                         .grassColor(new Color(Color.HSBtoRGB(grassColor, saturation, value)).getColor())
                         .foliageColor(new Color(Color.HSBtoRGB(grassColor + Rands.randFloatRange(-0.1f, 0.1f), saturation, value)).getColor())
 //                        .treeType(treeType)
@@ -296,23 +297,24 @@ public class Dimensions {
             }
 
             DimensionColorPalette colorPalette = DimensionColorPalette.Builder.create()
-                    .skyColor(SKY_COLOR.getColor())
-                    .grassColor(GRASS_COLOR.getColor())
-                    .fogColor(FOG_COLOR.getColor())
-                    .foliageColor(FOLIAGE_COLOR.getColor())
-                    .stoneColor(STONE_COLOR.getColor()).build();
+                    .skyColor(SKY_COLOR.getAsInt())
+                    .grassColor(GRASS_COLOR.getAsInt())
+                    .fogColor(FOG_COLOR.getAsInt())
+                    .foliageColor(FOLIAGE_COLOR.getAsInt())
+                    .stoneColor(STONE_COLOR.getAsInt()).build();
             builder.colorPalette(colorPalette);
 
             DimensionCustomSkyInformation customSkyInformation = DimensionCustomSkyInformation.Builder.create()
                     .hasSky(!Rands.chance(2))
                     .customSun(Rands.chance(2))
                     .sunSize(Rands.randFloatRange(30F, 120F))
-                    .sunTint(SUN_COLOR.getColor())
+                    .sunTint(SUN_COLOR.getAsInt())
                     .customMoon(Rands.chance(2))
                     .moonSize(Rands.randFloatRange(20F, 80F))
-                    .moonTint(MOON_COLOR.getColor()).build();
+                    .moonTint(MOON_COLOR.getAsInt()).build();
             builder.customSkyInformation(customSkyInformation);
 
+            int height = Rands.randIntRange(78 / 16, 1024 / 16) * 16;
             DimensionTypeData typeData = DimensionTypeData.Builder.create()
                     .doesBedsWork(Rands.chance(4))
                     .isPiglinSafe(Rands.chance(100))
@@ -324,7 +326,7 @@ public class Dimensions {
                     .isUltrawarm(Rands.chance(10))
                     .isNatural(Rands.chance(10))
                     .hasEnderDragonFight(Rands.chance(10000))
-                    .logicalHeight(Rands.randIntRange(78 / 16, 1024 / 16) * 16)
+                    .logicalHeight(height)
                     .ambientLight(Rands.randFloatRange(0F, 0.16F))
                     .infiniburnTag(BlockTags.INFINIBURN_OVERWORLD.getId().toString())
                     .hasFixedTime(Rands.chance(10))
@@ -375,7 +377,6 @@ public class Dimensions {
                 densityFactor = 4.0F;
             }
             float finalDensityFactor = densityFactor;
-            int height = Rands.randIntRange(78 / 16, 1024 / 16) * 16;
             DimensionNoiseConfigData.Builder noiseConfigData = DimensionNoiseConfigData.Builder.create()
                     .amplified(Rands.chance(3))
                     .densityFactor(finalDensityFactor)
@@ -396,7 +397,7 @@ public class Dimensions {
 
             DimensionNoiseConfigData.SlideData topSlideData = DimensionNoiseConfigData.SlideData.Builder.create()
                     .offset(Rands.randInt(5))
-                    .size(Rands.randIntRange(0, 255))
+                    .size(Rands.randIntRange(0, height - 1))
                     .target(Rands.randInt(5))
                     .build();
             noiseConfigData.topSlide(topSlideData);
@@ -404,7 +405,7 @@ public class Dimensions {
             DimensionNoiseConfigData.Sampling sampling = DimensionNoiseConfigData.Sampling.Builder.create()
                     .xzFactor(80)
                     .xzScale(1)
-                    .yFactor(160)
+                    .yFactor(height/2)
                     .yScale(1)
                     .build();
             noiseConfigData.sampling(sampling);
@@ -433,6 +434,11 @@ public class Dimensions {
             RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(dimensionDataId, "_stone_wall"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneWall");
 
+
+			Block tilesBlock = RegistryUtils.register(new DimensionalStone(dimensionData), Utils.addSuffixToPath(dimensionDataId,
+					"_tiles"), RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "tiles");
+
+
             Block stoneBrick = RegistryUtils.register(new DimensionalBlock(dimensionData), Utils.addSuffixToPath(dimensionDataId, "_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBricks");
             RegistryUtils.register(new StairsBaseBlock(stoneBrick.getDefaultState()), Utils.addSuffixToPath(dimensionDataId, "_stone_brick_stairs"),
@@ -441,10 +447,6 @@ public class Dimensions {
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickSlab");
             RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(dimensionDataId, "_stone_brick_wall"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "stoneBrickWall");
-            RegistryUtils.register(new DimensionalBlock(dimensionData), Utils.addPrefixAndSuffixToPath(dimensionDataId, "mossy_", "_stone_bricks"),
-                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyStoneBricks");
-            RegistryUtils.register(new DimensionalBlock(dimensionData), Utils.addPrefixAndSuffixToPath(dimensionDataId, "cracked_", "_stone_bricks"),
-                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "crackedStoneBricks");
             Block cobblestone = RegistryUtils.register(new DimensionalBlock(dimensionData), new Identifier(RAADimensionAddon.MOD_ID,
                             dimensionData.getId().getPath().toLowerCase() + "_cobblestone"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestone");
@@ -454,15 +456,9 @@ public class Dimensions {
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneSlab");
             RegistryUtils.register(new WallBaseBlock(Block.Settings.copy(Blocks.COBBLESTONE_WALL)), Utils.addSuffixToPath(dimensionDataId, "_cobblestone_wall"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "cobblestoneWall");
-            RegistryUtils.register(new DimensionalBlock(dimensionData), Utils.addPrefixAndSuffixToPath(dimensionDataId, "mossy_", "_cobblestone"),
-                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyCobblestone");
             RegistryUtils.register(new DimensionalBlock(dimensionData), new Identifier(RAADimensionAddon.MOD_ID,
                             "chiseled_" + dimensionData.getId().getPath().toLowerCase() + "_stone_bricks"),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "chiseled_stone_bricks");
-            RegistryUtils.register(new DimensionalBlock(dimensionData), Utils.addPrefixAndSuffixToPath(dimensionDataId, "cracked_", "_chiseled_stone_bricks"),
-                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "crackedChiseledStoneBricks");
-            RegistryUtils.register(new DimensionalBlock(dimensionData), Utils.addPrefixAndSuffixToPath(dimensionDataId, "mossy_", "_chiseled_stone_bricks"),
-                    RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "mossyChiseledStoneBricks");
             Block polished = RegistryUtils.register(new DimensionalBlock(dimensionData), new Identifier(RAADimensionAddon.MOD_ID,
                             "polished_" + dimensionData.getId().getPath().toLowerCase()),
                     RAADimensionAddon.RAA_DIMENSION_BLOCKS, dimensionData.getName(), "polished");
@@ -507,7 +503,7 @@ public class Dimensions {
                 builder.defaultPlacer(PlayerPlacementHandlers.SURFACE_WORLD.getEntityPlacer());
             }*/
 
-            RegistryUtils.registerItem(new DimensionalPortalKeyItem(dimensionData), Utils.addSuffixToPath(dimensionDataId, "_portal_key"));
+            RegistryUtils.registerItem(new DimensionalPortalKeyItem(), Utils.addSuffixToPath(dimensionDataId, "_portal_key"));
             Block portalBlock = RegistryUtils.registerBlockWithoutItem(new PortalBlock(dimensionData),
                     new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getId().getPath().toLowerCase() + "_portal"));
             RegistryUtils.registerItem(new RAABlockItemAlt(dimensionData.getName(), "portal", portalBlock, new Item.Settings().group(ItemGroup.TRANSPORTATION)),

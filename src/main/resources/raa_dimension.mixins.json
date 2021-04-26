@@ -9,7 +9,9 @@
     "EntityMixin",
     "LevelStorageSessionMixin",
     "LivingEntityMixin",
+    "MinecraftServerMixin",
     "MixinDynamicRegistryManager",
+    "RegistryOpsMixin",
     "SkyPropertiesMixin",
     "StepAndDestroyBlockGoalMixin"
   ],

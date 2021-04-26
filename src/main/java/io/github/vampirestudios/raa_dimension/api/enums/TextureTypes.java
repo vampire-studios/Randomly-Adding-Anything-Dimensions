@@ -8,6 +8,7 @@ import java.util.List;
 public class TextureTypes {
 
     public static List<Identifier> STONE_TEXTURES = new ArrayList<>();
+    public static List<Identifier> TILES_TEXTURES = new ArrayList<>();
     public static List<Identifier> STONE_BRICKS_TEXTURES = new ArrayList<>();
     public static List<Identifier> MOSSY_STONE_BRICKS_TEXTURES = new ArrayList<>();
     public static List<Identifier> CRACKED_STONE_BRICKS_TEXTURES = new ArrayList<>();

@@ -8,6 +8,7 @@ import io.github.vampirestudios.raa_dimension.config.DimensionsConfig;
 import io.github.vampirestudios.raa_dimension.config.GeneralConfig;
 import io.github.vampirestudios.raa_dimension.config.SurfaceBuilderConfig;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.RAADimensionSkyProperties;
+import io.github.vampirestudios.raa_dimension.generation.feature.portalHub.PortalShrineFeatureConfig;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
 import io.github.vampirestudios.raa_dimension.init.*;
 import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
@@ -30,13 +31,18 @@ import net.minecraft.world.gen.decorator.CountExtraDecoratorConfig;
 import net.minecraft.world.gen.decorator.Decorator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
 
 public class RAADimensionAddon implements RAAAddon {
 
+	public static String NAME = "RAA: Dimensions";
 	public static final String MOD_ID = "raa_dimensions";
+	public static String MOD_VERSION = "v0.0.1-dev";
+	public static final Logger LOGGER = LogManager.getLogger(NAME);
 
 	public static final ItemGroup RAA_DIMENSION_BLOCKS = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "dimension_blocks"), () ->
 			new ItemStack(Items.STONE));
@@ -59,6 +65,7 @@ public class RAADimensionAddon implements RAAAddon {
 
 	@Override
 	public void onInitialize() {
+		LOGGER.info(String.format("You're now running RAA: Dimensions v%s for 21w16a", MOD_VERSION));
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			for (RegistryKey<World> registryKey : server.getWorldRegistryKeys()) {
 				dims.put(registryKey.getValue(), registryKey);
@@ -71,7 +78,6 @@ public class RAADimensionAddon implements RAAAddon {
 		CivsLanguageManager.init();
 		Textures.init();
 		SurfaceBuilders.init();
-		Textures.init();
 		Features.init();
 		RAAAttributes.initialize();
 
@@ -210,15 +216,23 @@ public class RAADimensionAddon implements RAAAddon {
 				new RAADimensionSkyProperties(dimensionData)));
 
 		RegistryKey<ConfiguredFeature<?, ?>>  portalHubKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(MOD_ID, "portal_hub"));
+		RegistryKey<ConfiguredFeature<?, ?>>  portalShrineKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(MOD_ID, "portal_shrine"));
 		Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, portalHubKey.getValue(), Features.PORTAL_HUB
 				.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA
-						.configure(new CountExtraDecoratorConfig(0, 0.3F, 1))));
+						.configure(new CountExtraDecoratorConfig(0, 0.002F, 1))));
 		if (CONFIG.shouldSpawnPortalHub) {
 			DynamicRegistryCallback.callback(Registry.BIOME_KEY).register((manager, id, biome) -> {
-				if (biome.getCategory() != Biome.Category.OCEAN) BiomesRegistry.registerFeature(manager, biome, GenerationStep.Feature.SURFACE_STRUCTURES, portalHubKey);
+				if (biome.getCategory() != Biome.Category.OCEAN && biome.getCategory() != Biome.Category.RIVER) BiomesRegistry.registerFeature(manager, biome, GenerationStep.Feature.SURFACE_STRUCTURES, portalHubKey);
+				if (biome.getCategory() != Biome.Category.OCEAN && biome.getCategory() != Biome.Category.RIVER) BiomesRegistry.registerFeature(manager, biome, GenerationStep.Feature.SURFACE_STRUCTURES, () -> Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, new Identifier(MOD_ID, "portal_shrine" + Rands.getRandom().nextInt()), Features.PORTAL_SHRINE
+						.configure(new PortalShrineFeatureConfig(Rands.randIntRange(1, 4), Rands.randIntRange(0, 2))).decorate(Decorator.COUNT_EXTRA
+								.configure(new CountExtraDecoratorConfig(0, 0.03F, 1)))));
 			});
 		}
 
+	}
+
+	public static Identifier id(String name) {
+		return new Identifier(MOD_ID, name);
 	}
 
 }

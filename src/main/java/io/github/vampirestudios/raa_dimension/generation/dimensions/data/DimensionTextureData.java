@@ -5,6 +5,7 @@ import net.minecraft.util.Identifier;
 public class DimensionTextureData {
 
     private Identifier stoneTexture;
+    private Identifier tilesTexture;
     private Identifier stoneBricksTexture;
     private Identifier mossyStoneBricksTexture;
     private Identifier crackedStoneBricksTexture;
@@ -18,10 +19,11 @@ public class DimensionTextureData {
     private Identifier moonTexture;
     private Identifier sunTexture;
 
-    public DimensionTextureData(Identifier stoneTexture, Identifier stoneBricksTexture, Identifier mossyStoneBricksTexture, Identifier crackedStoneBricksTexture,
+    public DimensionTextureData(Identifier stoneTexture, Identifier tilesTexture, Identifier stoneBricksTexture, Identifier mossyStoneBricksTexture, Identifier crackedStoneBricksTexture,
                                 Identifier cobblestoneTexture, Identifier mossyCobblestoneTexture, Identifier chiseledTexture, Identifier crackedChiseledTexture,
                                 Identifier mossyChiseledTexture, Identifier polishedTexture, Identifier iceTexture, Identifier moonTexture, Identifier sunTexture) {
         this.stoneTexture = stoneTexture;
+        this.tilesTexture = tilesTexture;
         this.stoneBricksTexture = stoneBricksTexture;
         this.mossyStoneBricksTexture = mossyStoneBricksTexture;
         this.crackedStoneBricksTexture = crackedStoneBricksTexture;
@@ -38,6 +40,10 @@ public class DimensionTextureData {
 
     public Identifier getStoneTexture() {
         return stoneTexture;
+    }
+
+    public Identifier getTilesTexture() {
+        return tilesTexture;
     }
 
     public Identifier getStoneBricksTexture() {
@@ -91,6 +97,7 @@ public class DimensionTextureData {
     public static class Builder {
 
         private Identifier stoneTexture;
+        private Identifier tilesTexture;
         private Identifier stoneBricksTexture;
         private Identifier mossyStoneBricksTexture;
         private Identifier crackedStoneBricksTexture;
@@ -110,6 +117,11 @@ public class DimensionTextureData {
 
         public Builder stoneTexture(Identifier stoneTexture) {
             this.stoneTexture = stoneTexture;
+            return this;
+        }
+
+        public Builder tilesTexture(Identifier tilesTexture) {
+            this.tilesTexture = tilesTexture;
             return this;
         }
 
@@ -174,7 +186,7 @@ public class DimensionTextureData {
         }
 
         public DimensionTextureData build() {
-            return new DimensionTextureData(stoneTexture, stoneBricksTexture, mossyStoneBricksTexture, crackedStoneBricksTexture, cobblestoneTexture, mossyCobblestoneTexture,
+            return new DimensionTextureData(stoneTexture, tilesTexture, stoneBricksTexture, mossyStoneBricksTexture, crackedStoneBricksTexture, cobblestoneTexture, mossyCobblestoneTexture,
                     chiseledTexture, crackedChiseledTexture, mossyChiseledTexture, polishedTexture, iceTexture, moonTexture, sunTexture);
         }
 
