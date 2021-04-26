@@ -44,14 +44,15 @@ dependencies {
 	include "io.github.vampirestudios.cab:Customized-Astral-Body:1.0.0"
 
     modImplementation "com.terraformersmc:modmenu:2.0.0-beta.4"
+}
 
-	modImplementation ("com.lettuce.fudge:artifice:0.15.6+21w16a") {
-		exclude group: "net.fabricmc.fabric-api"
-		force = true
-	}
-	include ("com.lettuce.fudge:artifice:0.15.6+21w16a") {
-		exclude group: "net.fabricmc.fabric-api"
-		force = true
+sourceSets {
+	main {
+		java {
+			srcDirs = ["src/main/java"]
+			exclude "io/github/vampirestudios/raa_dimension/generation/chunkgenerator/**"
+			exclude "io/github/vampirestudios/raa_dimension/generation/carvers/old/**"
+		}
 	}
 }
 

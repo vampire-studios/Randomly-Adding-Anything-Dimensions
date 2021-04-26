@@ -269,7 +269,7 @@ public class Dimensions {
 
                 DimensionBiomeData.Builder biomeData = DimensionBiomeData.Builder.create(Utils.addSuffixToPath(name.getRight(), "_biome" + "_" + i), name.getLeft())
                         .biomeParameters(biomeParameters)
-                        .depth(Rands.randFloatRange(-2F, 2F))
+                        .depth(Rands.randFloatRange(Rands.chance(30) ? -2F : 0F, 2F))
                         .scale(Math.max(scale + Rands.randFloatRange(-0.75f, 4.0f), 0)) //ensure the scale is never below 0
                         .temperature(dimension.getTemperature() + Rands.randFloatRange(-0.5f, 0.5f))
                         .downfall(Rands.randFloatRange(0F, 1F))
