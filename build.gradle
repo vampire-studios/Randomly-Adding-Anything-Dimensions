@@ -11,13 +11,10 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven { url = "https://jitpack.io"}
+	maven { url = "https://raw.githubusercontent.com/vampire-studios/VampireStudiosMaven/main/" }
 	maven {
 		name = "Cotton"
 		url = "https://server.bbkr.space/artifactory/libs-release"
-	}
-	maven {
-		url = "https://dl.bintray.com/vampirestudios/Minecraft-Libs"
 	}
 	mavenLocal()
 	maven { url "https://maven.terraformersmc.com/" }
