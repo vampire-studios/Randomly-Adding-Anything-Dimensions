@@ -5,9 +5,10 @@ import me.shedaniel.clothconfig2.gui.widget.DynamicElementListWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.Rect2i;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Rect2i;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
@@ -38,12 +39,17 @@ public class RAADimensionListWidget extends DynamicElementListWidget<RAADimensio
     }
 
     public abstract static class DimensionEntry extends Entry {
-        private PackWidget widget;
-        private DimensionData material;
+        private final PackWidget widget;
+        private final DimensionData material;
 
         public DimensionEntry(DimensionData material) {
             this.widget = new PackWidget();
             this.material = material;
+        }
+
+        @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
         }
 
         @Override
@@ -114,7 +120,7 @@ public class RAADimensionListWidget extends DynamicElementListWidget<RAADimensio
     }
 
     public static class EmptyEntry extends Entry {
-        private int height;
+        private final int height;
 
         public EmptyEntry(int height) {
             this.height = height;
@@ -128,6 +134,11 @@ public class RAADimensionListWidget extends DynamicElementListWidget<RAADimensio
         @Override
         public int getItemHeight() {
             return height;
+        }
+
+        @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
         }
 
         @Override

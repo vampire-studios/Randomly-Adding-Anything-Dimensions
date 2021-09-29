@@ -5,7 +5,6 @@ import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.class_6350;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -17,6 +16,7 @@ import net.minecraft.world.gen.carver.Carver;
 import net.minecraft.world.gen.carver.CarverConfig;
 import net.minecraft.world.gen.carver.CarverContext;
 import net.minecraft.world.gen.carver.CaveCarverConfig;
+import net.minecraft.world.gen.chunk.AquiferSampler;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public abstract class RAACarver extends Carver<CaveCarverConfig> {
     }
 
     @Override
-    protected boolean carveAtPoint(CarverContext carverContext, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, BitSet carvingMask, Random random, BlockPos.Mutable pos, BlockPos.Mutable downPos, class_6350 arg, MutableBoolean foundSurface) {
+    protected boolean carveAtPoint(CarverContext carverContext, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, BitSet carvingMask, Random random, BlockPos.Mutable pos, BlockPos.Mutable downPos, AquiferSampler arg, MutableBoolean foundSurface) {
         BlockState blockState = chunk.getBlockState(pos);
         BlockState blockState2 = chunk.getBlockState(downPos.set(pos, Direction.UP));
         if (blockState.isOf(Blocks.GRASS_BLOCK) || blockState.isOf(Blocks.MYCELIUM)) {
@@ -72,25 +72,25 @@ public abstract class RAACarver extends Carver<CaveCarverConfig> {
 
     private static BlockState method_36417(CarverConfig carverConfig, BlockState blockState) {
         if (blockState.isOf(Blocks.AIR)) {
-            return carverConfig.debugConfig.getDebugState();
+            return carverConfig.debugConfig.getAirState();
         } else if (blockState.isOf(Blocks.WATER)) {
-            BlockState blockState2 = carverConfig.debugConfig.method_36414();
+            BlockState blockState2 = carverConfig.debugConfig.getWaterState();
             return blockState2.contains(Properties.WATERLOGGED) ? blockState2.with(Properties.WATERLOGGED, true) : blockState2;
         } else {
-            return blockState.isOf(Blocks.LAVA) ? carverConfig.debugConfig.method_36415() : blockState;
+            return blockState.isOf(Blocks.LAVA) ? carverConfig.debugConfig.getLavaState() : blockState;
         }
     }
 
     @Nullable
-    private BlockState method_36418(CarverContext carverContext, CaveCarverConfig carverConfig, BlockPos blockPos, class_6350 arg) {
+    private BlockState method_36418(CarverContext carverContext, CaveCarverConfig carverConfig, BlockPos blockPos, AquiferSampler arg) {
         if (blockPos.getY() <= carverConfig.lavaLevel.getY(carverContext)) {
             return LAVA.getBlockState();
-        } else if (!carverConfig.field_33610) {
+        } else if (!carverConfig.aquifers) {
             return isDebug(carverConfig) ? method_36417(carverConfig, AIR) : AIR;
         } else {
-            BlockState blockState = arg.apply(field_33614, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D);
+            BlockState blockState = arg.apply(STONE_SOURCE, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D);
             if (blockState == Blocks.STONE.getDefaultState()) {
-                return isDebug(carverConfig) ? carverConfig.debugConfig.method_36416() : null;
+                return isDebug(carverConfig) ? carverConfig.debugConfig.getBarrierState() : null;
             } else {
                 return isDebug(carverConfig) ? method_36417(carverConfig, blockState) : blockState;
             }

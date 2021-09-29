@@ -44,7 +44,7 @@ public class DimensionListScreen extends Screen {
     @Override
     public boolean keyPressed(int int_1, int int_2, int int_3) {
         if (int_1 == 256 && this.shouldCloseOnEsc()) {
-            client.openScreen(parent);
+            client.setScreen(parent);
             return true;
         }
         return super.keyPressed(int_1, int_2, int_3);
@@ -53,11 +53,11 @@ public class DimensionListScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        addButton(new ButtonWidget(4, 4, 50, 20, new TranslatableText("gui.back"), var1 -> client.openScreen(parent)));
-        children.add(dimensionList = new RAADimensionListWidget(client, width / 2 - 10, height,
+        this.addSelectableChild(new ButtonWidget(4, 4, 50, 20, new TranslatableText("gui.back"), var1 -> client.setScreen(parent)));
+        this.addSelectableChild(dimensionList = new RAADimensionListWidget(client, width / 2 - 10, height,
                 28 + 5, height - 5, background
         ));
-        children.add(descriptionList = new RAADimensionDescriptionListWidget(client, width / 2 - 10, height,
+        this.addSelectableChild(descriptionList = new RAADimensionDescriptionListWidget(client, width / 2 - 10, height,
                 28 + 5, height - 5, background
         ));
         dimensionList.setLeftPos(5);

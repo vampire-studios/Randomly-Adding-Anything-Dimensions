@@ -20,6 +20,7 @@ import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -93,7 +94,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		markedForPerfection = rand.nextInt(15) == 0;
 		perfectStoneCount = 0;
 		StructureManager templatemanager = world.getServer().getStructureManager();
-		Structure template;
+		Optional<Structure> template;
 		BlockState iblockstate = world.getBlockState(blockpos$Mutable);
 
 		world.setBlockState(blockpos$Mutable, iblockstate, 3);
@@ -110,11 +111,11 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		StructurePlacementData placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.NONE)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, position, blockpos$Mutable.down(2).north(11).west(2), placementsettings, rand, 2);
+		template.get().place(world, position, blockpos$Mutable.down(2).north(11).west(2), placementsettings, rand, 2);
 
 		//East stone - rotated 90 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
-		if (template == null) {
+		if (template.isEmpty()) {
 			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
 		}
@@ -122,11 +123,11 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_90)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(2).east(11), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(2).east(11), placementsettings, rand, 2);
 
 		//south stone - rotated 180 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
-		if (template == null) {
+		if (template.isEmpty()) {
 			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
 		}
@@ -134,11 +135,11 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_180)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(11).east(2), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(11).east(2), placementsettings, rand, 2);
 
 		//West stone - rotated 270 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
-		if (template == null)
+		if (template.isEmpty())
 		{
 			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
@@ -147,13 +148,13 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.COUNTERCLOCKWISE_90)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(2).west(11), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(2).west(11), placementsettings, rand, 2);
 
 		//CORNER STONE
 
 		//north west stone
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
-		if (template == null)
+		if (template.isEmpty())
 		{
 			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
@@ -162,11 +163,11 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.NONE)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(9).west(9), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(9).west(9), placementsettings, rand, 2);
 
 		//north east stone
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
-		if (template == null)
+		if (template.isEmpty())
 		{
 			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
@@ -175,11 +176,11 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_90)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(9).east(9), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(9).east(9), placementsettings, rand, 2);
 
 		//south east stone
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
-		if (template == null)
+		if (template.isEmpty())
 		{
 			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
@@ -188,11 +189,11 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_180)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(9).east(9), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(9).east(9), placementsettings, rand, 2);
 
 		//south west stone
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
-		if (template == null)
+		if (template.isEmpty())
 		{
 			RAACore.LOGGER.warn("a corner stonehenge NTB does not exist!");
 			return false;
@@ -201,7 +202,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.COUNTERCLOCKWISE_90)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(9).west(9), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(9).west(9), placementsettings, rand, 2);
 
 		//center of stonehenge.
 		//If all stones are perfect, generates crafting table, otherwise, place a small patch of stones
@@ -214,7 +215,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehengecenter"));
 		}
 
-		if (template == null)
+		if (template.isEmpty())
 		{
 			RAACore.LOGGER.warn("a center stonehenge NTB does not exist!");
 			return false;
@@ -223,7 +224,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.NONE)
 				.setIgnoreEntities(false).setPosition(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down().north(2).west(2), placementsettings, rand, 2);
+		template.get().place(world, blockpos$Mutable, blockpos$Mutable.down().north(2).west(2), placementsettings, rand, 2);
 
 		return true;
 	}
@@ -245,7 +246,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 
 
 	//picks one out of four templates for the stone henge
-	private Structure pickStonehengeStyle(StoneHengeType type, Random rand, StructureManager templatemanager)
+	private Optional<Structure> pickStonehengeStyle(StoneHengeType type, Random rand, StructureManager templatemanager)
 	{
 		int hengeType;
 

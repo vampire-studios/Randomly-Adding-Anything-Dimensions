@@ -17,6 +17,7 @@ import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
+import java.util.Optional;
 import java.util.Random;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
@@ -67,10 +68,9 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 
 		//UltraAmplified.LOGGER.debug("Hanging Ruins | " + position.getX() + " " + position.getY() + " "+position.getZ());
 		StructureManager templatemanager = world.getServer().getStructureManager();
-		Structure template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":hanging_ruins"));
+		Optional<Structure> template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":hanging_ruins"));
 
-		if (template == null)
-		{
+		if (template.isEmpty()) {
 			RAACore.LOGGER.warn("hanging ruins NTB does not exist!");
 			return false;
 		}
@@ -79,7 +79,7 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 				.setIgnoreEntities(false).setPosition(null);
 
 		BlockPos pos = mutable.move(4, -8, 4).toImmutable();
-		template.place(world, pos, pos, placementsettings, rand, 2);
+		template.get().place(world, pos, pos, placementsettings, rand, 2);
 
 		return true;
 

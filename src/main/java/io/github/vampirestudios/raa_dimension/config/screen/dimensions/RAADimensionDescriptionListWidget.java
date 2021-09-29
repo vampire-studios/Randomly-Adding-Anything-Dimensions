@@ -10,6 +10,7 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.widget.DynamicElementListWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
@@ -140,6 +141,11 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         @Override
         public int getItemHeight() {
             return 11;
+        }
+
+        @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
         }
 
         @Override
@@ -280,7 +286,7 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
                             .build()
             );
             builder.setSavingRunnable(RAADimensionAddon.DIMENSIONS_CONFIG::overrideFile);
-            MinecraftClient.getInstance().openScreen(builder.build());
+            MinecraftClient.getInstance().setScreen(builder.build());
         }
 
         @Override
@@ -297,6 +303,11 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         @Override
         public int getItemHeight() {
             return 21;
+        }
+
+        @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
         }
 
         @Override
@@ -329,6 +340,11 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
+        }
+
+        @Override
         public List<? extends Element> children() {
             return Collections.emptyList();
         }
@@ -349,6 +365,11 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         @Override
         public int getItemHeight() {
             return 11;
+        }
+
+        @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
         }
 
         @Override
@@ -379,6 +400,11 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
+        }
+
+        @Override
         public List<? extends Element> children() {
             return Collections.emptyList();
         }
@@ -399,6 +425,11 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         @Override
         public int getItemHeight() {
             return height;
+        }
+
+        @Override
+        public List<? extends Selectable> narratables() {
+            return List.of();
         }
 
         @Override

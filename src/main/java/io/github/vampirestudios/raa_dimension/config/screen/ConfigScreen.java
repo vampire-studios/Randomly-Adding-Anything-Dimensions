@@ -3,7 +3,7 @@ package io.github.vampirestudios.raa_dimension.config.screen;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.vampirestudios.raa_dimension.config.GeneralConfig;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -40,7 +40,7 @@ public class ConfigScreen extends Screen {
     @Override
     public boolean keyPressed(int int_1, int int_2, int int_3) {
         if (int_1 == 256) {
-            client.openScreen(parent);
+            client.setScreen(parent);
             return true;
         }
         return super.keyPressed(int_1, int_2, int_3);
@@ -49,11 +49,11 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        addButton(new ButtonWidget(width / 2 - 75, 70, 150, 20, new TranslatableText("config.button.raa.generalConfig"), var1 ->
-                client.openScreen(AutoConfig.getConfigScreen(GeneralConfig.class, this).get())));
-        addButton(new ButtonWidget(width / 2 - 75, 130, 150, 20, new TranslatableText("config.button.raa.dimensionConfigurations"), var1 ->
-                client.openScreen(new DimensionsConfigScreen(this))));
-        addButton(new ButtonWidget(4, 4, 50, 20, new TranslatableText("gui.back"), var1 -> client.openScreen(parent)));
+        addSelectableChild(new ButtonWidget(width / 2 - 75, 70, 150, 20, new TranslatableText("config.button.raa.generalConfig"), var1 ->
+                client.setScreen(AutoConfig.getConfigScreen(GeneralConfig.class, this).get())));
+        addSelectableChild(new ButtonWidget(width / 2 - 75, 130, 150, 20, new TranslatableText("config.button.raa.dimensionConfigurations"), var1 ->
+                client.setScreen(new DimensionsConfigScreen(this))));
+        addSelectableChild(new ButtonWidget(4, 4, 50, 20, new TranslatableText("gui.back"), var1 -> client.setScreen(parent)));
     }
 
     @Override

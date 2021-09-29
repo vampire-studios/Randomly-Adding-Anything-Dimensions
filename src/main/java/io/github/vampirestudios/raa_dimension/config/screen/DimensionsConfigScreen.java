@@ -40,7 +40,7 @@ public class DimensionsConfigScreen extends Screen {
     public boolean keyPressed(int int_1, int int_2, int int_3) {
         if (int_1 == 256) {
             assert client != null;
-            client.openScreen(parent);
+            client.setScreen(parent);
             return true;
         }
         return super.keyPressed(int_1, int_2, int_3);
@@ -50,10 +50,10 @@ public class DimensionsConfigScreen extends Screen {
     protected void init() {
         super.init();
         assert client != null;
-        addButton(new ButtonWidget(width / 2 - 75, 70, 150, 20, new TranslatableText("config.button.raa.dimensionConfiguration"), var1 -> client.openScreen(new DimensionListScreen(this))));
+        addSelectableChild(new ButtonWidget(width / 2 - 75, 70, 150, 20, new TranslatableText("config.button.raa.dimensionConfiguration"), var1 -> client.setScreen(new DimensionListScreen(this))));
 //        addButton(new ButtonWidget(width / 2 - 75, 100, 150, 20, I18n.translate("config.button.raa.dimensionMaterialConfiguration"), var1 ->
 //                client.openScreen(new DimensionMaterialListScreen(this))));
-        addButton(new ButtonWidget(4, 4, 50, 20, new TranslatableText("gui.back"), var1 -> client.openScreen(parent)));
+        addSelectableChild(new ButtonWidget(4, 4, 50, 20, new TranslatableText("gui.back"), var1 -> client.setScreen(parent)));
     }
 
     @Override

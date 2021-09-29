@@ -1,15 +1,13 @@
 package io.github.vampirestudios.raa_dimension.generation.carvers;
 
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
-import io.github.vampirestudios.raa_dimension.mixin.CaveCarverConfigAccessor;
-import net.minecraft.class_6350;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.carver.Carver;
 import net.minecraft.world.gen.carver.CarverContext;
 import net.minecraft.world.gen.carver.CaveCarverConfig;
+import net.minecraft.world.gen.chunk.AquiferSampler;
 
 import java.util.BitSet;
 import java.util.Random;
@@ -21,11 +19,11 @@ public class BigRoomCarver extends RAACarver {
     }
 
     @Override
-    public boolean carve(CarverContext carverContext, CaveCarverConfig carverConfig, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, class_6350 arg, ChunkPos pos, BitSet carvingMask) {
+    public boolean carve(CarverContext context, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, AquiferSampler aquiferSampler, ChunkPos pos, BitSet carvingMask) {
         //positions
         double posX = (pos.x* 16) + random.nextInt(16);
         double posZ = (pos.z* 16) + random.nextInt(16);
-        double posY = random.nextInt(carverContext.getMaxY());
+        double posY = random.nextInt(context.getHeight());
 
         //modifiers
         double xVelocity = random.nextDouble() - 0.5;
@@ -41,7 +39,7 @@ public class BigRoomCarver extends RAACarver {
         int bigIndex = random.nextInt(128) + 64; // some caves won't become massive
 
         for (int i = 0; i < 128; i++) {
-            Carver.SkipPredicate skipPredicate = (context, scaledRelativeX, scaledRelativeY, scaledRelativeZ, y) -> isPositionExcluded(scaledRelativeX, scaledRelativeY, scaledRelativeZ, (int) ((CaveCarverConfigAccessor)carverConfig).getFloorLevel().get(random));
+//            Carver.SkipPredicate skipPredicate = (context1, scaledRelativeX, scaledRelativeY, scaledRelativeZ, y) -> isRegionUncarvable(chunk, scaledRelativeX, scaledRelativeY, scaledRelativeZ, (int) ((CaveCarverConfigAccessor)config).getFloorLevel().get(random));
             //calculate per-section modifiers
             double xDirectionMod = (random.nextDouble() - 0.5);
             double zDirectionMod = (random.nextDouble() - 0.5);
@@ -76,7 +74,7 @@ public class BigRoomCarver extends RAACarver {
             if (i == bigIndex) { //big room
                 cmod = 1.01;
             }
-            this.carveRegion(carverContext, carverConfig, chunk, posToBiome, random.nextLong(), arg, posX, posY, posZ, yaw, pitch, carvingMask, skipPredicate);
+            this.carveRegion(context, config, chunk, posToBiome, random.nextLong(), aquiferSampler, posX, posY, posZ, yaw, pitch, carvingMask, null);
         }
 
         return true;
@@ -87,7 +85,8 @@ public class BigRoomCarver extends RAACarver {
         return random.nextFloat() <= config.probability;
     }
 
-    private static boolean isPositionExcluded(double scaledRelativeX, double scaledRelativeY, double scaledRelativeZ, double floorY) {
+    @Override
+    protected boolean isRegionUncarvable(Chunk chunk, int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {
         return true;
     }
 
