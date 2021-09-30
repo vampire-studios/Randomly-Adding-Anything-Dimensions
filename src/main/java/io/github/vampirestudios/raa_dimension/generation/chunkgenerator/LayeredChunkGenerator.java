@@ -45,17 +45,17 @@ public class LayeredChunkGenerator extends NoiseChunkGenerator {
 
     public LayeredChunkGenerator(BiomeSource biomeSource, long worldSeed, Supplier<ChunkGeneratorSettings> settingsSupplier) {
         super(biomeSource, worldSeed, settingsSupplier);
-        this.random.consume(2620);
-        this.noiseSampler = new OctavePerlinNoiseSampler(this.random, IntStream.of(15, 0));
+        ChunkRandom chunkRandom = new ChunkRandom(worldSeed);
+        chunkRandom.skip(2620);
+        this.noiseSampler = new OctavePerlinNoiseSampler(chunkRandom, IntStream.of(15, 0));
     }
 
     public void populateEntities(ChunkRegion region) {
-        int i = region.getCenterChunkX();
-        int j = region.getCenterChunkZ();
-        Biome biome = region.getBiome((new ChunkPos(i, j)).getStartPos());
+        ChunkPos chunkPos = region.getCenterPos();
+        Biome biome = region.getBiome(chunkPos.getStartPos());
         ChunkRandom chunkRandom = new ChunkRandom();
-        chunkRandom.setPopulationSeed(region.getSeed(), i << 4, j << 4);
-        SpawnHelper.populateEntities(region, biome, i, j, chunkRandom);
+        chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
+        SpawnHelper.populateEntities(region, biome, chunkPos, chunkRandom);
     }
 
     protected double computeNoiseFalloff(double depth, double scale, int y) {
@@ -153,15 +153,12 @@ public class LayeredChunkGenerator extends NoiseChunkGenerator {
 
     @Override
     public void generateFeatures(ChunkRegion region, StructureAccessor StructureAccessor) {
-        int chunkX = region.getCenterChunkX();
-        int chunkZ = region.getCenterChunkZ();
+        ChunkPos chunkPos = region.getCenterPos();
         ChunkRandom rand = new ChunkRandom();
-        rand.setTerrainSeed(chunkX, chunkZ);
+        rand.setTerrainSeed(chunkPos.x, chunkPos.z);
 
-        int i = region.getCenterChunkX();
-        int j = region.getCenterChunkZ();
-        int k = i * 16;
-        int l = j * 16;
+        int k = chunkPos.x * 16;
+        int l = chunkPos.z * 16;
         BlockPos blockPos = new BlockPos(k, 0, l);
         BlockPos pos = blockPos.add(8, 8, 8);
         Biome biome = this.biomeSource.getBiomeForNoiseGen(pos.getX(), pos.getY(), pos.getZ());
@@ -174,7 +171,7 @@ public class LayeredChunkGenerator extends NoiseChunkGenerator {
                 biome.generateFeatureStep(StructureAccessor, this, region, seed, chunkRandom, blockPos);
             } catch (Exception exception) {
                 CrashReport crashReport = CrashReport.create(exception, "Biome decoration");
-                crashReport.addElement("Generation").add("CenterX", i).add("CenterZ", j).add("Step", feature).add("Seed", seed).add("Biome", BuiltinRegistries.BIOME.getId(biome));
+                crashReport.addElement("Generation").add("CenterX", chunkPos.x).add("CenterZ", chunkPos.z).add("Step", feature).add("Seed", seed).add("Biome", BuiltinRegistries.BIOME.getId(biome));
                 throw new CrashException(crashReport);
             }
         }

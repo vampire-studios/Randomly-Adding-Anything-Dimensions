@@ -30,7 +30,7 @@ public class CustomTeleporter {
             entity.detach();
             Entity newEntity = entity.getType().create(destination);
             newEntity.copyFrom(entity);
-            newEntity.refreshPositionAndAngles(target.position.x, target.position.y, target.position.z, target.yaw, newEntity.pitch);
+            newEntity.refreshPositionAndAngles(target.position.x, target.position.y, target.position.z, target.yaw, newEntity.getPitch());
             newEntity.setVelocity(target.velocity);
             destination.onDimensionChanged(newEntity);
             entity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
@@ -52,6 +52,6 @@ public class CustomTeleporter {
     }
 
     protected static TeleportTarget idkWhereToPutYou(Entity entity, BlockPos pos) {
-        return new TeleportTarget(new Vec3d(pos.getX() + .5, pos.getY(), pos.getZ() + .5), entity.getVelocity(), entity.yaw, entity.pitch);
+        return new TeleportTarget(new Vec3d(pos.getX() + .5, pos.getY(), pos.getZ() + .5), entity.getVelocity(), entity.getYaw(), entity.getPitch());
     }
 }

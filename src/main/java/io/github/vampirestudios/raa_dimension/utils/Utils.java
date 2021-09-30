@@ -1,6 +1,7 @@
 package io.github.vampirestudios.raa_dimension.utils;
 
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
+import io.github.vampirestudios.raa_dimension.generation.DimensionChunkGenerators;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
 import io.github.vampirestudios.vampirelib.utils.Rands;
 import net.minecraft.client.MinecraftClient;
@@ -140,6 +141,47 @@ public class Utils {
         }
         return sb;
     }
+
+    public static DimensionChunkGenerators randomCG(int chance) {
+        //enable for testing
+        if (false) {
+            return DimensionChunkGenerators.TEST;
+        }
+
+        if (chance < 15) {
+            /*if (chance <= 5) {
+                return DimensionChunkGenerators.FLAT_CAVES;
+            } else if (chance <= 10) {
+                return DimensionChunkGenerators.HIGH_CAVES;
+            }*/
+            return DimensionChunkGenerators.CAVES;
+        } else if (chance > 15 && chance < 30) {
+            /*if (chance <= 20) {
+                return DimensionChunkGenerators.LAYERED_FLOATING;
+            } else if (chance <= 25) {
+                return DimensionChunkGenerators.PRE_CLASSIC_FLOATING;
+            }*/
+            return DimensionChunkGenerators.FLOATING;
+        } else {
+            if (chance <= 35) {
+//                return DimensionChunkGenerators.QUADRUPLE_AMPLIFIED;
+//            } else if (chance <= 40) {
+//                return DimensionChunkGenerators.PILLAR_WORLD;
+//            } else if (chance <= 50) {
+//                return DimensionChunkGenerators.LAYERED_OVERWORLD;
+//            } else if (chance <= 60) {
+                return DimensionChunkGenerators.TOTALLY_CUSTOM;
+//            } else if (chance <= 70) {
+//                return DimensionChunkGenerators.SMOOTH_OVERWORLD;
+            } else if (chance <= 80) {
+                return DimensionChunkGenerators.CHAOS;
+//            } else if (chance <= 90) {
+//                return DimensionChunkGenerators.ROLLING_HILLS;
+            }
+            return DimensionChunkGenerators.OVERWORLD;
+        }
+    }
+
 
     public static boolean checkBitFlag(int toCheck, int flag) {
         return (toCheck & flag) == flag;

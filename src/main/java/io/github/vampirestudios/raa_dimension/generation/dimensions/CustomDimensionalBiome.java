@@ -1,9 +1,11 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
 import com.google.common.collect.ImmutableList;
+import io.github.vampirestudios.raa_dimension.generation.DimensionChunkGenerators;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionBiomeData;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionTreeData;
+import io.github.vampirestudios.raa_dimension.generation.feature.TowerFeature;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.ColumnBlocksConfig;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.CorruptedFeatureConfig;
 import io.github.vampirestudios.raa_dimension.init.Features;
@@ -139,21 +141,21 @@ public class CustomDimensionalBiome {
             towerChance = Rands.randFloatRange(0.002F, 0.003F);
         }
 
-        /*if (dimensionData.getDimensionChunkGenerator().equals(DimensionChunkGenerators.CAVES)) {
+        if (dimensionData.getDimensionChunkGenerator().equals(DimensionChunkGenerators.CAVES)) {
             generationSettings.feature(GenerationStep.Feature.UNDERGROUND_DECORATION, Feature.BASALT_PILLAR.configure(FeatureConfig.DEFAULT)
-                    .decorate(Decorator.COUNT_RANGE.configure(new RangeDecoratorConfig(10, 0, 0, 256))));
-        }*/
+                    .decorate(Decorator.RANGE.configure(new RangeDecoratorConfig(UniformHeightProvider.create(YOffset.fixed(10), YOffset.fixed(256))))));
+        }
 
         // TODO fix this
         generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, register(String.format("%s_outpost_cf", dimensionData.getName().toLowerCase()), Features.OUTPOST.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, outpostChance, 1)))));
         generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, register(String.format("%s_campfire_cf", dimensionData.getName().toLowerCase()), Features.CAMPFIRE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, campfireChance, 1)))));
 
         //TODO
-//        TowerFeature TOWER = register(String.format("%s_tower", dimensionData.getName().toLowerCase()), new TowerFeature(dimensionData, DefaultFeatureConfig.CODEC));
-//        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, register(String.format("%s_tower_cf", dimensionData.getName().toLowerCase()), TOWER.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, towerChance, 1)))));
+        TowerFeature TOWER = register(String.format("%s_tower", dimensionData.getName().toLowerCase()), new TowerFeature(dimensionData, DefaultFeatureConfig.CODEC));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, register(String.format("%s_tower_cf", dimensionData.getName().toLowerCase()), TOWER.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, towerChance, 1)))));
         generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, register(String.format("%s_fossil_cf", dimensionData.getName().toLowerCase()), Features.FOSSIL.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, fossilChance, 1)))));
         //TODO
-//        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, register(String.format("%s_shrine_cf", dimensionData.getName().toLowerCase()), Features.SHRINE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, shrineChance, 1)))));
+        generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES, register(String.format("%s_shrine_cf", dimensionData.getName().toLowerCase()), Features.SHRINE.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(0, shrineChance, 1)))));
 
         /*generationSettings.feature(GenerationStep.Feature.SURFACE_STRUCTURES,
                 Features.register(String.format("%s_stone_henge_cf", dimensionData.getName().toLowerCase()), Features.STONE_HENGE.configure(new DefaultFeatureConfig()).decorate(
@@ -423,13 +425,10 @@ public class CustomDimensionalBiome {
     }*/
 
     private static FoliagePlacer getFoliagePlacer(DimensionTreeData treeData) {
-        switch (treeData.getFoliagePlacerType()) {
-            case ACACIA:
-                return new AcaciaFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0));
-            case SPRUCE:
-                return new SpruceFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0), ConstantIntProvider.create(treeData.getFoliageHeight()));
-            case PINE:
-                return new PineFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0), ConstantIntProvider.create(treeData.getFoliageHeight()));
+        return switch (treeData.getFoliagePlacerType()) {
+            case ACACIA -> new AcaciaFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0));
+            case SPRUCE -> new SpruceFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0), ConstantIntProvider.create(treeData.getFoliageHeight()));
+            case PINE -> new PineFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0), ConstantIntProvider.create(treeData.getFoliageHeight()));
             /*case LONG:
                 return new LongOakFoliagePlacer(treeData.getFoliageRange(), 0);
             case UPSIDE_DOWN:
@@ -440,10 +439,8 @@ public class CustomDimensionalBiome {
                 return new RandomSpruceFoliagePlacer(treeData.getFoliageRange(), 0);
             case CYLINDER:
                 return new CylinderFoliagePlacer(treeData.getFoliageRange(), 0);*/
-            case OAK:
-            default:
-                return new BlobFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0), treeData.getFoliageHeight());
-        }
+            default -> new BlobFoliagePlacer(ConstantIntProvider.create(treeData.getFoliageRange()), ConstantIntProvider.create(0), treeData.getFoliageHeight());
+        };
     }
 
 }

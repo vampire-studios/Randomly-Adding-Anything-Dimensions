@@ -6,6 +6,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.noise.OctavePerlinNoiseSampler;
 import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
@@ -37,25 +38,25 @@ public class TotallyCustomChunkGenerator extends NoiseChunkGenerator {
 
     public TotallyCustomChunkGenerator(BiomeSource biomeSource_1, long worldSeed, Supplier<ChunkGeneratorSettings> settingsSupplier) {
         super(biomeSource_1, worldSeed, settingsSupplier);
-        this.random.consume(Rands.randInt(100000));
-        this.noiseSampler = new OctavePerlinNoiseSampler(this.random, IntStream.of(15, 0));
+        ChunkRandom chunkRandom = new ChunkRandom(worldSeed);
+        chunkRandom.skip(Rands.randInt(100000));
+        this.noiseSampler = new OctavePerlinNoiseSampler(chunkRandom, IntStream.of(15, 0));
     }
 
     public void populateEntities(ChunkRegion chunkRegion) {
-        int centerChunkX = chunkRegion.getCenterChunkX();
-        int centerChunkZ = chunkRegion.getCenterChunkZ();
-        Biome chunkRegionBiome = chunkRegion.getBiome((new ChunkPos(centerChunkX, centerChunkZ)).getStartPos());
+        ChunkPos chunkPos = chunkRegion.getCenterPos();
+        Biome biome = chunkRegion.getBiome(chunkPos.getStartPos());
         ChunkRandom chunkRandom = new ChunkRandom();
-        chunkRandom.setPopulationSeed(chunkRegion.getSeed(), centerChunkX << 4, centerChunkZ << 4);
-        SpawnHelper.populateEntities(chunkRegion, chunkRegionBiome, centerChunkX, centerChunkZ, chunkRandom);
+        chunkRandom.setPopulationSeed(chunkRegion.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
+        SpawnHelper.populateEntities(chunkRegion, biome, chunkPos, chunkRandom);
     }
 
     @Override
-    public int getSpawnHeight() {
+    public int getSpawnHeight(HeightLimitView world) {
         return 64;
     }
 
-    @Override
+    /*@Override
     public double[] sampleNoiseColumn(int x, int z) {
         double[] ds = new double[2];
         float f = 0.0F;
@@ -88,7 +89,7 @@ public class TotallyCustomChunkGenerator extends NoiseChunkGenerator {
         ds[0] = (double)g + this.sampleNoise(x, z);
         ds[1] = f;
         return ds;
-    }
+    }*/
 
     /*@Override
     protected double computeNoiseFalloff(double depth, double scale, int y) {

@@ -53,18 +53,10 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                 WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "minecraft:air", currBlockProp, rotation);
             } else {
                 switch (currBlockType) {
-                    case "minecraft:stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + dimensionData.getId().getPath() + "_stone_bricks", currBlockProp, rotation);
-                        break;
-                    case "minecraft:chiseled_stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + "chiseled_" + dimensionData.getId().getPath(), currBlockProp, rotation);
-                        break;
-                    case "minecraft:ladder":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, 4 - rotation);
-                        break;
-                    default:
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
-                        break;
+                    case "minecraft:stone_bricks" -> WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + dimensionData.getId().getPath() + "_stone_bricks", currBlockProp, rotation);
+                    case "minecraft:chiseled_stone_bricks" -> WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + "chiseled_" + dimensionData.getId().getPath(), currBlockProp, rotation);
+                    case "minecraft:ladder" -> WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, 4 - rotation);
+                    default -> WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
                 }
             }
         }
@@ -80,10 +72,10 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
 
             for (int j = 2; j < 4; j++) {
                 if (!world.isAir(pos.add(MathHelper.floor(xPart2), j, MathHelper.floor(zPart2))) || (fill + 2 == j) || fill == 2) {
-                    world.setBlockState(pos.add(MathHelper.floor(xPart), j, MathHelper.floor(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                    world.setBlockState(pos.add(MathHelper.floor(xPart), j, MathHelper.floor(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + dimensionData.getId().getPath() + "_stone_bricks")).getDefaultState(), 2);
                 }
                 if (!world.isAir(pos.add(MathHelper.ceil(xPart2), j, MathHelper.ceil(zPart2))) || (fill + 2 == j) || fill == 2) {
-                    world.setBlockState(pos.add(MathHelper.ceil(xPart), j, MathHelper.ceil(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                    world.setBlockState(pos.add(MathHelper.ceil(xPart), j, MathHelper.ceil(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + dimensionData.getId().getPath() + "_stone_bricks")).getDefaultState(), 2);
                 }
             }
         }
@@ -215,7 +207,7 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
 
         //Populate room based on type
         switch (type) {
-            case "Storage":
+            case "Storage" -> {
                 //Center barrels
                 for (int i = 0; i < 8; i++) {
                     world.setBlockState(pos.add(6 + i % 2, 0, 5 + i / 2), Blocks.BARREL.getDefaultState().with(Properties.FACING, Direction.UP), 2);
@@ -237,10 +229,9 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                 placeDecoration(world, pos.add(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
                 randIndex = rand.nextInt(5);
                 placeDecoration(world, pos.add(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
-
                 fillWindows(world, pos, 2);
-                break;
-            case "Armory":
+            }
+            case "Armory" -> {
                 //Center iron bars
                 for (int i = 0; i < 4; i++) {
                     world.setBlockState(pos.add(6 + i % 2, 0, 5 + i / 2 * 3), Blocks.IRON_BARS.getDefaultState().with(Properties.WEST, true).with(Properties.EAST, true), 2);
@@ -263,10 +254,9 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                 placeDecoration(world, pos.add(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
                 randIndex = rand.nextInt(5) + 5;
                 placeDecoration(world, pos.add(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
-
                 fillWindows(world, pos, 0);
-                break;
-            case "Barracks":
+            }
+            case "Barracks" -> {
                 //Center Books/Beds
                 for (int i = 0; i < 4; i++) {
                     world.setBlockState(pos.add(6 + i % 2, 0, 6 + i / 2), Blocks.OAK_PLANKS.getDefaultState(), 2);
@@ -299,15 +289,10 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                 placeDecoration(world, pos.add(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
                 randIndex = rand.nextInt(4) + 10;
                 placeDecoration(world, pos.add(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
-
                 fillWindows(world, pos, 1);
-                break;
-            case "Empty2":
-                fillWindows(world, pos, 1);
-                break;
-            default:
-                fillWindows(world, pos, 0);
-                break;
+            }
+            case "Empty2" -> fillWindows(world, pos, 1);
+            default -> fillWindows(world, pos, 0);
         }
 
         //pillar

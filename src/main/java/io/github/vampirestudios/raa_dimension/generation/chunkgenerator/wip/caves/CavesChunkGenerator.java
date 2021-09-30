@@ -1,26 +1,23 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.caves;
 
 import net.minecraft.block.Blocks;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import net.minecraft.client.realms.gui.screen.RealmsWorldGeneratorType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
+import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class CavesChunkGenerator extends NoiseChunkGenerator {
@@ -31,8 +28,8 @@ public class CavesChunkGenerator extends NoiseChunkGenerator {
     }
 
     @Override
-    protected void sampleNoiseColumn(double[] buffer, int x, int z) {
-        this.sampleNoiseColumn(buffer, x, z, 684.412D, 2053.236D, 8.555150000000001D, 34.2206D, 3, -10);
+    public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world) {
+        return super.getColumnSample(x, z, world);
     }
 
     protected double[] computeNoiseRange(int x, int z) {
@@ -47,7 +44,7 @@ public class CavesChunkGenerator extends NoiseChunkGenerator {
         double[] ds = new double[this.noiseSizeY];
 
         for (int i = 0; i < this.noiseSizeY; ++i) {
-            ds[i] = Math.cos((double) i * 3.141592653589793D * 6.0D / (double) this.getNoiseSizeY()) * 2.0D;
+            ds[i] = Math.cos((double) i * 3.141592653589793D * 6.0D / (double) this.getMaxY()) * 2.0D;
             double d = i;
             if (i > this.noiseSizeY / 2) {
                 d = this.noiseSizeY - 1 - i;
@@ -60,25 +57,6 @@ public class CavesChunkGenerator extends NoiseChunkGenerator {
         }
 
         return ds;
-    }
-
-    @Override
-    public List<SpawnSettings.SpawnEntry> getEntitySpawnList(Biome biome, StructureAccessor accessor, SpawnGroup group, BlockPos pos) {
-        if (group == SpawnGroup.MONSTER) {
-            if (StructureFeature.FORTRESS.(this.world, StructureAccessor, pos)) {
-                return Feature.NETHER_BRIDGE.getMonsterSpawns();
-            }
-
-            if (Feature.NETHER_BRIDGE.isApproximatelyInsideStructure(this.world, StructureAccessor, pos) && this.world.getBlockState(pos.down()).getBlock() == Blocks.NETHER_BRICKS) {
-                return Feature.NETHER_BRIDGE.getMonsterSpawns();
-            }
-        }
-        return super.getEntitySpawnList(biome, accessor, group, pos);
-    }
-
-    public List<Biome.SpawnEntry> getEntitySpawnList(StructureAccessor StructureAccessor, SpawnGroup category, BlockPos pos) {
-
-        return super.getEntitySpawnList(StructureAccessor, category, pos);
     }
 
     public int getSpawnHeight() {

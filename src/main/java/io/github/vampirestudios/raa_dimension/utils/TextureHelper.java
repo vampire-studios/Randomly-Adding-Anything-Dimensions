@@ -31,7 +31,7 @@ public class TextureHelper {
 	}
 	
 	public static void setPixel(NativeImage img, int x, int y, int r, int g, int b) {
-		img.setPixelColor(x, y, color(r, g, b));
+		img.setColor(x, y, color(r, g, b));
 	}
 	
 	public static int color(int r, int g, int b) {
@@ -55,7 +55,7 @@ public class TextureHelper {
 	}
 	
 	public static CustomColor getFromTexture(NativeImage img, int x, int y) {
-		return COLOR.forceRGB().set(img.getPixelColor(x, y));
+		return COLOR.forceRGB().set(img.getColor(x, y));
 	}
 
 	public static CustomColor getFromTexture(BufferTexture img, float x, float y) {

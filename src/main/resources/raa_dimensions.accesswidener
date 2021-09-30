@@ -50,3 +50,8 @@ extendable method net/minecraft/world/gen/chunk/NoiseChunkGenerator sampleNoiseC
 
 accessible class net/minecraft/util/registry/DynamicRegistryManager$Info
 extendable class net/minecraft/util/registry/DynamicRegistryManager$Info
+
+accessible method net/minecraft/world/gen/chunk/ChunkGeneratorSettings createIslandSettings (Lnet/minecraft/world/gen/chunk/StructuresConfig;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;ZZ)Lnet/minecraft/world/gen/chunk/ChunkGeneratorSettings;
+accessible method net/minecraft/world/gen/chunk/ChunkGeneratorSettings createUndergroundSettings (Lnet/minecraft/world/gen/chunk/StructuresConfig;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;)Lnet/minecraft/world/gen/chunk/ChunkGeneratorSettings;
+accessible method net/minecraft/world/gen/chunk/ChunkGeneratorSettings createSurfaceSettings (Lnet/minecraft/world/gen/chunk/StructuresConfig;Z)Lnet/minecraft/world/gen/chunk/ChunkGeneratorSettings;
+accessible method net/minecraft/world/gen/chunk/ChunkGeneratorSettings <init> (Lnet/minecraft/world/gen/chunk/StructuresConfig;Lnet/minecraft/world/gen/chunk/GenerationShapeConfig;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;IIIIZZZZZZ)V

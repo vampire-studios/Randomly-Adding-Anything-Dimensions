@@ -2,6 +2,7 @@ package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 
 import com.google.common.collect.ImmutableSet;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
+import io.github.vampirestudios.raa_dimension.generation.carvers.RAACarver;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import net.minecraft.block.Blocks;
 import net.minecraft.class_6350;
@@ -14,6 +15,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.carver.CarverContext;
 import net.minecraft.world.gen.carver.CaveCarverConfig;
+import net.minecraft.world.gen.chunk.AquiferSampler;
 
 import java.util.BitSet;
 import java.util.Random;
@@ -38,7 +40,7 @@ public class CaveCarver extends RAACarver {
     }
 
     @Override
-    public boolean carve(CarverContext context, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, class_6350 arg, ChunkPos pos, BitSet carvingMask) {
+    public boolean carve(CarverContext context, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, AquiferSampler arg, ChunkPos pos, BitSet carvingMask) {
         int i5 = (this.getBranchFactor() * 2 - 1) * 16;
         int int_7 = random.nextInt(random.nextInt(random.nextInt(this.getMaxCaveCount()) + 1) + 1);
 
@@ -50,7 +52,9 @@ public class CaveCarver extends RAACarver {
             float v;
             if (random.nextInt(4) == 0) {
                 v = 1.0F + random.nextFloat() * 6.0F;
-                this.carveCave(chunk, posToBiome, random.nextLong(), pos.x, pos.z, i, z, y, x, v, bitSet);
+                double v3 = 1.5D + (double) (MathHelper.sin(1.5707964F) * 4);
+                double v4 = v3 * 0.5;
+                this.carveRegion(context, config, chunk, posToBiome, random.nextLong(), arg, pos.x, pos.z, i5, v3, v4, carvingMask, null);
                 i2 += random.nextInt(4);
             }
 
@@ -59,7 +63,7 @@ public class CaveCarver extends RAACarver {
                 v = (random.nextFloat() - 0.5F) / 4.0F;
                 float tunnelSystemWidth = this.getTunnelSystemWidth(random);
                 int i3 = i5 - random.nextInt(i5 / 4);
-                this.carveTunnels(chunk, posBiomeFunction, random.nextLong(), chunkX, mainChunkZ, i, z, y, x, tunnelSystemWidth, v1, v, 0, i3, this.getTunnelSystemHeightWidthRatio(), bitSet);
+                this.carveTunnels(chunk, posToBiome, random.nextLong(), pos.x, pos.z, i5, z, y, x, tunnelSystemWidth, v1, v, 0, i3, this.getTunnelSystemHeightWidthRatio(), carvingMask);
             }
         }
 
@@ -87,10 +91,8 @@ public class CaveCarver extends RAACarver {
         return random.nextInt(random.nextInt(120) + 8);
     }
 
-    protected void carveCave(Chunk chunk, Function<BlockPos, Biome> posBiomeFunction, long long1, int i, int i1, int i2, double v, double v1, double v2, float f, BitSet bitSet) {
-        double v3 = 1.5D + (double) (MathHelper.sin(1.5707964F) * f);
-        double v4 = v3 * 0.5;
-        this.carveRegion(chunk, posBiomeFunction, long1, i, i1, i2, v + 1.0D, v1, v2, v3, v4, bitSet);
+    protected void carveCave(CarverContext context, Chunk chunk, Function<BlockPos, Biome> posBiomeFunction, long long1, int i, int i1, int i2, double v, double v1, double v2, float f, BitSet bitSet) {
+
     }
 
     protected void carveTunnels(Chunk chunk, Function<BlockPos, Biome> posBiomeFunction, long seed, int i, int i1, int i2, double v, double v1, double v2, float f, float f1, float f2, int i3, int i4, double v3, BitSet bitSet) {

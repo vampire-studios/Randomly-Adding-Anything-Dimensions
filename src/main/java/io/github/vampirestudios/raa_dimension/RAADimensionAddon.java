@@ -7,14 +7,14 @@ import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLangua
 import io.github.vampirestudios.raa_dimension.config.DimensionsConfig;
 import io.github.vampirestudios.raa_dimension.config.GeneralConfig;
 import io.github.vampirestudios.raa_dimension.config.SurfaceBuilderConfig;
+import io.github.vampirestudios.raa_dimension.fabric.api.DimensionRenderingRegistry;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.RAADimensionSkyProperties;
 import io.github.vampirestudios.raa_dimension.generation.feature.portalHub.PortalShrineFeatureConfig;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
 import io.github.vampirestudios.raa_dimension.init.*;
-import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.item.ItemGroup;
@@ -26,6 +26,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.decorator.CountExtraDecoratorConfig;
 import net.minecraft.world.gen.decorator.Decorator;
@@ -135,6 +136,7 @@ public class RAADimensionAddon implements RAAAddon {
 							.deepslateEnabled(false)
 							.noiseCavesEnabled(true)
 							.aquifersEnabled(true)
+							.noodleCavesEnabled(true)
 							.oreVeinsEnabled(true)
 							.minSurfaceLevel(0)
 							.disableMobGeneration(dimensionData.getNoiseSettingsData().disableMobGeneration())
@@ -212,8 +214,10 @@ public class RAADimensionAddon implements RAAAddon {
 				e.printStackTrace();
 			}
 		});
-		Dimensions.DIMENSIONS.forEach(dimensionData -> SkyPropertiesAccessor.getBY_IDENTIFIER().put(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId()),
-				new RAADimensionSkyProperties(dimensionData)));
+		Dimensions.DIMENSIONS.forEach(dimensionData -> {
+			RegistryKey<DimensionType> REGISTRY_KEY = RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId());
+			DimensionRenderingRegistry.INSTANCE.setSkyProperty(REGISTRY_KEY, new RAADimensionSkyProperties(dimensionData), true);
+		});
 
 		RegistryKey<ConfiguredFeature<?, ?>>  portalHubKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(MOD_ID, "portal_hub"));
 		RegistryKey<ConfiguredFeature<?, ?>>  portalShrineKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(MOD_ID, "portal_shrine"));

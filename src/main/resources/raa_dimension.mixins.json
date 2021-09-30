@@ -4,21 +4,22 @@
   "package": "io.github.vampirestudios.raa_dimension.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "BiomeMixin",
-    "CaveCarverConfigAccessor",
-    "EntityMixin",
-    "LevelStorageSessionMixin",
-    "LivingEntityMixin",
-    "MinecraftServerMixin",
-    "MixinDynamicRegistryManager",
-    "RegistryOpsMixin",
-    "SkyPropertiesMixin",
-    "StepAndDestroyBlockGoalMixin"
+	"BiomeMixin",
+	"CaveCarverConfigAccessor",
+	"EntityMixin",
+	"LevelStorageSessionMixin",
+	"LivingEntityMixin",
+	"MinecraftServerMixin",
+	"MixinDynamicRegistryManager",
+	"RegistryOpsMixin",
+	"SkyPropertiesMixin",
+	"StepAndDestroyBlockGoalMixin",
+	"WorldRendererMixin"
   ],
   "client": [
-    "SkyPropertiesAccessor"
+	"SkyPropertiesAccessor"
   ],
   "injectors": {
-    "defaultRequire": 1
+	"defaultRequire": 1
   }
 }

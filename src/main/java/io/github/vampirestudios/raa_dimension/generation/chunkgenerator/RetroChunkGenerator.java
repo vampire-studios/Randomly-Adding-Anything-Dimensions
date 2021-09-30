@@ -16,18 +16,21 @@ import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.world.gen.chunk.VerticalBlockSample;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.IntStream;
 
 public class RetroChunkGenerator extends ChunkGenerator {
-    public static final Codec<CheckerboardChunkGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
+    public static final Codec<RetroChunkGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
         return instance.group(BiomeSource.CODEC.fieldOf("biomeSource").forGetter((noiseChunkGenerator) -> {
             return noiseChunkGenerator.biomeSource;
-        }), StructuresConfig.CODEC.fieldOf("config").forGetter((noiseChunkGenerator) -> {
-            return noiseChunkGenerator.structuresConfig;
         }), Codec.LONG.fieldOf("worldSeed").stable().forGetter((noiseChunkGenerator) -> {
             return noiseChunkGenerator.worldSeed;
-        })).apply(instance, instance.stable(CheckerboardChunkGenerator::new));
+        }), StructuresConfig.CODEC.fieldOf("config").forGetter((noiseChunkGenerator) -> {
+            return noiseChunkGenerator.structuresConfig;
+        })).apply(instance, instance.stable(RetroChunkGenerator::new));
     });
 
     private final OctaveSimplexNoiseSampler noise = new OctaveSimplexNoiseSampler(new ChunkRandom(1234L), IntStream.rangeClosed(-5, 0));
@@ -62,7 +65,7 @@ public class RetroChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void populateNoise(WorldAccess world, StructureAccessor accessor, Chunk chunk) {
+    public CompletableFuture<Chunk> populateNoise(Executor executor, StructureAccessor accessor, Chunk chunk) {
          BlockState blockState = Blocks.BLACK_CONCRETE.getDefaultState();
          BlockState blockState2 = Blocks.LIME_CONCRETE.getDefaultState();
          ChunkPos chunkPos = chunk.getPos();
@@ -78,14 +81,18 @@ public class RetroChunkGenerator extends ChunkGenerator {
             }
          }
 
+        return CompletableFuture.completedFuture(chunk);
       }
 
-      public int getHeight(int x, int z, Heightmap.Type heightmapType) {
-         return 100;
-      }
+    @Override
+    public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world) {
+        return 100;
+    }
 
-      public BlockView getColumnSample(int x, int z) {
-         return EmptyBlockView.INSTANCE;
-      }
+    @Override
+    public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world) {
+        int i = Math.max(0, world.getBottomY());
+        return new VerticalBlockSample(i, new BlockState[0]);
+    }
 
 }

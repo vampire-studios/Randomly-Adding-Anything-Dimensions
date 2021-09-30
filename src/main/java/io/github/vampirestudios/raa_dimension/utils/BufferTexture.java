@@ -22,7 +22,7 @@ public class BufferTexture {
 		for (int i = 0; i < buffer.length; i++) {
 			int x = i % width;
 			int y = i / width;
-			buffer[i] = image.getPixelColor(x, y);
+			buffer[i] = image.getColor(x, y);
 		}
 	}
 
@@ -50,7 +50,7 @@ public class BufferTexture {
 		for (int i = 0; i < buffer.length; i++) {
 			int x = i % width;
 			int y = i / width;
-			img.setPixelColor(x, y, buffer[i]);
+			img.setColor(x, y, buffer[i]);
 		}
 		return img;
 	}

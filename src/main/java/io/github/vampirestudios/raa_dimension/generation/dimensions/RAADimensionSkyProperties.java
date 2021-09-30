@@ -1,17 +1,12 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
-import io.github.vampirestudios.cab.Vector4i;
-import io.github.vampirestudios.cab.api.AstralBodyModifier;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.utils.Color;
 import io.github.vampirestudios.raa_dimension.utils.Utils;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.render.SkyProperties;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
-public class RAADimensionSkyProperties extends SkyProperties implements AstralBodyModifier {
+public class RAADimensionSkyProperties extends SkyProperties/* implements AstralBodyModifier*/ {
 
 	private final DimensionData dimensionData;
 
@@ -34,8 +29,7 @@ public class RAADimensionSkyProperties extends SkyProperties implements AstralBo
 	public boolean useThickFog(int camX, int camY) {
 		return false;
 	}
-
-	@Override
+	/*@Override
 	@Environment(EnvType.CLIENT)
 	public float getSunSize() {
 		return dimensionData.getCustomSkyInformation().getSunSize();
@@ -76,5 +70,5 @@ public class RAADimensionSkyProperties extends SkyProperties implements AstralBo
 	@Override
 	public boolean hasCustomAstralBody() {
 		return true;
-	}
+	}*/
 }

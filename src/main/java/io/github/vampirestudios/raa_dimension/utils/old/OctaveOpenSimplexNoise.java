@@ -3,11 +3,11 @@ package io.github.vampirestudios.raa_dimension.utils.old;
 import java.util.Random;
 
 //Code kindly taken from Terraform. Thank you, coderbot, Prospector, and Valoeghese!
-public final class OctaveOpenSimplexNoise {
+public class OctaveOpenSimplexNoise {
 
-    protected OpenSimplexNoise[] samplers;
-    private double clamp;
-    private double frequency, amplitudeLow, amplitudeHigh;
+    private final OpenSimplexNoise[] samplers;
+    private final double clamp;
+    private final double frequency, amplitudeLow, amplitudeHigh;
 
     public OctaveOpenSimplexNoise(Random rand, int octaves, double frequency, double amplitudeHigh, double amplitudeLow) {
         samplers = new OpenSimplexNoise[octaves];

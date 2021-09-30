@@ -16,10 +16,8 @@ import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.biome.source.TheEndBiomeSource;
 import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.GenerationShapeConfig;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 
 import java.util.function.Supplier;
@@ -50,34 +48,34 @@ public class ChaosChunkGenerator extends NoiseChunkGenerator {
 
     public ChaosChunkGenerator(BiomeSource biomeSource, long worldSeed, Supplier<ChunkGeneratorSettings> config) {
         super(biomeSource, worldSeed, config);
-        this.random.consume(2620);
-        this.noiseSampler = new OctavePerlinNoiseSampler(this.random, IntStream.of(15, 0));
+        ChunkRandom chunkRandom = new ChunkRandom(worldSeed);
+        chunkRandom.skip(2620);
+        this.noiseSampler = new OctavePerlinNoiseSampler(chunkRandom, IntStream.of(15, 0));
 
-        this.field_16574 = new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-15, 0));
-        this.field_16581 = new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-15, 0));
-        this.field_16575 = new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-7, 0));
+        this.field_16574 = new OctavePerlinNoiseSampler(chunkRandom, IntStream.rangeClosed(-15, 0));
+        this.field_16581 = new OctavePerlinNoiseSampler(chunkRandom, IntStream.rangeClosed(-15, 0));
+        this.field_16575 = new OctavePerlinNoiseSampler(chunkRandom, IntStream.rangeClosed(-7, 0));
 
-        this.simplexNoise = new OctaveOpenSimplexNoise(this.random, 4, 1024.0D, 2.0D, 2.0D);
+        this.simplexNoise = new OctaveOpenSimplexNoise(chunkRandom, 4, 1024.0D, 2.0D, 2.0D);
     }
 
     public void populateEntities(ChunkRegion region) {
-        int i = region.getCenterChunkX();
-        int j = region.getCenterChunkZ();
-        Biome biome = region.getBiome((new ChunkPos(i, j)).getStartPos());
+        ChunkPos chunkPos = region.getCenterPos();
+        Biome biome = region.getBiome(chunkPos.getStartPos());
         ChunkRandom chunkRandom = new ChunkRandom();
-        chunkRandom.setPopulationSeed(region.getSeed(), i << 4, j << 4);
-        SpawnHelper.populateEntities(region, biome, i, j, chunkRandom);
+        chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
+        SpawnHelper.populateEntities(region, biome, chunkPos, chunkRandom);
     }
 
-    @Override
+    /*@Override
     public void sampleNoiseColumn(double[] buffer, int x, int z) {
         GenerationShapeConfig generationShapeConfig = this.settings.get().getGenerationShapeConfig();
         double ac;
         double ad;
         double ai;
         double aj;
-        if (this.islandNoise != null) {
-            ac = TheEndBiomeSource.getNoiseAt(this.islandNoise, x, z) - 8.0F;
+        if (this.simplexNoise != null) {
+            ac = TheEndBiomeSource.getNoiseAt(this.simplexNoise, x, z) - 8.0F;
             if (ac > 0.0D) {
                 ad = 0.25D;
             } else {
@@ -145,7 +143,7 @@ public class ChaosChunkGenerator extends NoiseChunkGenerator {
             buffer[n] = o;
         }
 
-    }
+    }*/
 
     protected double computeNoisyFalloff(double depth, double scale, int x, int y, int z) {
         return simplexNoise.sample(x, y);
@@ -280,15 +278,12 @@ public class ChaosChunkGenerator extends NoiseChunkGenerator {
 
     @Override
     public void generateFeatures(ChunkRegion region, StructureAccessor StructureAccessor) {
-        int chunkX = region.getCenterChunkX();
-        int chunkZ = region.getCenterChunkZ();
+        ChunkPos chunkPos = region.getCenterPos();
         ChunkRandom rand = new ChunkRandom();
-        rand.setTerrainSeed(chunkX, chunkZ);
+        rand.setTerrainSeed(chunkPos.x, chunkPos.z);
 
-        int i = region.getCenterChunkX();
-        int j = region.getCenterChunkZ();
-        int k = i * 16;
-        int l = j * 16;
+        int k = chunkPos.x * 16;
+        int l = chunkPos.z * 16;
         BlockPos blockPos = new BlockPos(k, 0, l);
         BlockPos pos = blockPos.add(8, 8, 8);
         Biome biome = this.biomeSource.getBiomeForNoiseGen(pos.getX(), pos.getY(), pos.getZ());
@@ -301,7 +296,7 @@ public class ChaosChunkGenerator extends NoiseChunkGenerator {
                 biome.generateFeatureStep(StructureAccessor, this, region, seed, chunkRandom, blockPos);
             } catch (Exception exception) {
                 CrashReport crashReport = CrashReport.create(exception, "Biome decoration");
-                crashReport.addElement("Generation").add("CenterX", i).add("CenterZ", j).add("Step", feature).add("Seed", seed).add("Biome", BuiltinRegistries.BIOME.getId(biome));
+                crashReport.addElement("Generation").add("CenterX", chunkPos.x).add("CenterZ", chunkPos.z).add("Step", feature).add("Seed", seed).add("Biome", BuiltinRegistries.BIOME.getId(biome));
                 throw new CrashException(crashReport);
             }
         }

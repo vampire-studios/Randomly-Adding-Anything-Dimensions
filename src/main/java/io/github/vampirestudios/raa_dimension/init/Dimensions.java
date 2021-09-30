@@ -10,13 +10,17 @@ import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLangua
 import io.github.vampirestudios.raa_dimension.blocks.DimensionalBlock;
 import io.github.vampirestudios.raa_dimension.blocks.DimensionalStone;
 import io.github.vampirestudios.raa_dimension.blocks.PortalBlock;
+import io.github.vampirestudios.raa_dimension.generation.DimensionChunkGenerators;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.CustomDimensionalBiome;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.*;
 import io.github.vampirestudios.raa_dimension.history.Civilization;
 import io.github.vampirestudios.raa_dimension.history.ProtoDimension;
 import io.github.vampirestudios.raa_dimension.item.DimensionalPortalKeyItem;
 import io.github.vampirestudios.raa_dimension.item.RAABlockItemAlt;
-import io.github.vampirestudios.raa_dimension.utils.*;
+import io.github.vampirestudios.raa_dimension.utils.CustomColor;
+import io.github.vampirestudios.raa_dimension.utils.ProceduralTextures;
+import io.github.vampirestudios.raa_dimension.utils.RegistryUtils;
+import io.github.vampirestudios.raa_dimension.utils.Utils;
 import io.github.vampirestudios.vampirelib.blocks.SlabBaseBlock;
 import io.github.vampirestudios.vampirelib.blocks.StairsBaseBlock;
 import io.github.vampirestudios.vampirelib.blocks.WallBaseBlock;
@@ -41,6 +45,8 @@ import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.*;
+
+import static io.github.vampirestudios.raa_dimension.generation.DimensionChunkGenerators.CAVES;
 
 public class Dimensions {
     public static final Set<Identifier> DIMENSION_NAMES = new HashSet<>();
@@ -163,9 +169,9 @@ public class Dimensions {
             CustomColor BLUE_MOON = new CustomColor(Color.HSBtoRGB(196F, 69F, 65F));
             CustomColor VENUS = new CustomColor(Color.HSBtoRGB(345F, 2.7F, 58.04F));
 
-            /*DimensionChunkGenerators gen = Utils.randomCG(Rands.randIntRange(0, 100));
+            DimensionChunkGenerators gen = Utils.randomCG(Rands.randIntRange(0, 100));
             if (gen == DimensionChunkGenerators.FLOATING) difficulty++;
-            if (gen == CAVES) difficulty += 2;*/
+            if (gen == CAVES) difficulty += 2;
             float scale = dimension.getScale();
             if (scale > 0.8) difficulty++;
             if (scale > 1.6) difficulty++;
@@ -193,7 +199,7 @@ public class Dimensions {
                     .canSleep(Rands.chance(4))
                     .waterVaporize(Rands.chance(100))
                     .shouldRenderFog(Rands.chance(40))
-//                    .chunkGenerator(gen)
+                    .chunkGenerator(gen)
                     .flags(flags)
                     .difficulty(difficultyAndMobs.getLeft())
                     .mobs(difficultyAndMobs.getRight())

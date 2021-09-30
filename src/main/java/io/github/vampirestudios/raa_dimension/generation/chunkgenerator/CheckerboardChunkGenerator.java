@@ -1,31 +1,27 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.vampirestudios.raa_dimension.utils.ColoredBlockArrays;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.*;
+import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.HeightLimitView;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
+import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
+import net.minecraft.world.gen.chunk.VerticalBlockSample;
 
-public class CheckerboardChunkGenerator extends ChunkGenerator {
-    public static final Codec<CheckerboardChunkGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
-        return instance.group(BiomeSource.CODEC.fieldOf("biomeSource").forGetter((noiseChunkGenerator) -> {
-            return noiseChunkGenerator.biomeSource;
-        }), StructuresConfig.CODEC.fieldOf("config").forGetter((noiseChunkGenerator) -> {
-            return noiseChunkGenerator.structuresConfig;
-        }), Codec.LONG.fieldOf("worldSeed").stable().forGetter((noiseChunkGenerator) -> {
-            return noiseChunkGenerator.worldSeed;
-        })).apply(instance, instance.stable(CheckerboardChunkGenerator::new));
-    });
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
-    public CheckerboardChunkGenerator(BiomeSource biomeSource, StructuresConfig config, long worldSeed) {
-        super(biomeSource, biomeSource, config, worldSeed);
+public class CheckerboardChunkGenerator extends NoiseChunkGenerator {
+    public CheckerboardChunkGenerator(BiomeSource biomeSource, long worldSeed, Supplier<ChunkGeneratorSettings> config) {
+        super(biomeSource, worldSeed, config);
     }
 
     @Override
@@ -38,22 +34,12 @@ public class CheckerboardChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    protected Codec<? extends ChunkGenerator> getCodec() {
-        return CODEC;
-    }
-
-    @Override
-    public ChunkGenerator withSeed(long seed) {
-        return new CheckerboardChunkGenerator(this.biomeSource.withSeed(seed), this.getStructuresConfig(), seed);
-    }
-
-    @Override
-    public int getSpawnHeight() {
+    public int getSpawnHeight(HeightLimitView world) {
         return 100;
     }
 
     @Override
-    public void populateNoise(WorldAccess world, StructureAccessor StructureAccessor, Chunk chunk) {
+    public CompletableFuture<Chunk> populateNoise(Executor executor, StructureAccessor accessor, Chunk chunk) {
         ChunkPos chunkPos = chunk.getPos();
 
         for (int i = 0; i < 8; ++i) {
@@ -72,16 +58,18 @@ public class CheckerboardChunkGenerator extends ChunkGenerator {
             }
         }
 
+        return CompletableFuture.completedFuture(chunk);
     }
 
     @Override
-    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
+    public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world) {
         return 100;
     }
 
     @Override
-    public BlockView getColumnSample(int x, int z) {
-        return EmptyBlockView.INSTANCE;
+    public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world) {
+        int i = Math.max(0, world.getBottomY());
+        return new VerticalBlockSample(i, new BlockState[0]);
     }
 
 }

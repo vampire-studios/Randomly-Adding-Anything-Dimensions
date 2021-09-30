@@ -1,6 +1,7 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions.data;
 
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
+import io.github.vampirestudios.raa_dimension.generation.DimensionChunkGenerators;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class DimensionData {
     private boolean canSleep;
     private boolean waterVaporize;
     private boolean renderFog;
-//    private final DimensionChunkGenerators dimensionChunkGenerator;
+    private final DimensionChunkGenerators dimensionChunkGenerator;
     private final int flags;
     private final HashMap<String, int[]> mobs;
     private final int difficulty;
@@ -36,12 +37,12 @@ public class DimensionData {
 
     public DimensionData() {
         this(null, null, null, null, null, null, null, null, null, null, null, null, false,
-                false, false/*, null*/, 0, null, 0, null,
+                false, false, null, 0, null, 0, null,
                 0, 0, 0, 0, 0);
     }
 
     public DimensionData(Identifier id, String name, DimensionTypeData typeData, DimensionNoiseSettingsData noiseSettingsData, NoiseSettings altitudeNoise, NoiseSettings weirdnessNoise, NoiseSettings temperatureNoise, NoiseSettings humidityNoise, List<DimensionBiomeData> biomeData, DimensionColorPalette dimensionColorPalette, DimensionTextureData texturesInformation,
-                         DimensionCustomSkyInformation customSkyInformation, boolean canSleep, boolean waterVaporize, boolean renderFog/*, DimensionChunkGenerators dimensionChunkGenerator*/,
+                         DimensionCustomSkyInformation customSkyInformation, boolean canSleep, boolean waterVaporize, boolean renderFog, DimensionChunkGenerators dimensionChunkGenerator,
                          int flags, HashMap<String, int[]> mobs, int difficulty, HashMap<String, Double> civilizationInfluences, float cloudHeight, float stoneJumpHeight, float stoneHardness,
                          float stoneResistance, float gravity) {
         this.id = id;
@@ -59,7 +60,7 @@ public class DimensionData {
         this.canSleep = canSleep;
         this.waterVaporize = waterVaporize;
         this.renderFog = renderFog;
-//        this.dimensionChunkGenerator = dimensionChunkGenerator;
+        this.dimensionChunkGenerator = dimensionChunkGenerator;
         this.flags = flags;
         this.mobs = mobs;
         this.difficulty = difficulty;
@@ -151,9 +152,9 @@ public class DimensionData {
         this.renderFog = renderFog;
     }
 
-    /*public DimensionChunkGenerators getDimensionChunkGenerator() {
+    public DimensionChunkGenerators getDimensionChunkGenerator() {
         return dimensionChunkGenerator;
-    }*/
+    }
 
     public int getFlags() {
         return flags;
@@ -228,7 +229,7 @@ public class DimensionData {
         private boolean canSleep;
         private boolean waterVaporize;
         private boolean renderFog;
-//        private DimensionChunkGenerators dimensionChunkGenerator;
+        private DimensionChunkGenerators dimensionChunkGenerator;
         private int flags;
         private int difficulty;
         private HashMap<String, Double> civilizationInfluences;
@@ -268,10 +269,10 @@ public class DimensionData {
             return this;
         }
 
-        /*public Builder chunkGenerator(DimensionChunkGenerators dimensionChunkGenerator) {
+        public Builder chunkGenerator(DimensionChunkGenerators dimensionChunkGenerator) {
             this.dimensionChunkGenerator = dimensionChunkGenerator;
             return this;
-        }*/
+        }
 
         public Builder biome(DimensionBiomeData biomeData) {
             this.biomeData.add(biomeData);
@@ -382,7 +383,7 @@ public class DimensionData {
 
         public DimensionData build() {
             return new DimensionData(id, name, typeData, noiseSettingsData, altitudeNoise, weirdnessNoise, temperatureNoise, humidityNoise, biomeData, dimensionColorPalette, texturesInformation, customSkyInformation, canSleep, waterVaporize,
-                    renderFog/*, dimensionChunkGenerator*/, flags, mobs, difficulty, civilizationInfluences, cloudHeight, stoneJumpHeight, stoneHardness,
+                    renderFog, dimensionChunkGenerator, flags, mobs, difficulty, civilizationInfluences, cloudHeight, stoneJumpHeight, stoneHardness,
                     stoneResistance, gravity);
         }
     }

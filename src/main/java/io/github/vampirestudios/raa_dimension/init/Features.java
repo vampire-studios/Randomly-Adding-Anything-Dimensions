@@ -185,11 +185,11 @@ public class Features {
         }
     }
 
-    public static Feature<?> register(String name, Feature<?> feature) {
+    public static <T extends Feature<?>> T register(String name, T feature) {
         if (!Registry.FEATURE.containsId(new Identifier(RAADimensionAddon.MOD_ID, name))) {
             return Registry.register(Registry.FEATURE, new Identifier(RAADimensionAddon.MOD_ID, name), feature);
         } else {
-            return Registry.FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name));
+            return (T) Registry.FEATURE.get(new Identifier(RAADimensionAddon.MOD_ID, name));
         }
     }
 

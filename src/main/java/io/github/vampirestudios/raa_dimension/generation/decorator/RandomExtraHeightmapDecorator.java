@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class RandomExtraHeightmapDecorator extends Decorator<CountExtraDecoratorConfig> {
-    private Random random = null;
+    private final Random random = null;
 
     public RandomExtraHeightmapDecorator(Codec<CountExtraDecoratorConfig> dynamicFunction) {
         super(dynamicFunction);

@@ -8,16 +8,16 @@ import net.minecraft.util.registry.Registry;
 
 public class CustomToolMaterial implements ToolMaterial {
 
-    private transient Identifier materialId;
+    private final Identifier materialId;
     private int durability;
     private float miningSpeed;
     private float attackDamage;
     private int miningLevel;
     private int enchantability;
-    private float hoeAttackSpeed;
-    private float axeAttackDamage;
-    private float axeAttackSpeed;
-    private float swordAttackDamage;
+    private final float hoeAttackSpeed;
+    private final float axeAttackDamage;
+    private final float axeAttackSpeed;
+    private final float swordAttackDamage;
 
     public CustomToolMaterial(Identifier materialId, int durability, float miningSpeed, float attackDamage, int miningLevel,
                               int enchantability, float hoeAttackSpeed, float axeAttackDamage, float axeAttackSpeed, float swordAttackDamage) {
