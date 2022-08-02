@@ -3,14 +3,13 @@ package io.github.vampirestudios.raa_dimension.generation.feature;
 import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.ColumnBlocksConfig;
 import io.github.vampirestudios.raa_dimension.utils.OpenSimplexNoise;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
-import java.util.Random;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
 public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
@@ -22,12 +21,12 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 	}
 
 	@Override
-	public boolean generate(FeatureContext<ColumnBlocksConfig> context) {
-		BlockPos blockPos = context.getOrigin();
-		StructureWorldAccess world = context.getWorld();
-		Random random = context.getRandom();
-		ColumnBlocksConfig featureConfig = context.getConfig();
-		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+	public boolean place(FeaturePlaceContext<ColumnBlocksConfig> context) {
+		BlockPos blockPos = context.origin();
+		WorldGenLevel world = context.level();
+		RandomSource random = context.random();
+		ColumnBlocksConfig featureConfig = context.config();
+		BlockPos.MutableBlockPos blockpos$Mutable = new BlockPos.MutableBlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 		int minWidth = 3;
 		int maxWidth = 10;
 		int currentHeight = 0;
@@ -40,7 +39,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		while (!world.getBlockState(blockpos$Mutable).isAir())
 		{
 			//too high for column to generate
-			if (blockpos$Mutable.getY() > world.getTopY()-2)
+			if (blockpos$Mutable.getY() > world.getMaxBuildHeight()-2)
 			{
 				return false;
 			}
@@ -51,7 +50,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 		//find floor
 		blockpos$Mutable.set(blockPos); // reset back to normal height
 		currentHeight = 0;
-		while (!world.getBlockState(blockpos$Mutable.up(currentHeight)).isAir())
+		while (!world.getBlockState(blockpos$Mutable.above(currentHeight)).isAir())
 		{
 			//too low for column to generate
 			if (blockpos$Mutable.getY() < 50)
@@ -164,7 +163,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 
 						if (!block.isAir())
 						{
-							world.setBlockState(blockpos$Mutable, featureConfig.insideBlock, 2);
+							world.setBlock(blockpos$Mutable, featureConfig.insideBlock, 2);
 						}
 					}
 					//We are at non-pillar space 
@@ -177,7 +176,7 @@ public class ColumnVerticalFeature extends Feature<ColumnBlocksConfig> {
 							BlockState block = world.getBlockState(blockpos$Mutable);
 							if (block == featureConfig.insideBlock)
 							{
-								world.setBlockState(blockpos$Mutable, downward == 1 ? featureConfig.topBlock : featureConfig.middleBlock, 2);
+								world.setBlock(blockpos$Mutable, downward == 1 ? featureConfig.topBlock : featureConfig.middleBlock, 2);
 							}
 
 							blockpos$Mutable.move(Direction.DOWN); //moves down 1 every loop

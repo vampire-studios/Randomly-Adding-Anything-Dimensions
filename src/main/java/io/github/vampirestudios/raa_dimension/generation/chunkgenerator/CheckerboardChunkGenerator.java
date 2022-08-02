@@ -3,15 +3,20 @@ package io.github.vampirestudios.raa_dimension.generation.chunkgenerator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.vampirestudios.raa_dimension.utils.ColoredBlockArrays;
-import net.minecraft.block.Block;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.*;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 public class CheckerboardChunkGenerator extends ChunkGenerator {
     public static final Codec<CheckerboardChunkGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
@@ -29,7 +34,7 @@ public class CheckerboardChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void buildSurface(ChunkRegion region, Chunk chunk) {
+    public void buildSurface(WorldGenRegion region, ChunkAccess chunk) {
 
     }
 
@@ -38,7 +43,7 @@ public class CheckerboardChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    protected Codec<? extends ChunkGenerator> getCodec() {
+    protected Codec<? extends ChunkGenerator> codec() {
         return CODEC;
     }
 
@@ -53,20 +58,20 @@ public class CheckerboardChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void populateNoise(WorldAccess world, StructureAccessor StructureAccessor, Chunk chunk) {
+    public void populateNoise(LevelAccessor world, StructureManager StructureAccessor, ChunkAccess chunk) {
         ChunkPos chunkPos = chunk.getPos();
 
         for (int i = 0; i < 8; ++i) {
             int j = method_26528(chunkPos.x) ^ i ^ method_26528(chunkPos.z);
             Block[] blocks = ColoredBlockArrays.ALL[j % ColoredBlockArrays.ALL.length];
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
             for (int k = 0; k < 16; ++k) {
                 for (int l = 0; l < 16; ++l) {
                     for (int m = 0; m < 16; ++m) {
                         int n = 16 * i + l;
                         int o = k ^ n ^ m;
-                        chunk.setBlockState(mutable.set(k, n, m), blocks[o % blocks.length].getDefaultState(), false);
+                        chunk.setBlockState(mutable.set(k, n, m), blocks[o % blocks.length].defaultBlockState(), false);
                     }
                 }
             }
@@ -75,13 +80,13 @@ public class CheckerboardChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
+    public int getHeight(int x, int z, Heightmap.Types heightmapType) {
         return 100;
     }
 
     @Override
-    public BlockView getColumnSample(int x, int z) {
-        return EmptyBlockView.INSTANCE;
+    public BlockGetter getColumnSample(int x, int z) {
+        return EmptyBlockGetter.INSTANCE;
     }
 
 }

@@ -9,21 +9,20 @@ import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLanguageManager;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.elements.*;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-import net.minecraft.util.collection.WeightedList;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
-
 import java.util.*;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.ai.behavior.ShufflingList;
+import net.minecraft.world.level.levelgen.SurfaceSystem;
 
 public class SurfaceBuilderGenerator {
-    private static final SimpleRegistry<SurfaceBuilderHolder> SURFACE_BUILDERS = new SimpleRegistry<>(RegistryKey.ofRegistry(new Identifier(RAADimensionAddon.MOD_ID, "surface_builders")), Lifecycle.stable());
-    public static SimpleRegistry<SurfaceBuilder> RANDOM_SURFACE_BUILDER = new SimpleRegistry<>(RegistryKey.ofRegistry(new Identifier(RAADimensionAddon.MOD_ID, "random_surface_builders")), Lifecycle.stable());
+    private static final MappedRegistry<SurfaceBuilderHolder> SURFACE_BUILDERS = new MappedRegistry<>(ResourceKey.createRegistryKey(new ResourceLocation(RAADimensionAddon.MOD_ID, "surface_builders")), Lifecycle.stable());
+    public static MappedRegistry<SurfaceSystem> RANDOM_SURFACE_BUILDER = new MappedRegistry<>(ResourceKey.createRegistryKey(new ResourceLocation(RAADimensionAddon.MOD_ID, "random_surface_builders")), Lifecycle.stable());
     private static final Map<String, Class<? extends SurfaceElement>> ID_SURFACE_ELEMENT_MAP = new HashMap<>();
-    private static final WeightedList<Class<? extends SurfaceElement>> WEIGHTED_ELEMENTS = new WeightedList<>();
+    private static final ShufflingList<Class<? extends SurfaceElement>> WEIGHTED_ELEMENTS = new ShufflingList<>();
 
     public static void registerElements() {
         //grass has special spawning rules
@@ -49,12 +48,12 @@ public class SurfaceBuilderGenerator {
     }
 
     public static void generate() {
-        Set<Identifier> names = new HashSet<>();
+        Set<ResourceLocation> names = new HashSet<>();
         for (int i = 0; i < RAADimensionAddon.CONFIG.surfaceBuilderGenAmount; i++) {
             //generate names
             NameGenerator nameGenerator = RAACore.CONFIG.getLanguage().getNameGenerator(DimensionLanguageManager.DIMENSION_NAME);
-            Pair<String, Identifier> name = nameGenerator.generateUnique(names, RAADimensionAddon.MOD_ID);
-            names.add(name.getRight());
+            Tuple<String, ResourceLocation> name = nameGenerator.generateUnique(names, RAADimensionAddon.MOD_ID);
+            names.add(name.getB());
 
             //add the surface builder to the registry
             List<SurfaceElement> elements = new ArrayList<>();
@@ -79,14 +78,14 @@ public class SurfaceBuilderGenerator {
             if (Rands.randInt(10) > 2) {
                 elements.add(new GrassSurfaceElement());
             }
-            Registry.register(SURFACE_BUILDERS, name.getRight(), new SurfaceBuilderHolder("basic", elements));
+            Registry.register(SURFACE_BUILDERS, name.getB(), new SurfaceBuilderHolder("basic", elements));
 //            SURFACE_BUILDERS.add(RegistryKey.ofRegistry(name.getRight()), new SurfaceBuilderHolder("basic", elements));
             elements.sort(Comparator.comparingInt(SurfaceElement::getPriority));
 
             //register the actual surface builder
             RandomSurfaceBuilder sb = new RandomSurfaceBuilder(elements);
-            Registry.register(Registry.SURFACE_BUILDER, name.getRight(), sb);
-            Registry.register(RANDOM_SURFACE_BUILDER, name.getRight(), sb);
+            Registry.register(Registry.SURFACE_BUILDER, name.getB(), sb);
+            Registry.register(RANDOM_SURFACE_BUILDER, name.getB(), sb);
         }
     }
 
@@ -121,7 +120,7 @@ public class SurfaceBuilderGenerator {
     }
 
     public static void save(JsonObject obj) {
-        SURFACE_BUILDERS.getIds().forEach(id -> {
+        SURFACE_BUILDERS.keySet().forEach(id -> {
             SurfaceBuilderHolder sb = SURFACE_BUILDERS.get(id);
             if (sb == null) return;
 

@@ -1,14 +1,14 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions.data;
 
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class DimensionData {
-    private Identifier id;
+    private ResourceLocation id;
     private String name;
     private DimensionTypeData typeData;
     private DimensionNoiseSettingsData noiseSettingsData;
@@ -40,7 +40,7 @@ public class DimensionData {
                 0, 0, 0, 0, 0);
     }
 
-    public DimensionData(Identifier id, String name, DimensionTypeData typeData, DimensionNoiseSettingsData noiseSettingsData, NoiseSettings altitudeNoise, NoiseSettings weirdnessNoise, NoiseSettings temperatureNoise, NoiseSettings humidityNoise, List<DimensionBiomeData> biomeData, DimensionColorPalette dimensionColorPalette, DimensionTextureData texturesInformation,
+    public DimensionData(ResourceLocation id, String name, DimensionTypeData typeData, DimensionNoiseSettingsData noiseSettingsData, NoiseSettings altitudeNoise, NoiseSettings weirdnessNoise, NoiseSettings temperatureNoise, NoiseSettings humidityNoise, List<DimensionBiomeData> biomeData, DimensionColorPalette dimensionColorPalette, DimensionTextureData texturesInformation,
                          DimensionCustomSkyInformation customSkyInformation, boolean canSleep, boolean waterVaporize, boolean renderFog/*, DimensionChunkGenerators dimensionChunkGenerator*/,
                          int flags, HashMap<String, int[]> mobs, int difficulty, HashMap<String, Double> civilizationInfluences, float cloudHeight, float stoneJumpHeight, float stoneHardness,
                          float stoneResistance, float gravity) {
@@ -71,12 +71,12 @@ public class DimensionData {
         this.gravity = gravity;
     }
 
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return id;
     }
 
     public void setId(String id) {
-        this.id = new Identifier(RAADimensionAddon.MOD_ID, id);
+        this.id = new ResourceLocation(RAADimensionAddon.MOD_ID, id);
     }
 
     public String getName() {
@@ -213,7 +213,7 @@ public class DimensionData {
 
     public static class Builder {
         HashMap<String, int[]> mobs;
-        private Identifier id;
+        private ResourceLocation id;
         private String name;
         private DimensionTypeData typeData;
         private DimensionNoiseSettingsData noiseSettingsData;
@@ -242,7 +242,7 @@ public class DimensionData {
 
         }
 
-        public static Builder create(Identifier id, String name) {
+        public static Builder create(ResourceLocation id, String name) {
             Builder builder = new Builder();
             builder.id = id;
             builder.name = name;
@@ -255,7 +255,7 @@ public class DimensionData {
             return new Builder();
         }
 
-        public Builder id(Identifier id) {
+        public Builder id(ResourceLocation id) {
             this.id = id;
             return this;
         }
@@ -263,7 +263,7 @@ public class DimensionData {
         public Builder name(String name) {
             this.name = name;
             if (id == null) {
-                this.id = new Identifier(RAADimensionAddon.MOD_ID, name.toLowerCase());
+                this.id = new ResourceLocation(RAADimensionAddon.MOD_ID, name.toLowerCase());
             }
             return this;
         }

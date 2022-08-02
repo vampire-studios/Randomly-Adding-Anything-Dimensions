@@ -3,18 +3,16 @@ package io.github.vampirestudios.raa_dimension.generation.surface.random.element
 import com.google.gson.JsonObject;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
-
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 public class RedDesertSurfaceElement extends SurfaceElement {
-    private static final TernarySurfaceConfig CONFIG = new TernarySurfaceConfig(Blocks.RED_SAND.getDefaultState(), Blocks.RED_SANDSTONE.getDefaultState(), Blocks.GRAVEL.getDefaultState());
+    private static final TernarySurfaceConfig CONFIG = new TernarySurfaceConfig(Blocks.RED_SAND.defaultBlockState(), Blocks.RED_SANDSTONE.defaultBlockState(), Blocks.GRAVEL.defaultBlockState());
     private double chance;
 
     public RedDesertSurfaceElement() {
@@ -22,7 +20,7 @@ public class RedDesertSurfaceElement extends SurfaceElement {
     }
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, ChunkAccess chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         if (noise > chance) {
             resetTop(chunk, x, z, height, defaultBlock, defaultFluid);
             SurfaceBuilder.DEFAULT.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, unknownNumber, seed, CONFIG);
@@ -40,8 +38,8 @@ public class RedDesertSurfaceElement extends SurfaceElement {
     }
 
     @Override
-    public Identifier getType() {
-        return new Identifier("raa_dimensions", "red_desert");
+    public ResourceLocation getType() {
+        return new ResourceLocation("raa_dimensions", "red_desert");
     }
 
     @Override

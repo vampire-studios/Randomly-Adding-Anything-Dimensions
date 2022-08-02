@@ -1,32 +1,31 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator;
 
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.noise.OctavePerlinNoiseSampler;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.SpawnHelper;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.Util;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.Mth;
 import net.minecraft.world.gen.ChunkRandom;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
-
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-public class TotallyCustomChunkGenerator extends NoiseChunkGenerator {
+public class TotallyCustomChunkGenerator extends NoiseBasedChunkGenerator {
     private static final float[] BIOME_WEIGHT_TABLE = Util.make(new float[25], (floats) -> {
         for (int i = -2; i <= 2; ++i) {
             for (int i1 = -2; i1 <= 2; ++i1) {
-                float v = 10.0F / MathHelper.sqrt((float) (i * i + i1 * i1) + 0.2F);
+                float v = 10.0F / Mth.sqrt((float) (i * i + i1 * i1) + 0.2F);
                 floats[i + 2 + (i1 + 2) * 5] = v;
             }
         }
 
     });
-    private final OctavePerlinNoiseSampler noiseSampler;
+    private final PerlinNoise noiseSampler;
 
     private final float b1 = Rands.randFloatRange(256, 4096);
     private final float b2 = Rands.randFloatRange(256, 4096);
@@ -35,19 +34,19 @@ public class TotallyCustomChunkGenerator extends NoiseChunkGenerator {
     private final int div = Rands.randIntRange(3, 64);
     private final int mod = Rands.randIntRange(-4096, 4096);
 
-    public TotallyCustomChunkGenerator(BiomeSource biomeSource_1, long worldSeed, Supplier<ChunkGeneratorSettings> settingsSupplier) {
+    public TotallyCustomChunkGenerator(BiomeSource biomeSource_1, long worldSeed, Supplier<NoiseGeneratorSettings> settingsSupplier) {
         super(biomeSource_1, worldSeed, settingsSupplier);
         this.random.consume(Rands.randInt(100000));
-        this.noiseSampler = new OctavePerlinNoiseSampler(this.random, IntStream.of(15, 0));
+        this.noiseSampler = new PerlinNoise(this.random, IntStream.of(15, 0));
     }
 
-    public void populateEntities(ChunkRegion chunkRegion) {
+    public void spawnOriginalMobs(WorldGenRegion chunkRegion) {
         int centerChunkX = chunkRegion.getCenterChunkX();
         int centerChunkZ = chunkRegion.getCenterChunkZ();
-        Biome chunkRegionBiome = chunkRegion.getBiome((new ChunkPos(centerChunkX, centerChunkZ)).getStartPos());
+        Biome chunkRegionBiome = chunkRegion.getBiome((new ChunkPos(centerChunkX, centerChunkZ)).getWorldPosition());
         ChunkRandom chunkRandom = new ChunkRandom();
         chunkRandom.setPopulationSeed(chunkRegion.getSeed(), centerChunkX << 4, centerChunkZ << 4);
-        SpawnHelper.populateEntities(chunkRegion, chunkRegionBiome, centerChunkX, centerChunkZ, chunkRandom);
+        NaturalSpawner.spawnMobsForChunkGeneration(chunkRegion, chunkRegionBiome, centerChunkX, centerChunkZ, chunkRandom);
     }
 
     @Override
@@ -101,7 +100,7 @@ public class TotallyCustomChunkGenerator extends NoiseChunkGenerator {
     }*/
 
     private double sampleNoise(int x, int y) {
-        double d = this.noiseSampler.sample(x * 200, 10.0D, y * 200, 1.0D, 0.0D, true) * 65535.0D / 8000.0D;
+        double d = this.noiseSampler.getValue(x * 200, 10.0D, y * 200, 1.0D, 0.0D, true) * 65535.0D / 8000.0D;
         if (d < 0.0D) {
             d = -d * 0.3D;
         }

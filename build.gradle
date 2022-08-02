@@ -1,17 +1,35 @@
-plugins {
-	id 'fabric-loom' version '0.7-SNAPSHOT'
-	id 'maven-publish'
+buildscript {
+	dependencies {
+		classpath 'de.guntram.mcmod:crowdin-translate:1.3+1.17'
+	}
+	repositories {
+		maven {
+			name = 'CrowdinTranslate source'
+			url = "https://minecraft.guntram.de/maven/"
+		}
+	}
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+plugins {
+	id 'maven-publish'
+	id "com.modrinth.minotaur" version "2.+"
+	id 'io.github.juuxel.loom-quiltflower' version '1.7.+'
+	id "org.quiltmc.quilt-mappings-on-loom" version "4.2.+"
+	alias(libs.plugins.quilt.loom)
+}
+
+apply plugin: 'de.guntram.mcmod.crowdin-translate'
+
+crowdintranslate.crowdinProjectName = 'randomly-adding-dimensions-mater'
+crowdintranslate.minecraftProjectName = 'raa_dimensions'
+crowdintranslate.verbose = true
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "$mod_version+build.$build_number-${libs.versions.minecraft.get()}"
 group = project.maven_group
 
 repositories {
-	maven { url = "https://raw.githubusercontent.com/vampire-studios/VampireStudiosMaven/main/" }
+	maven { url = "https://maven.siphalor.de" }
 	maven {
 		name = "Cotton"
 		url = "https://server.bbkr.space/artifactory/libs-release"
@@ -19,29 +37,37 @@ repositories {
 	mavenLocal()
 	maven { url "https://maven.terraformersmc.com/" }
 	maven { url "https://maven.shedaniel.me" }
+	maven { url = "https://maven.parchmentmc.org" }
+	maven { url = "https://minecraft.guntram.de/maven/" }
+	maven { url = "https://jitpack.io" }
+	maven { url = "https://mvn.devos.one/releases/" }
+	maven { url = "https://mvn.devos.one/snapshots/" }
 }
 
-minecraft {
-	accessWidener = file("src/main/resources/raa_dimensions.accesswidener")
+loom {
+	accessWidenerPath = file("src/main/resources/raa_dimensions.accesswidener")
 }
 
 dependencies {
-	//to change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	minecraft libs.minecraft
+	mappings loom.layered {
+		it.addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${libs.versions.quilt.mappings.get()}:v2"))
+		it.parchment("org.parchmentmc.data:parchment-1.18.2:2022.07.17@zip")
+		it.officialMojangMappings {
+			setNameSyntheticMembers(false)
+		}
+	}
+	modImplementation libs.quilt.loader
+	modImplementation libs.bundles.qsl
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation (libs.raa.core) {
+		exclude group: "org.quiltmc"
+	}
+	modImplementation libs.crowdin.translate
+}
 
-	modImplementation "io.github.vampirestudios:raa-core:${project.core_version}"
-
-//	modImplementation "com.github.vampire-studios:Customized-Astral-Body:bab88029f7"
-//	include "com.github.vampire-studios:Customized-Astral-Body:bab88029f7"
-	modImplementation "io.github.vampirestudios.cab:Customized-Astral-Body:1.0.0"
-	include "io.github.vampirestudios.cab:Customized-Astral-Body:1.0.0"
-
-    modImplementation "com.terraformersmc:modmenu:2.0.0-beta.4"
+configurations.all {
+	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 sourceSets {
@@ -55,54 +81,53 @@ sourceSets {
 }
 
 processResources {
-	inputs.property "version", project.version
+	inputs.property "version", version
 
-	from(sourceSets.main.resources.srcDirs) {
-		include "fabric.mod.json"
-		expand "version": project.version
-	}
-
-	from(sourceSets.main.resources.srcDirs) {
-		exclude "fabric.mod.json"
+	filesMatching('fabric.mod.json') {
+		expand "version": version
 	}
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
+java {
+	withSourcesJar()
+	toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present.
-// If you remove this task, sources will not be generated.
-task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = "sources"
-	from sourceSets.main.allSource
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+	it.options.encoding = 'UTF-8'
+}
+
+compileJava {
+	options.compilerArgs += '--enable-preview'
 }
 
 jar {
-	from "LICENSE"
+	from("LICENSE") {
+		rename { "${it}_${archivesBaseName}" }
+	}
 }
 
-// configure the maven publication
+build {
+	dependsOn downloadTranslations
+}
+
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
+			from components.java
 		}
 	}
-
-	// select the repositories you want to publish to
 	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
+		if (project.hasProperty("siphalorMavenUser")) {
+			maven {
+				name = "Siphalor"
+				url = "https://maven.siphalor.de/upload.php"
+				credentials {
+					username = siphalorMavenUser
+					password = siphalorMavenPassword
+				}
+			}
+		}
 	}
 }

@@ -5,26 +5,31 @@ import io.github.vampirestudios.raa_dimension.generation.dimensions.data.Dimensi
 import io.github.vampirestudios.raa_dimension.utils.Utils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.*;
-import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.block.pattern.CachedBlockPosition;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.block.state.pattern.BlockPattern;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Objects;
 import java.util.Random;
@@ -38,23 +43,20 @@ public class MinerPortalBlock extends Block {
     protected static final VoxelShape Z_SHAPE;
 
     public MinerPortalBlock(DimensionData dimensionData, DimensionType dimensionType) {
-        super(AbstractBlock.Settings.copy(Blocks.NETHER_PORTAL));
+        super(BlockBehaviour.Properties.copy(Blocks.NETHER_PORTAL));
         this.dimensionData = dimensionData;
         this.dimensionType = dimensionType;
-        this.setDefaultState(this.stateManager.getDefaultState().with(AXIS, Direction.Axis.X));
+        this.registerDefaultState(this.stateDefinition.any().setValue(AXIS, Direction.Axis.X));
     }
 
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        switch(Objects.requireNonNull(state).get(AXIS)) {
-            case Z:
-                return Z_SHAPE;
-            case X:
-            default:
-                return X_SHAPE;
-        }
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return switch (Objects.requireNonNull(state).getValue(AXIS)) {
+            case Z -> Z_SHAPE;
+            case X, default -> X_SHAPE;
+        };
     }
 
-    public static boolean createPortalAt(DimensionData dimensionData, World iWorld, BlockPos blockPos) {
+    public static boolean createPortalAt(DimensionData dimensionData, Level iWorld, BlockPos blockPos) {
         MinerPortalBlock.AreaHelper areaHelper = createAreaHelper(dimensionData, iWorld, blockPos);
         if (areaHelper != null) {
             areaHelper.createPortal();
@@ -64,7 +66,7 @@ public class MinerPortalBlock extends Block {
         }
     }
 
-    public static MinerPortalBlock.AreaHelper createAreaHelper(DimensionData dimensionData, World iWorld, BlockPos blockPos) {
+    public static MinerPortalBlock.AreaHelper createAreaHelper(DimensionData dimensionData, Level iWorld, BlockPos blockPos) {
         MinerPortalBlock.AreaHelper areaHelper = new MinerPortalBlock.AreaHelper(dimensionData, iWorld, blockPos, Direction.Axis.X);
         if (areaHelper.isValid() && areaHelper.foundPortalBlocks == 0) {
             return areaHelper;
@@ -74,11 +76,11 @@ public class MinerPortalBlock extends Block {
         }
     }
 
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
         Direction.Axis axis = direction.getAxis();
-        Direction.Axis axis2 = state.get(AXIS);
+        Direction.Axis axis2 = state.getValue(AXIS);
         boolean bl = axis2 != axis && axis.isHorizontal();
-        return !bl && newState.getBlock() != this && !(new AreaHelper(dimensionData, world, pos, axis2)).wasAlreadyValid() ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
+        return !bl && newState.getBlock() != this && !(new AreaHelper(dimensionData, world, pos, axis2)).wasAlreadyValid() ? Blocks.AIR.defaultBlockState() : super.updateShape(state, direction, newState, world, pos, posFrom);
     }
 
     /*public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
@@ -89,9 +91,9 @@ public class MinerPortalBlock extends Block {
     }*/
 
     @Environment(EnvType.CLIENT)
-    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+    public void randomDisplayTick(BlockState state, Level world, BlockPos pos, Random random) {
         if (random.nextInt(100) == 0) {
-            world.playSound((double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, SoundEvents.BLOCK_PORTAL_AMBIENT, SoundCategory.BLOCKS, 0.5F, random.nextFloat() * 0.4F + 0.8F, false);
+            world.playLocalSound((double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, SoundEvents.PORTAL_AMBIENT, SoundSource.BLOCKS, 0.5F, random.nextFloat() * 0.4F + 0.8F, false);
         }
 
         for(int i = 0; i < 4; ++i) {
@@ -116,19 +118,19 @@ public class MinerPortalBlock extends Block {
     }
 
     @Environment(EnvType.CLIENT)
-    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
         return ItemStack.EMPTY;
     }
 
-    public BlockState rotate(BlockState state, BlockRotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation) {
         switch(rotation) {
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
-                switch(state.get(AXIS)) {
+                switch(state.getValue(AXIS)) {
                     case Z:
-                        return state.with(AXIS, Direction.Axis.X);
+                        return state.setValue(AXIS, Direction.Axis.X);
                     case X:
-                        return state.with(AXIS, Direction.Axis.Z);
+                        return state.setValue(AXIS, Direction.Axis.Z);
                     default:
                         return state;
                 }
@@ -137,37 +139,37 @@ public class MinerPortalBlock extends Block {
         }
     }
 
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AXIS);
     }
 
-    public static BlockPattern.Result findPortal(DimensionData dimensionData, WorldAccess iWorld, BlockPos world) {
+    public static BlockPattern.BlockPatternMatch findPortal(DimensionData dimensionData, LevelAccessor iWorld, BlockPos world) {
         Direction.Axis axis = Direction.Axis.Z;
         MinerPortalBlock.AreaHelper areaHelper = new MinerPortalBlock.AreaHelper(dimensionData, iWorld, world, Direction.Axis.X);
-        LoadingCache<BlockPos, CachedBlockPosition> loadingCache = BlockPattern.makeCache(iWorld, true);
+        LoadingCache<BlockPos, BlockInWorld> loadingCache = BlockPattern.createLevelCache(iWorld, true);
         if (!areaHelper.isValid()) {
             axis = Direction.Axis.X;
             areaHelper = new MinerPortalBlock.AreaHelper(dimensionData, iWorld, world, Direction.Axis.Z);
         }
 
         if (!areaHelper.isValid()) {
-            return new BlockPattern.Result(world, Direction.NORTH, Direction.UP, loadingCache, 1, 1, 1);
+            return new BlockPattern.BlockPatternMatch(world, Direction.NORTH, Direction.UP, loadingCache, 1, 1, 1);
         } else {
             int[] is = new int[Direction.AxisDirection.values().length];
-            Direction direction = areaHelper.negativeDir.rotateYCounterclockwise();
-            BlockPos blockPos = areaHelper.lowerCorner.up(areaHelper.getHeight() - 1);
+            Direction direction = areaHelper.negativeDir.getCounterClockWise();
+            BlockPos blockPos = areaHelper.lowerCorner.above(areaHelper.getHeight() - 1);
             Direction.AxisDirection[] var8 = Direction.AxisDirection.values();
             int var9 = var8.length;
 
             int var10;
             for(var10 = 0; var10 < var9; ++var10) {
                 Direction.AxisDirection axisDirection = var8[var10];
-                BlockPattern.Result result = new BlockPattern.Result(direction.getDirection() == axisDirection ? blockPos : blockPos.offset(areaHelper.negativeDir, areaHelper.getWidth() - 1), Direction.get(axisDirection, axis), Direction.UP, loadingCache, areaHelper.getWidth(), areaHelper.getHeight(), 1);
+                BlockPattern.BlockPatternMatch result = new BlockPattern.BlockPatternMatch(direction.getAxisDirection() == axisDirection ? blockPos : blockPos.relative(areaHelper.negativeDir, areaHelper.getWidth() - 1), Direction.get(axisDirection, axis), Direction.UP, loadingCache, areaHelper.getWidth(), areaHelper.getHeight(), 1);
 
                 for(int i = 0; i < areaHelper.getWidth(); ++i) {
                     for(int j = 0; j < areaHelper.getHeight(); ++j) {
-                        CachedBlockPosition cachedBlockPosition = result.translate(i, j, 1);
-                        if (!cachedBlockPosition.getBlockState().isAir()) {
+                        BlockInWorld cachedBlockPosition = result.getBlock(i, j, 1);
+                        if (!cachedBlockPosition.getState().isAir()) {
                             ++is[axisDirection.ordinal()];
                         }
                     }
@@ -185,18 +187,18 @@ public class MinerPortalBlock extends Block {
                 }
             }
 
-            return new BlockPattern.Result(direction.getDirection() == axisDirection2 ? blockPos : blockPos.offset(areaHelper.negativeDir, areaHelper.getWidth() - 1), Direction.get(axisDirection2, axis), Direction.UP, loadingCache, areaHelper.getWidth(), areaHelper.getHeight(), 1);
+            return new BlockPattern.BlockPatternMatch(direction.getAxisDirection() == axisDirection2 ? blockPos : blockPos.relative(areaHelper.negativeDir, areaHelper.getWidth() - 1), Direction.get(axisDirection2, axis), Direction.UP, loadingCache, areaHelper.getWidth(), areaHelper.getHeight(), 1);
         }
     }
 
     static {
-        AXIS = Properties.HORIZONTAL_AXIS;
-        X_SHAPE = Block.createCuboidShape(0.0D, 0.0D, 6.0D, 16.0D, 16.0D, 10.0D);
-        Z_SHAPE = Block.createCuboidShape(6.0D, 0.0D, 0.0D, 10.0D, 16.0D, 16.0D);
+        AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+        X_SHAPE = Block.box(0.0D, 0.0D, 6.0D, 16.0D, 16.0D, 10.0D);
+        Z_SHAPE = Block.box(6.0D, 0.0D, 0.0D, 10.0D, 16.0D, 16.0D);
     }
 
     public static class AreaHelper {
-        private final WorldAccess world;
+        private final LevelAccessor world;
         private final Direction.Axis axis;
         private final Direction negativeDir;
         private final Direction positiveDir;
@@ -206,7 +208,7 @@ public class MinerPortalBlock extends Block {
         private int width;
         private final DimensionData dimensionData;
 
-        public AreaHelper(DimensionData dimensionData, WorldAccess world, BlockPos pos, Direction.Axis axis) {
+        public AreaHelper(DimensionData dimensionData, LevelAccessor world, BlockPos pos, Direction.Axis axis) {
             this.world = world;
             this.axis = axis;
             this.dimensionData = dimensionData;
@@ -218,12 +220,12 @@ public class MinerPortalBlock extends Block {
                 this.negativeDir = Direction.SOUTH;
             }
 
-            for(BlockPos blockPos = pos; pos.getY() > blockPos.getY() - 21 && pos.getY() > 0 && this.validStateInsidePortal(world.getBlockState(pos.down())); pos = pos.down()) {
+            for(BlockPos blockPos = pos; pos.getY() > blockPos.getY() - 21 && pos.getY() > 0 && this.validStateInsidePortal(world.getBlockState(pos.below())); pos = pos.below()) {
             }
 
             int i = this.distanceToPortalEdge(pos, this.positiveDir) - 1;
             if (i >= 0) {
-                this.lowerCorner = pos.offset(this.positiveDir, i);
+                this.lowerCorner = pos.relative(this.positiveDir, i);
                 this.width = this.distanceToPortalEdge(this.lowerCorner, this.negativeDir);
                 if (this.width < 2 || this.width > 21) {
                     this.lowerCorner = null;
@@ -240,13 +242,13 @@ public class MinerPortalBlock extends Block {
         protected int distanceToPortalEdge(BlockPos pos, Direction dir) {
             int i;
             for(i = 0; i < 22; ++i) {
-                BlockPos blockPos = pos.offset(dir, i);
-                if (!this.validStateInsidePortal(this.world.getBlockState(blockPos)) || this.world.getBlockState(blockPos.down()).getBlock() != Blocks.OBSIDIAN) {
+                BlockPos blockPos = pos.relative(dir, i);
+                if (!this.validStateInsidePortal(this.world.getBlockState(blockPos)) || this.world.getBlockState(blockPos.below()).getBlock() != Blocks.OBSIDIAN) {
                     break;
                 }
             }
 
-            Block block = this.world.getBlockState(pos.offset(dir, i)).getBlock();
+            Block block = this.world.getBlockState(pos.relative(dir, i)).getBlock();
             return block == Blocks.OBSIDIAN ? i : 0;
         }
 
@@ -263,7 +265,7 @@ public class MinerPortalBlock extends Block {
             label56:
             for(this.height = 0; this.height < 21; ++this.height) {
                 for(i = 0; i < this.width; ++i) {
-                    BlockPos blockPos = this.lowerCorner.offset(this.negativeDir, i).up(this.height);
+                    BlockPos blockPos = this.lowerCorner.relative(this.negativeDir, i).above(this.height);
                     BlockState blockState = this.world.getBlockState(blockPos);
                     if (!this.validStateInsidePortal(blockState)) {
                         break label56;
@@ -275,12 +277,12 @@ public class MinerPortalBlock extends Block {
                     }
 
                     if (i == 0) {
-                        block = this.world.getBlockState(blockPos.offset(this.positiveDir)).getBlock();
+                        block = this.world.getBlockState(blockPos.relative(this.positiveDir)).getBlock();
                         if (block != Blocks.OBSIDIAN) {
                             break label56;
                         }
                     } else if (i == this.width - 1) {
-                        block = this.world.getBlockState(blockPos.offset(this.negativeDir)).getBlock();
+                        block = this.world.getBlockState(blockPos.relative(this.negativeDir)).getBlock();
                         if (block != Blocks.OBSIDIAN) {
                             break label56;
                         }
@@ -289,7 +291,7 @@ public class MinerPortalBlock extends Block {
             }
 
             for(i = 0; i < this.width; ++i) {
-                if (this.world.getBlockState(this.lowerCorner.offset(this.negativeDir, i).up(this.height)).getBlock() != Blocks.OBSIDIAN) {
+                if (this.world.getBlockState(this.lowerCorner.relative(this.negativeDir, i).above(this.height)).getBlock() != Blocks.OBSIDIAN) {
                     this.height = 0;
                     break;
                 }
@@ -307,7 +309,7 @@ public class MinerPortalBlock extends Block {
 
         protected boolean validStateInsidePortal(BlockState state) {
             Block block = state.getBlock();
-            return state.isAir() || state.isIn(BlockTags.FIRE) || block == Registry.BLOCK.get(Utils.addSuffixToPath(dimensionData.getId(), "_custom_portal"));
+            return state.isAir() || state.is(BlockTags.FIRE) || block == Registry.BLOCK.get(Utils.addSuffixToPath(dimensionData.getId(), "_custom_portal"));
         }
 
         public boolean isValid() {
@@ -316,10 +318,10 @@ public class MinerPortalBlock extends Block {
 
         public void createPortal() {
             for(int i = 0; i < this.width; ++i) {
-                BlockPos blockPos = this.lowerCorner.offset(this.negativeDir, i);
+                BlockPos blockPos = this.lowerCorner.relative(this.negativeDir, i);
 
                 for(int j = 0; j < this.height; ++j) {
-                    this.world.setBlockState(blockPos.up(j), Registry.BLOCK.get(Utils.addSuffixToPath(dimensionData.getId(), "_custom_portal")).getDefaultState().with(NetherPortalBlock.AXIS, this.axis), 18);
+                    this.world.setBlock(blockPos.above(j), Registry.BLOCK.get(Utils.addSuffixToPath(dimensionData.getId(), "_custom_portal")).defaultBlockState().setValue(NetherPortalBlock.AXIS, this.axis), 18);
                 }
             }
 

@@ -1,41 +1,46 @@
 package io.github.vampirestudios.raa_dimension;
 
-import com.swordglowsblue.artifice.api.Artifice;
+import com.google.gson.JsonObject;
+import io.github.vampirestudios.artifice.api.Artifice;
+import io.github.vampirestudios.artifice.api.builder.data.StateDataBuilder;
+import io.github.vampirestudios.artifice.api.builder.data.dimension.*;
+import io.github.vampirestudios.artifice.api.builder.data.worldgen.NoiseSettingsBuilder;
 import io.github.vampirestudios.raa_core.api.RAAAddon;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.CivsLanguageManager;
 import io.github.vampirestudios.raa_dimension.api.namegeneration.DimensionLanguageManager;
 import io.github.vampirestudios.raa_dimension.config.DimensionsConfig;
 import io.github.vampirestudios.raa_dimension.config.GeneralConfig;
-import io.github.vampirestudios.raa_dimension.config.SurfaceBuilderConfig;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.RAADimensionSkyProperties;
+import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseSettingsData;
 import io.github.vampirestudios.raa_dimension.generation.feature.portalHub.PortalShrineFeatureConfig;
-import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
-import io.github.vampirestudios.raa_dimension.init.*;
-import io.github.vampirestudios.raa_dimension.mixin.SkyPropertiesAccessor;
+import io.github.vampirestudios.raa_dimension.init.Dimensions;
+import io.github.vampirestudios.raa_dimension.init.Features;
+import io.github.vampirestudios.raa_dimension.init.RAAAttributes;
+import io.github.vampirestudios.raa_dimension.init.Textures;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.decorator.CountExtraDecoratorConfig;
-import net.minecraft.world.gen.decorator.Decorator;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class RAADimensionAddon implements RAAAddon {
 
@@ -44,10 +49,9 @@ public class RAADimensionAddon implements RAAAddon {
 	public static String MOD_VERSION = "v0.0.1-dev";
 	public static final Logger LOGGER = LogManager.getLogger(NAME);
 
-	public static final ItemGroup RAA_DIMENSION_BLOCKS = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "dimension_blocks"), () ->
+	public static final CreativeModeTab RAA_DIMENSION_BLOCKS = FabricItemGroupBuilder.build(new ResourceLocation(MOD_ID, "dimension_blocks"), () ->
 			new ItemStack(Items.STONE));
 	public static GeneralConfig CONFIG;
-	public static SurfaceBuilderConfig SURFACE_BUILDER_CONFIG;
 	public static DimensionsConfig DIMENSIONS_CONFIG;
 
 	@Override
@@ -61,14 +65,14 @@ public class RAADimensionAddon implements RAAAddon {
 	}
 
 	public static int DIMENSION_NUMBER = 0;
-	public static HashMap<Identifier, RegistryKey<World>> dims = new HashMap<>();
+	public static HashMap<ResourceLocation, ResourceKey<Level>> dims = new HashMap<>();
 
 	@Override
 	public void onInitialize() {
 		LOGGER.info(String.format("You're now running RAA: Dimensions v%s for 21w16a", MOD_VERSION));
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			for (RegistryKey<World> registryKey : server.getWorldRegistryKeys()) {
-				dims.put(registryKey.getValue(), registryKey);
+			for (ResourceKey<Level> registryKey : server.levelKeys()) {
+				dims.put(registryKey.location(), registryKey);
 			}
 		});
 		AutoConfig.register(GeneralConfig.class, JanksonConfigSerializer::new);
@@ -77,18 +81,18 @@ public class RAADimensionAddon implements RAAAddon {
 		DimensionLanguageManager.init();
 		CivsLanguageManager.init();
 		Textures.init();
-		SurfaceBuilders.init();
+//		SurfaceBuilders.init();
 		Features.init();
 		RAAAttributes.initialize();
 
-		SurfaceBuilderGenerator.registerElements();
-		SURFACE_BUILDER_CONFIG = new SurfaceBuilderConfig("surface_builders/surface_builder_config");
-		if (!SURFACE_BUILDER_CONFIG.fileExist()) {
-			SURFACE_BUILDER_CONFIG.generate();
-			SURFACE_BUILDER_CONFIG.save();
-		} else {
-			SURFACE_BUILDER_CONFIG.load();
-		}
+//		SurfaceBuilderGenerator.registerElements();
+//		SURFACE_BUILDER_CONFIG = new SurfaceBuilderConfig("surface_builders/surface_builder_config");
+//		if (!SURFACE_BUILDER_CONFIG.fileExist()) {
+//			SURFACE_BUILDER_CONFIG.generate();
+//			SURFACE_BUILDER_CONFIG.save();
+//		} else {
+//			SURFACE_BUILDER_CONFIG.load();
+//		}
 
 		DIMENSIONS_CONFIG = new DimensionsConfig("dimensions/dimension_config");
 		if (CONFIG.dimensionGenAmount > 0) {
@@ -101,110 +105,79 @@ public class RAADimensionAddon implements RAAAddon {
 		}
 		Dimensions.createDimensions();
 
-		Artifice.registerDataPack(new Identifier(getId(), "data_pack"), serverResourcePackBuilder -> {
+		Artifice.registerDataPack(new ResourceLocation(getId(), "data_pack"), serverResourcePackBuilder -> {
 			Dimensions.DIMENSIONS.forEach(dimensionData -> {
-				serverResourcePackBuilder.addDimensionType(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_type"), dimensionTypeBuilder -> {
-					dimensionTypeBuilder.bedWorks(dimensionData.getTypeData().doesBedWork())
-							.piglinSafe(dimensionData.getTypeData().isPiglinSafe())
-							.respawnAnchorWorks(dimensionData.getTypeData().doesRespawnAnchorWork())
-							.hasRaids(dimensionData.getTypeData().isHasRaids())
-							.coordinate_scale(dimensionData.getTypeData().getCoordinateScale())
-							.hasSkylight(dimensionData.getTypeData().hasSkyLight())
-							.hasCeiling(dimensionData.getTypeData().hasCeiling())
-							.ultrawarm(dimensionData.getTypeData().isUltrawarm())
-							.natural(dimensionData.getTypeData().isNatural())
-							.hasEnderDragonFight(dimensionData.getTypeData().hasEnderDragonFight())
-							.height(dimensionData.getTypeData().getLogicalHeight())
-							.logicalHeight(dimensionData.getTypeData().getLogicalHeight())
-							.ambientLight(dimensionData.getTypeData().getAmbientLight())
-							.infiniburn(new Identifier(dimensionData.getTypeData().getInfiniburn()))
-							.minimumY(-64);
-					if (dimensionData.getTypeData().hasFixedTime()) {
-						dimensionTypeBuilder.fixedTime(dimensionData.getTypeData().getFixedTime());
-					}
-				});
-				serverResourcePackBuilder.addNoiseSettingsBuilder(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings"), noiseSettingsBuilder -> {
-					noiseSettingsBuilder.defaultBlock(stateDataBuilder -> {
-						stateDataBuilder.name(dimensionData.getNoiseSettingsData().getDefaultBlock());
-					}).defaultFluid(blockStateBuilder -> {
-						blockStateBuilder.name(dimensionData.getNoiseSettingsData().getDefaultFluid());
-						if (!dimensionData.getNoiseSettingsData().getDefaultFluid().equals("minecraft:air"))
-							blockStateBuilder.setProperty("level", "0");
-					}).bedrockFloorPosition(0)
-							.bedrockRoofPosition(-2147483648)
-							.deepslateEnabled(false)
-							.noiseCavesEnabled(true)
-							.aquifersEnabled(true)
-							.oreVeinsEnabled(true)
-							.minSurfaceLevel(0)
-							.disableMobGeneration(dimensionData.getNoiseSettingsData().disableMobGeneration())
-							.seaLevel(dimensionData.getNoiseSettingsData().getSeaLevel())
-							.noiseConfig(noiseConfigBuilder -> {
-								noiseConfigBuilder.amplified(dimensionData.getNoiseSettingsData().getNoise().isAmplified())
-										.densityFactor(dimensionData.getNoiseSettingsData().getNoise().getDensityFactor())
-										.densityOffset(dimensionData.getNoiseSettingsData().getNoise().getDensityOffset())
-										.height(dimensionData.getNoiseSettingsData().getNoise().getHeight())
-										.sizeVertical(dimensionData.getNoiseSettingsData().getNoise().getSizeVertical())
-										.sizeHorizontal(dimensionData.getNoiseSettingsData().getNoise().getSizeHorizontal())
-										.simplexSurfaceNoise(dimensionData.getNoiseSettingsData().getNoise().isSimplexSurfaceNoise())
-										.randomDensityOffset(dimensionData.getNoiseSettingsData().getNoise().hasRandomDensityOffset())
-										.islandNoiseOverride(dimensionData.getNoiseSettingsData().getNoise().hasIslandNoiseOverride())
-										.minimumY(-64)
-										.bottomSlide(slideConfigBuilder -> {
-											slideConfigBuilder.offset(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getOffset())
-													.size(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getSize())
-													.target(dimensionData.getNoiseSettingsData().getNoise().getBottomSlide().getTarget());
-								}).topSlide(slideConfigBuilder -> {
-									slideConfigBuilder.offset(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getOffset())
-											.size(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getSize())
-											.target(dimensionData.getNoiseSettingsData().getNoise().getTopSlide().getTarget());
-								}).sampling(noiseSamplingConfigBuilder -> {
-									noiseSamplingConfigBuilder.xzFactor(dimensionData.getNoiseSettingsData().getNoise().getSampling().getXzFactor())
-											.xzScale(dimensionData.getNoiseSettingsData().getNoise().getSampling().getXzScale())
-											.yFactor(dimensionData.getNoiseSettingsData().getNoise().getSampling().getYFactor())
-											.yScale(dimensionData.getNoiseSettingsData().getNoise().getSampling().getYScale());
-								});
-							}).structureManager(structureManagerBuilder -> {
-					});
-				});
-				serverResourcePackBuilder.addDimension(dimensionData.getId(), dimensionBuilder -> {
-					dimensionBuilder.dimensionType(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_type"));
-					dimensionBuilder.noiseGenerator(noiseChunkGeneratorTypeBuilder -> {
-						noiseChunkGeneratorTypeBuilder.multiNoiseBiomeSource(multiNoiseBiomeSourceBuilder -> {
-							multiNoiseBiomeSourceBuilder.addBiome(biomeBuilder -> {
-								dimensionData.getBiomeData().forEach(dimensionBiomeData -> {
-									biomeBuilder.biome(dimensionBiomeData.getId().toString());
-									biomeBuilder.parameters(biomeParametersBuilder -> {
-										biomeParametersBuilder.altitude(Math.round(dimensionBiomeData.getBiomeParameters().getAltitude()));
-										biomeParametersBuilder.humidity(Math.round(dimensionBiomeData.getBiomeParameters().getHumidity()));
-										biomeParametersBuilder.offset(Math.round(dimensionBiomeData.getBiomeParameters().getOffset()));
-										biomeParametersBuilder.temperature(Math.round(dimensionBiomeData.getBiomeParameters().getTemperature()));
-										biomeParametersBuilder.weirdness(Math.round(dimensionBiomeData.getBiomeParameters().getWeirdness()));
-									});
-								});
-							});
-							multiNoiseBiomeSourceBuilder.seed((int) Rands.getRandom().nextLong());
-							multiNoiseBiomeSourceBuilder.altitudeNoise(noiseSettings -> {
-								noiseSettings.firstOctave(dimensionData.getAltitudeNoise().getFirstOctave());
-								noiseSettings.amplitudes(dimensionData.getAltitudeNoise().getAmplitudes());
-							});
-							multiNoiseBiomeSourceBuilder.weirdnessNoise(noiseSettings -> {
-								noiseSettings.firstOctave(dimensionData.getWeirdnessNoise().getFirstOctave());
-								noiseSettings.amplitudes(dimensionData.getWeirdnessNoise().getAmplitudes());
-							});
-							multiNoiseBiomeSourceBuilder.temperatureNoise(noiseSettings -> {
-								noiseSettings.firstOctave(dimensionData.getTemperatureNoise().getFirstOctave());
-								noiseSettings.amplitudes(dimensionData.getTemperatureNoise().getAmplitudes());
-							});
-							multiNoiseBiomeSourceBuilder.humidityNoise(noiseSettings -> {
-								noiseSettings.firstOctave(dimensionData.getHumidityNoise().getFirstOctave());
-								noiseSettings.amplitudes(dimensionData.getHumidityNoise().getAmplitudes());
-							});
-						});
-						noiseChunkGeneratorTypeBuilder.noiseSettings(new Identifier(MOD_ID, dimensionData.getId().getPath() + "_noise_settings").toString());
-						noiseChunkGeneratorTypeBuilder.seed((int) Rands.getRandom().nextLong());
-					});
-				});
+				DimensionTypeBuilder dimensionTypeBuilder = new DimensionTypeBuilder()
+						.bedWorks(dimensionData.getTypeData().doesBedWork())
+						.piglinSafe(dimensionData.getTypeData().isPiglinSafe())
+						.respawnAnchorWorks(dimensionData.getTypeData().doesRespawnAnchorWork())
+						.hasRaids(dimensionData.getTypeData().hasRaids())
+						.coordinate_scale(dimensionData.getTypeData().getCoordinateScale())
+						.hasSkylight(dimensionData.getTypeData().hasSkyLight())
+						.hasCeiling(dimensionData.getTypeData().hasCeiling())
+						.ultrawarm(dimensionData.getTypeData().isUltrawarm())
+						.isNatural(dimensionData.getTypeData().isNatural())
+						.hasEnderDragonFight(dimensionData.getTypeData().hasEnderDragonFight())
+						.height(dimensionData.getTypeData().getLogicalHeight())
+						.logicalHeight(dimensionData.getTypeData().getLogicalHeight())
+						.minimumY(dimensionData.getTypeData().getMinimumHeight())
+						.ambientLight(dimensionData.getTypeData().getAmbientLight())
+						.infiniburn(new ResourceLocation(dimensionData.getTypeData().getInfiniburn()));
+				JsonObject jsonObject = new JsonObject();
+				jsonObject.addProperty("type", "minecraft:uniform");
+				JsonObject valueJsonObject = new JsonObject();
+				valueJsonObject.addProperty("min_inclusive", 0);
+				valueJsonObject.addProperty("max_inclusive", 7);
+				jsonObject.add("value", valueJsonObject);
+				dimensionTypeBuilder.add("monster_spawn_light_level", jsonObject);
+				dimensionTypeBuilder.add("monster_spawn_block_light_limit", 0);
+				if (dimensionData.getTypeData().hasFixedTime()) {
+					dimensionTypeBuilder.fixedTime(dimensionData.getTypeData().getFixedTime());
+				}
+				serverResourcePackBuilder.addDimensionType(new ResourceLocation(MOD_ID, dimensionData.getId().getPath() + "_type"), dimensionTypeBuilder);
+				DimensionNoiseSettingsData noiseSettingsData = dimensionData.getNoiseSettingsData();
+				StateDataBuilder dimensionFluid = StateDataBuilder
+						.name(noiseSettingsData.getDefaultFluid());
+				if (!noiseSettingsData.getDefaultFluid().equals("minecraft:air"))
+					dimensionFluid.setProperty("level", "0");
+				serverResourcePackBuilder.addNoiseSettingsBuilder(new ResourceLocation(MOD_ID, dimensionData.getId().getPath() + "_noise_settings"),
+						new NoiseSettingsBuilder()
+								.defaultBlock(StateDataBuilder.name(noiseSettingsData.getDefaultBlock()))
+								.defaultFluid(dimensionFluid)
+								.aquifersEnabled(true)
+								.oreVeinsEnabled(true)
+								.disableMobGeneration(noiseSettingsData.disableMobGeneration())
+								.seaLevel(noiseSettingsData.getSeaLevel())
+								.noiseConfig(NoiseConfigBuilder.noiseConfig(
+										-64,
+										noiseSettingsData.getNoise().getHeight(),
+										noiseSettingsData.getNoise().getSizeHorizontal(),
+										noiseSettingsData.getNoise().getSizeVertical()
+								))
+				);
+				List<BiomeSourceBuilder.MultiNoiseBiomeSourceBuilder.BiomeBuilder> biomeBuilders = new ArrayList<>();
+				dimensionData.getBiomeData().forEach(dimensionBiomeData -> biomeBuilders.add(
+						new BiomeSourceBuilder.MultiNoiseBiomeSourceBuilder.BiomeBuilder()
+								.biome(dimensionBiomeData.getId().toString())
+								.parameters(new BiomeSourceBuilder.MultiNoiseBiomeSourceBuilder.BiomeParametersBuilder()
+										.temperature(Math.round(dimensionBiomeData.getBiomeParameters().getTemperature()))
+										.humidity(Math.round(dimensionBiomeData.getBiomeParameters().getHumidity()))
+										.continentalness(Math.round(dimensionBiomeData.getBiomeParameters().getContinentalness()))
+										.erosion(Math.round(dimensionBiomeData.getBiomeParameters().getErosion()))
+										.weirdness(Math.round(dimensionBiomeData.getBiomeParameters().getWeirdness()))
+										.depth(Math.round(dimensionBiomeData.getBiomeParameters().getDepth()))
+										.offset(Math.round(dimensionBiomeData.getBiomeParameters().getOffset()))
+								)
+				));
+				serverResourcePackBuilder.addDimension(dimensionData.getId(), new DimensionBuilder()
+						.dimensionType(new ResourceLocation(MOD_ID, dimensionData.getId().getPath() + "_type"))
+						.noiseGenerator(ChunkGeneratorTypeBuilder.NoiseChunks()
+								.multiNoiseBiomeSource(new BiomeSourceBuilder.MultiNoiseBiomeSourceBuilder()
+										.biomes(biomeBuilders.toArray(new BiomeSourceBuilder.MultiNoiseBiomeSourceBuilder.BiomeBuilder[1]))
+										.preset("")
+								).noiseSettings(new ResourceLocation(MOD_ID, dimensionData.getId().getPath() + "_noise_settings").toString())
+						)
+				);
 			});
 			try {
 				serverResourcePackBuilder.dumpResources("testing", "data");
@@ -212,27 +185,36 @@ public class RAADimensionAddon implements RAAAddon {
 				e.printStackTrace();
 			}
 		});
-		Dimensions.DIMENSIONS.forEach(dimensionData -> SkyPropertiesAccessor.getBY_IDENTIFIER().put(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, dimensionData.getId()),
-				new RAADimensionSkyProperties(dimensionData)));
+		Dimensions.DIMENSIONS.forEach(dimensionData -> DimensionRenderingRegistry.registerDimensionEffects(dimensionData.getId(), new RAADimensionSkyProperties(dimensionData)));
+		ResourceKey<ConfiguredFeature<?, ?>>  portalHubKey = ResourceKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, new ResourceLocation(MOD_ID, "portal_hub"));
+		ResourceKey<ConfiguredFeature<?, ?>>  portalShrineKey = ResourceKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, new ResourceLocation(MOD_ID, "portal_shrine"));
+		Holder<ConfiguredFeature<?, ?>> portalHub = Features.register(portalHubKey.location().getPath(), new ConfiguredFeature<>(Features.PORTAL_HUB, new NoneFeatureConfiguration()));
+		Holder<ConfiguredFeature<?, ?>> portalShrine = Features.register(portalShrineKey.location().getPath(), new ConfiguredFeature<>(Features.PORTAL_SHRINE, new PortalShrineFeatureConfig(Rands.randIntRange(1, 4), Rands.randIntRange(0, 2))));
 
-		RegistryKey<ConfiguredFeature<?, ?>>  portalHubKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(MOD_ID, "portal_hub"));
-		RegistryKey<ConfiguredFeature<?, ?>>  portalShrineKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(MOD_ID, "portal_shrine"));
-		Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, portalHubKey.getValue(), Features.PORTAL_HUB
-				.configure(new DefaultFeatureConfig()).decorate(Decorator.COUNT_EXTRA
-						.configure(new CountExtraDecoratorConfig(0, 0.002F, 1))));
+		ResourceKey<PlacedFeature>  portalHubPfKey = ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, new ResourceLocation(MOD_ID, "portal_hub_pf"));
+		ResourceKey<PlacedFeature>  portalShrinePfKey = ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, new ResourceLocation(MOD_ID, "portal_shrine_pf"));
+		/*Holder<PlacedFeature> portalHubPf = Features.register(portalHubPfKey.location().getPath(), new PlacedFeature(portalHub, List.of(
+				PlacementUtils.countExtra(0, 0.02F, 1),
+				BiomeFilter.biome(),
+				InSquarePlacement.spread()
+		)));
+		Holder<PlacedFeature> portalShrinePf = Features.register(portalShrinePfKey.location().getPath(), new PlacedFeature(portalHub, List.of(
+				PlacementUtils.countExtra(0, 0.3F, 1),
+				BiomeFilter.biome(),
+				InSquarePlacement.spread()
+		)));
 		if (CONFIG.shouldSpawnPortalHub) {
-			DynamicRegistryCallback.callback(Registry.BIOME_KEY).register((manager, id, biome) -> {
-				if (biome.getCategory() != Biome.Category.OCEAN && biome.getCategory() != Biome.Category.RIVER) BiomesRegistry.registerFeature(manager, biome, GenerationStep.Feature.SURFACE_STRUCTURES, portalHubKey);
-				if (biome.getCategory() != Biome.Category.OCEAN && biome.getCategory() != Biome.Category.RIVER) BiomesRegistry.registerFeature(manager, biome, GenerationStep.Feature.SURFACE_STRUCTURES, () -> Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, new Identifier(MOD_ID, "portal_shrine" + Rands.getRandom().nextInt()), Features.PORTAL_SHRINE
-						.configure(new PortalShrineFeatureConfig(Rands.randIntRange(1, 4), Rands.randIntRange(0, 2))).decorate(Decorator.COUNT_EXTRA
-								.configure(new CountExtraDecoratorConfig(0, 0.03F, 1)))));
+			DynamicRegistryCallback.callback(Registry.BIOME_REGISTRY).register((manager, id, biome) -> {
+				Holder<Biome> biomeHolder = Holder.direct(biome);
+				if (!biomeHolder.is(BiomeTags.IS_RIVER) && !biomeHolder.is(BiomeTags.IS_OCEAN)) BiomeModifications.addFeature(BiomeSelectors.all(), GenerationStep.Decoration.SURFACE_STRUCTURES, portalHubPfKey);
+				if (!biomeHolder.is(BiomeTags.IS_RIVER) && !biomeHolder.is(BiomeTags.IS_OCEAN)) BiomeModifications.addFeature(BiomeSelectors.all(), GenerationStep.Decoration.SURFACE_STRUCTURES, portalShrinePfKey);
 			});
-		}
+		}*/
 
 	}
 
-	public static Identifier id(String name) {
-		return new Identifier(MOD_ID, name);
+	public static ResourceLocation id(String name) {
+		return new ResourceLocation(MOD_ID, name);
 	}
 
 }

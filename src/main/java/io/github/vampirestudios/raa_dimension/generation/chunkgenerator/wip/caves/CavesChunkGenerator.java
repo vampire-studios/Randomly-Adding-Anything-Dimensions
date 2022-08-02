@@ -1,32 +1,25 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.caves;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import net.minecraft.client.realms.gui.screen.RealmsWorldGeneratorType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.SpawnSettings;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
-import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.StructureFeature;
-
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-public class CavesChunkGenerator extends NoiseChunkGenerator {
+public class CavesChunkGenerator extends NoiseBasedChunkGenerator {
     private final double[] noiseFalloff = this.buildNoiseFalloff();
 
-    public CavesChunkGenerator(BiomeSource biomeSource, long seed, Supplier<ChunkGeneratorSettings> settingsSupplier) {
+    public CavesChunkGenerator(BiomeSource biomeSource, long seed, Supplier<NoiseGeneratorSettings> settingsSupplier) {
         super(biomeSource, seed, settingsSupplier);
     }
 
@@ -63,7 +56,7 @@ public class CavesChunkGenerator extends NoiseChunkGenerator {
     }
 
     @Override
-    public List<SpawnSettings.SpawnEntry> getEntitySpawnList(Biome biome, StructureAccessor accessor, SpawnGroup group, BlockPos pos) {
+    public List<MobSpawnSettings.SpawnerData> getEntitySpawnList(Biome biome, StructureManager accessor, MobCategory group, BlockPos pos) {
         if (group == SpawnGroup.MONSTER) {
             if (StructureFeature.FORTRESS.(this.world, StructureAccessor, pos)) {
                 return Feature.NETHER_BRIDGE.getMonsterSpawns();
@@ -76,9 +69,9 @@ public class CavesChunkGenerator extends NoiseChunkGenerator {
         return super.getEntitySpawnList(biome, accessor, group, pos);
     }
 
-    public List<Biome.SpawnEntry> getEntitySpawnList(StructureAccessor StructureAccessor, SpawnGroup category, BlockPos pos) {
+    public List<Biome.SpawnEntry> getEntitySpawnList(StructureManager StructureAccessor, MobCategory category, BlockPos pos) {
 
-        return super.getEntitySpawnList(StructureAccessor, category, pos);
+        return super.getMobsAt(StructureAccessor, category, pos);
     }
 
     public int getSpawnHeight() {

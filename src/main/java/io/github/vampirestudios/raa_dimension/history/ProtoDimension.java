@@ -1,10 +1,9 @@
 package io.github.vampirestudios.raa_dimension.history;
 
 import io.github.vampirestudios.raa_dimension.utils.Utils;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-
 import java.util.HashMap;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 
 /**
  * A holder for dimension data for use in civilization simulation, converted to a proper dimension later
@@ -12,7 +11,7 @@ import java.util.HashMap;
  * @author SuperCoder79
  */
 public class ProtoDimension {
-    private Pair<String, Identifier> name;
+    private Tuple<String, ResourceLocation> name;
     private int flags;
     private float temperature;
     private float scale;
@@ -20,7 +19,7 @@ public class ProtoDimension {
     private HashMap<String, Double> civilizationInfluences;
 
     //The least amount of dimension data needed for civilization simulation
-    public ProtoDimension(Pair<String, Identifier> name, int flags, float temperature, float scale) {
+    public ProtoDimension(Tuple<String, ResourceLocation> name, int flags, float temperature, float scale) {
         this.name = name;
         this.flags = flags;
         this.temperature = temperature;
@@ -53,7 +52,7 @@ public class ProtoDimension {
         this.y = y;
     }
 
-    public Pair<String, Identifier> getName() {
+    public Tuple<String, ResourceLocation> getName() {
         return name;
     }
 

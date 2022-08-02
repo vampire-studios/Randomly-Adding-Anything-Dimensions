@@ -1,6 +1,6 @@
 package io.github.vampirestudios.raa_dimension.generation.feature.portalHub;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 
 public class PortalHubTheme {
 

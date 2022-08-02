@@ -1,45 +1,39 @@
 package io.github.vampirestudios.raa_dimension.generation.feature;
 
 import com.mojang.serialization.Codec;
-import io.github.vampirestudios.raa_core.RAACore;
-import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import net.minecraft.structure.Structure;
-import net.minecraft.structure.StructureManager;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
-import java.util.Random;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
-public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
+public class HangingRuinsFeature extends Feature<NoneFeatureConfiguration> {
 
-	public HangingRuinsFeature(Codec<DefaultFeatureConfig> configDeserializer) {
+	public HangingRuinsFeature(Codec<NoneFeatureConfiguration> configDeserializer) {
 		super(configDeserializer);
 	}
 
 	@Override
-	public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-		BlockPos position = context.getOrigin();
-		StructureWorldAccess world = context.getWorld();
-		Random rand = context.getRandom();
-		DefaultFeatureConfig config = context.getConfig();
+	public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+		BlockPos position = context.origin();
+		WorldGenLevel world = context.level();
+		RandomSource rand = context.random();
+		NoneFeatureConfiguration config = context.config();
 		//makes sure this ruins does not spawn too close to world height border.
 		if (position.getY() < world.getSeaLevel() + 5) {
 			return false;
 		}
 
-		BlockRotation rot = BlockRotation.values()[rand.nextInt(BlockRotation.values().length)];
-		BlockPos.Mutable mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
-		BlockPos.Mutable offset = new BlockPos.Mutable();
+		Rotation rot = Rotation.values()[rand.nextInt(Rotation.values().length)];
+		BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos(position.getX(), position.getY(), position.getZ());
+		BlockPos.MutableBlockPos offset = new BlockPos.MutableBlockPos();
 
 		//makes sure there is enough solid blocks on ledge to hold this feature.
 		for (int x = -5; x <= 5; x++)
@@ -52,7 +46,7 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 					//The -4 is to make the check rotate the same way as structure and 
 					//then we do +4 to get the actual position again.
 					offset.set(x - 4, 0, z - 4).set(offset.rotate(rot));
-					if (!world.getBlockState(mutable.add(-offset.getX() + 4, 1, -offset.getZ() + 4)).isAir()) {
+					if (!world.getBlockState(mutable.offset(-offset.getX() + 4, 1, -offset.getZ() + 4)).isAir()) {
 						return false;
 					}
 				}
@@ -66,27 +60,27 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 		}
 
 		//UltraAmplified.LOGGER.debug("Hanging Ruins | " + position.getX() + " " + position.getY() + " "+position.getZ());
-		StructureManager templatemanager = world.getServer().getStructureManager();
-		Structure template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":hanging_ruins"));
+		/*StructureManager templatemanager = world.getServer().getStructureManager();
+		Structure template = templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":hanging_ruins"));
 
 		if (template == null)
 		{
 			RAACore.LOGGER.warn("hanging ruins NTB does not exist!");
 			return false;
-		}
+		}*/
 
-		StructurePlacementData placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(rot)
-				.setIgnoreEntities(false).setPosition(null);
+		StructurePlaceSettings placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(rot)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		BlockPos pos = mutable.move(4, -8, 4).toImmutable();
-		template.place(world, pos, pos, placementsettings, rand, 2);
+		BlockPos pos = mutable.move(4, -8, 4).immutable();
+//		template.place(world, pos, pos, placementsettings, rand, 2);
 
 		return true;
 
 	}
 
 
-	private boolean shouldMoveDownOne(ServerWorldAccess world, BlockPos.Mutable blockpos$Mutable, BlockPos.Mutable offset, BlockRotation rot) {
+	private boolean shouldMoveDownOne(ServerLevelAccessor world, BlockPos.MutableBlockPos blockpos$Mutable, BlockPos.MutableBlockPos offset, Rotation rot) {
 
 		//if we are on a 1 block thick ledge at any point, move down one so ruins ceiling isn't exposed 
 		for (int x = -5; x <= 5; x++)
@@ -94,7 +88,7 @@ public class HangingRuinsFeature extends Feature<DefaultFeatureConfig> {
 			for (int z = -5; z <= 5; z++)
 			{
 				offset.set(x - 4, 0, z - 4).set(offset.rotate(rot));
-				if (Math.abs(x * z) < 20 && !world.getBlockState(blockpos$Mutable.add(-offset.getX() + 4, 2, -offset.getZ() + 4)).isOpaque())
+				if (Math.abs(x * z) < 20 && !world.getBlockState(blockpos$Mutable.offset(-offset.getX() + 4, 2, -offset.getZ() + 4)).canOcclude())
 				{
 					//world.setBlockState(blockpos$Mutable.add(-offset.getX() + 4, 2, -offset.getZ() + 4), Blocks.REDSTONE_BLOCK.getDefaultState(), 2);
 					return true;

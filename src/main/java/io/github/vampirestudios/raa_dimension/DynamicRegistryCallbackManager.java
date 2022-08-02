@@ -30,15 +30,14 @@ package io.github.vampirestudios.raa_dimension;
 import com.google.common.collect.Maps;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import java.util.Map;
 
 public final class DynamicRegistryCallbackManager {
-    private static final Map<RegistryKey<? extends Registry<?>>, Event<? extends DynamicRegistryCallback<?>>> EVENT_MAP = Maps.newHashMap();
+    private static final Map<ResourceKey<? extends Registry<?>>, Event<? extends DynamicRegistryCallback<?>>> EVENT_MAP = Maps.newHashMap();
     
-    public static <T> Event<DynamicRegistryCallback<T>> event(RegistryKey<Registry<T>> registryKey) {
+    public static <T> Event<DynamicRegistryCallback<T>> event(ResourceKey<Registry<T>> registryKey) {
         return (Event<DynamicRegistryCallback<T>>) EVENT_MAP.computeIfAbsent(registryKey, key -> EventFactory.createArrayBacked(DynamicRegistryCallback.class, callbacks -> (manager, id, value) -> {
             for (DynamicRegistryCallback<?> callback : callbacks) {
                 ((DynamicRegistryCallback<Object>) callback).accept(manager, id, value);
@@ -46,7 +45,7 @@ public final class DynamicRegistryCallbackManager {
         }));
     }
     
-    public static <T> Event<DynamicRegistryCallback<T>> eventNullable(RegistryKey<Registry<T>> registryKey) {
+    public static <T> Event<DynamicRegistryCallback<T>> eventNullable(ResourceKey<Registry<T>> registryKey) {
         return (Event<DynamicRegistryCallback<T>>) EVENT_MAP.get(registryKey);
     }
 }

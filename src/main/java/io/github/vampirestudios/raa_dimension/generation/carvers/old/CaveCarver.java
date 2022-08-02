@@ -3,18 +3,17 @@ package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 import com.google.common.collect.ImmutableSet;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
-import net.minecraft.block.Blocks;
 import net.minecraft.class_6350;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.carver.CarverContext;
-import net.minecraft.world.gen.carver.CaveCarverConfig;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.carver.CarvingContext;
+import net.minecraft.world.level.levelgen.carver.CaveCarverConfiguration;
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
@@ -23,7 +22,7 @@ public class CaveCarver extends RAACarver {
 
     public CaveCarver(DimensionData dimensionData) {
         super(dimensionData);
-        this.alwaysCarvableBlocks = ImmutableSet.of(Registry.BLOCK.get(new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")),
+        this.alwaysCarvableBlocks = ImmutableSet.of(Registry.BLOCK.get(new ResourceLocation(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")),
                 Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL,
                 Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA,
                 Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.PINK_TERRACOTTA, Blocks.GRAY_TERRACOTTA,
@@ -33,12 +32,12 @@ public class CaveCarver extends RAACarver {
     }
 
     @Override
-    public boolean shouldCarve(CaveCarverConfig config, Random random) {
+    public boolean shouldCarve(CaveCarverConfiguration config, Random random) {
         return random.nextFloat() <= config.probability;
     }
 
     @Override
-    public boolean carve(CarverContext context, CaveCarverConfig config, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, class_6350 arg, ChunkPos pos, BitSet carvingMask) {
+    public boolean carve(CarvingContext context, CaveCarverConfiguration config, ChunkAccess chunk, Function<BlockPos, Biome> posToBiome, Random random, class_6350 arg, ChunkPos pos, BitSet carvingMask) {
         int i5 = (this.getBranchFactor() * 2 - 1) * 16;
         int int_7 = random.nextInt(random.nextInt(random.nextInt(this.getMaxCaveCount()) + 1) + 1);
 
@@ -87,13 +86,13 @@ public class CaveCarver extends RAACarver {
         return random.nextInt(random.nextInt(120) + 8);
     }
 
-    protected void carveCave(Chunk chunk, Function<BlockPos, Biome> posBiomeFunction, long long1, int i, int i1, int i2, double v, double v1, double v2, float f, BitSet bitSet) {
-        double v3 = 1.5D + (double) (MathHelper.sin(1.5707964F) * f);
+    protected void carveCave(ChunkAccess chunk, Function<BlockPos, Biome> posBiomeFunction, long long1, int i, int i1, int i2, double v, double v1, double v2, float f, BitSet bitSet) {
+        double v3 = 1.5D + (double) (Mth.sin(1.5707964F) * f);
         double v4 = v3 * 0.5;
         this.carveRegion(chunk, posBiomeFunction, long1, i, i1, i2, v + 1.0D, v1, v2, v3, v4, bitSet);
     }
 
-    protected void carveTunnels(Chunk chunk, Function<BlockPos, Biome> posBiomeFunction, long seed, int i, int i1, int i2, double v, double v1, double v2, float f, float f1, float f2, int i3, int i4, double v3, BitSet bitSet) {
+    protected void carveTunnels(ChunkAccess chunk, Function<BlockPos, Biome> posBiomeFunction, long seed, int i, int i1, int i2, double v, double v1, double v2, float f, float f1, float f2, int i3, int i4, double v3, BitSet bitSet) {
         Random random = new Random(seed);
         int i5 = random.nextInt(i4 / 2) + i4 / 4;
         boolean isZero = random.nextInt(6) == 0;
@@ -101,12 +100,12 @@ public class CaveCarver extends RAACarver {
         float v5 = 0.0F;
 
         for (int i6 = i3; i6 < i4; ++i6) {
-            double v6 = 1.5D + (double) (MathHelper.sin(3.1415927F * (float) i6 / (float) i4) * f);
+            double v6 = 1.5D + (double) (Mth.sin(3.1415927F * (float) i6 / (float) i4) * f);
             double v7 = v6 * v3;
-            float cos = MathHelper.cos(f2);
-            v += MathHelper.cos(f1) * cos;
-            v1 += MathHelper.sin(f2);
-            v2 += MathHelper.sin(f1) * cos;
+            float cos = Mth.cos(f2);
+            v += Mth.cos(f1) * cos;
+            v1 += Mth.sin(f2);
+            v2 += Mth.sin(f1) * cos;
             f2 *= isZero ? 0.92F : 0.7F;
             f2 += v5 * 0.1F;
             f1 += v4 * 0.1F;

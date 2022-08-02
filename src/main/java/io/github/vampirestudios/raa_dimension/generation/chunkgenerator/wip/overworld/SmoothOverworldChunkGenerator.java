@@ -2,50 +2,49 @@ package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.ove
 
 import io.github.vampirestudios.raa.utils.Rands;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.noise.OctavePerlinNoiseSampler;
-import net.minecraft.world.ChunkRegion;
+import net.minecraft.Util;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.Mth;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.SpawnHelper;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.ChunkRandom;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelGeneratorType;
-
+import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-public class SmoothOverworldChunkGenerator extends NoiseChunkGenerator<OverworldChunkGeneratorConfig> {
+public class SmoothOverworldChunkGenerator extends NoiseBasedChunkGenerator<OverworldChunkGeneratorConfig> {
     private static final float[] BIOME_WEIGHT_TABLE = Util.make(new float[25], (floats_1) -> {
         for (int int_1 = -2; int_1 <= 2; ++int_1) {
             for (int int_2 = -2; int_2 <= 2; ++int_2) {
-                float float_1 = 10.0F / MathHelper.sqrt((float) (int_1 * int_1 + int_2 * int_2) + 0.2F);
+                float float_1 = 10.0F / Mth.sqrt((float) (int_1 * int_1 + int_2 * int_2) + 0.2F);
                 floats_1[int_1 + 2 + (int_2 + 2) * 5] = float_1;
             }
         }
 
     });
-    private final OctavePerlinNoiseSampler noiseSampler;
+    private final PerlinNoise noiseSampler;
 
-    public SmoothOverworldChunkGenerator(BiomeSource biomeSource, long worldSeed, Supplier<ChunkGeneratorSettings> supplier) {
+    public SmoothOverworldChunkGenerator(BiomeSource biomeSource, long worldSeed, Supplier<NoiseGeneratorSettings> supplier) {
         super(biomeSource, worldSeed, supplier);
         this.random.consume(Rands.randInt(100000));
-        this.noiseSampler = new OctavePerlinNoiseSampler(this.random, IntStream.of(15, 0));
+        this.noiseSampler = new PerlinNoise(this.random, IntStream.of(15, 0));
     }
 
-    public void populateEntities(ChunkRegion chunkRegion_1) {
+    public void populateEntities(WorldGenRegion chunkRegion_1) {
         int int_1 = chunkRegion_1.getCenterChunkX();
         int int_2 = chunkRegion_1.getCenterChunkZ();
-        Biome biome_1 = chunkRegion_1.getBiome((new ChunkPos(int_1, int_2)).getStartPos());
+        Biome biome_1 = chunkRegion_1.getBiome((new ChunkPos(int_1, int_2)).getWorldPosition());
         ChunkRandom chunkRandom_1 = new ChunkRandom();
         chunkRandom_1.setPopulationSeed(chunkRegion_1.getSeed(), int_1 << 4, int_2 << 4);
-        SpawnHelper.populateEntities(chunkRegion_1, biome_1, int_1, int_2, chunkRandom_1);
+        NaturalSpawner.spawnMobsForChunkGeneration(chunkRegion_1, biome_1, int_1, int_2, chunkRandom_1);
     }
 
     @Override
@@ -108,7 +107,7 @@ public class SmoothOverworldChunkGenerator extends NoiseChunkGenerator<Overworld
     }
 
     private double sampleNoise(int x, int y) {
-        double d = this.noiseSampler.sample(x * 200, 10.0D, y * 200, 1.0D, 0.0D, true) * 65535.0D / 8000.0D;
+        double d = this.noiseSampler.getValue(x * 200, 10.0D, y * 200, 1.0D, 0.0D, true) * 65535.0D / 8000.0D;
         if (d < 0.0D) {
             d = -d * 0.3D;
         }

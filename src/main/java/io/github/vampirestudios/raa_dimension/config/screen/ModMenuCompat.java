@@ -1,3 +1,4 @@
+/*
 package io.github.vampirestudios.raa_dimension.config.screen;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
@@ -9,4 +10,4 @@ public class ModMenuCompat implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return ConfigScreen::new;
     }
-}
+}*/

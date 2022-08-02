@@ -2,11 +2,11 @@ package io.github.vampirestudios.raa_dimension.utils;
 
 import com.mojang.serialization.DataResult;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.SimpleRegistry;
 import org.apache.logging.log4j.Level;
 
 import java.util.Map;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.resources.ResourceLocation;
 
 /* @author - TelepathicGrunt
  *
@@ -17,12 +17,12 @@ import java.util.Map;
  */
 public class RegistryOpsBlame {
 
-	private static Identifier CURRENT_IDENTIFIER;
+	private static ResourceLocation CURRENT_IDENTIFIER;
 
 	/**
 	 * Grabs the current file we are at to pass to next mixin in case file explodes.
 	 */
-	public static void getCurrentFile(Identifier identifier)
+	public static void getCurrentFile(ResourceLocation identifier)
 	{
 		CURRENT_IDENTIFIER = identifier;
 	}
@@ -30,7 +30,7 @@ public class RegistryOpsBlame {
 	/**
 	 * Checks if the loaded datapack file errored and print it's resource location if it did
 	 */
-	public static <E> void addBrokenFileDetails(DataResult<SimpleRegistry<E>> dataresult)
+	public static <E> void addBrokenFileDetails(DataResult<MappedRegistry<E>> dataresult)
 	{
 		if(dataresult.error().isPresent()){
 			String brokenJSON = null;

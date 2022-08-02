@@ -28,15 +28,15 @@
 package io.github.vampirestudios.raa_dimension;
 
 import net.fabricmc.fabric.api.event.Event;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 
 @FunctionalInterface
 public interface DynamicRegistryCallback<T> {
-    static <T> Event<DynamicRegistryCallback<T>> callback(RegistryKey<Registry<T>> registryKey) {
+    static <T> Event<DynamicRegistryCallback<T>> callback(ResourceKey<Registry<T>> registryKey) {
         return DynamicRegistryCallbackManager.event(registryKey);
     }
     
-    void accept(DynamicRegistryManager manager, RegistryKey<T> id, T value);
+    void accept(RegistryAccess manager, ResourceKey<T> id, T value);
 }

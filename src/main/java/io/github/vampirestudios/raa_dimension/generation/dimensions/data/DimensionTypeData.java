@@ -13,12 +13,13 @@ public class DimensionTypeData {
     private boolean natural;
     private boolean has_ender_dragon_fight;
     private int logical_height;
+    private int minimum_height;
     private float ambient_light;
     private String infiniburn;
     private boolean has_fixed_time;
     private int fixed_time;
 
-    public DimensionTypeData(boolean does_bed_work, boolean piglin_safe, boolean respawn_anchor_works, boolean hasRaids, float coordinate_scale, boolean has_sky_light, boolean has_ceiling, boolean ultrawarm, boolean natural, boolean has_ender_dragon_fight, int logical_height, float ambient_light, String infiniburn, boolean has_fixed_time, int fixed_time) {
+    public DimensionTypeData(boolean does_bed_work, boolean piglin_safe, boolean respawn_anchor_works, boolean hasRaids, float coordinate_scale, boolean has_sky_light, boolean has_ceiling, boolean ultrawarm, boolean natural, boolean has_ender_dragon_fight, int logical_height, int minimum_height, float ambient_light, String infiniburn, boolean has_fixed_time, int fixed_time) {
         this.does_bed_work = does_bed_work;
         this.piglin_safe = piglin_safe;
         this.respawn_anchor_works = respawn_anchor_works;
@@ -30,6 +31,7 @@ public class DimensionTypeData {
         this.natural = natural;
         this.has_ender_dragon_fight = has_ender_dragon_fight;
         this.logical_height = logical_height;
+        this.minimum_height = minimum_height;
         this.ambient_light = ambient_light;
         this.infiniburn = infiniburn;
         this.has_fixed_time = has_fixed_time;
@@ -48,7 +50,7 @@ public class DimensionTypeData {
         return respawn_anchor_works;
     }
 
-    public boolean isHasRaids() {
+    public boolean hasRaids() {
         return hasRaids;
     }
 
@@ -80,6 +82,10 @@ public class DimensionTypeData {
         return logical_height;
     }
 
+    public int getMinimumHeight() {
+        return minimum_height;
+    }
+
     public float getAmbientLight() {
         return ambient_light;
     }
@@ -109,6 +115,7 @@ public class DimensionTypeData {
         private boolean natural;
         private boolean has_ender_dragon_fight;
         private int logical_height;
+        private int minimum_height;
         private float ambient_light;
         private String infiniburn;
         private boolean has_fixed_time;
@@ -173,6 +180,11 @@ public class DimensionTypeData {
             return this;
         }
 
+        public Builder minimumHeight(int minimum_height) {
+            this.minimum_height = minimum_height;
+            return this;
+        }
+
         public Builder ambientLight(float ambient_light) {
             this.ambient_light = ambient_light;
             return this;
@@ -194,7 +206,7 @@ public class DimensionTypeData {
         }
 
         public DimensionTypeData build() {
-            return new DimensionTypeData(does_bed_work, piglin_safe, respawn_anchor_works, hasRaids, coordinate_scale, has_sky_light, has_ceiling, ultrawarm, natural, has_ender_dragon_fight, logical_height, ambient_light, infiniburn, has_fixed_time, fixed_time);
+            return new DimensionTypeData(does_bed_work, piglin_safe, respawn_anchor_works, hasRaids, coordinate_scale, has_sky_light, has_ceiling, ultrawarm, natural, has_ender_dragon_fight, logical_height, minimum_height, ambient_light, infiniburn, has_fixed_time, fixed_time);
         }
 
     }

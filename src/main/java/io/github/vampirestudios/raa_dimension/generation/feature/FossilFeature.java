@@ -6,15 +6,16 @@ import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.block.Blocks;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,20 +23,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class FossilFeature extends Feature<DefaultFeatureConfig> {
+public class FossilFeature extends Feature<NoneFeatureConfiguration> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public FossilFeature(Codec<DefaultFeatureConfig> configDeserializer) {
+    public FossilFeature(Codec<NoneFeatureConfiguration> configDeserializer) {
         super(configDeserializer);
     }
 
     @Override
-    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-        BlockPos pos = context.getOrigin();
-        StructureWorldAccess world = context.getWorld();
-        Random rand = context.getRandom();
-        DefaultFeatureConfig config = context.getConfig();
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+        BlockPos pos = context.origin();
+        WorldGenLevel world = context.level();
+        RandomSource rand = context.random();
+        NoneFeatureConfiguration config = context.config();
         JsonObject fossil1 = null;
         JsonObject fossil2 = null;
         JsonObject fossil3 = null;
@@ -44,32 +45,32 @@ public class FossilFeature extends Feature<DefaultFeatureConfig> {
         JsonObject fossil6 = null;
         JsonObject fossil7 = null;
         try {
-            Resource towerBasePath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/fossils/fossil01.json"));
-            fossil1 = new Gson().fromJson(new InputStreamReader(towerBasePath.getInputStream()), JsonObject.class);
+            Resource towerBasePath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/fossils/fossil01.json"));
+            fossil1 = new Gson().fromJson(new InputStreamReader(towerBasePath.open()), JsonObject.class);
             JsonObject finalTowerBase = fossil1;
 
-            Resource towerWallsPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/fossils/fossil02.json"));
-            fossil2 = new Gson().fromJson(new InputStreamReader(towerWallsPath.getInputStream()), JsonObject.class);
+            Resource towerWallsPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/fossils/fossil02.json"));
+            fossil2 = new Gson().fromJson(new InputStreamReader(towerWallsPath.open()), JsonObject.class);
             JsonObject finalTowerWalls = fossil2;
 
-            Resource towerStairsPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/fossils/fossil03.json"));
-            fossil3 = new Gson().fromJson(new InputStreamReader(towerStairsPath.getInputStream()), JsonObject.class);
+            Resource towerStairsPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/fossils/fossil03.json"));
+            fossil3 = new Gson().fromJson(new InputStreamReader(towerStairsPath.open()), JsonObject.class);
             JsonObject finalTowerStairs = fossil3;
 
-            Resource towerLaddersPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/fossils/fossil04.json"));
-            fossil4 = new Gson().fromJson(new InputStreamReader(towerLaddersPath.getInputStream()), JsonObject.class);
+            Resource towerLaddersPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/fossils/fossil04.json"));
+            fossil4 = new Gson().fromJson(new InputStreamReader(towerLaddersPath.open()), JsonObject.class);
             JsonObject finalTowerLadders = fossil4;
 
-            Resource towerPillarPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/fossils/fossil05.json"));
-            fossil5 = new Gson().fromJson(new InputStreamReader(towerPillarPath.getInputStream()), JsonObject.class);
+            Resource towerPillarPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/fossils/fossil05.json"));
+            fossil5 = new Gson().fromJson(new InputStreamReader(towerPillarPath.open()), JsonObject.class);
             JsonObject finalTowerPillar = fossil5;
 
-            Resource fossil6Path = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/fossils/fossil06.json"));
-            fossil6 = new Gson().fromJson(new InputStreamReader(fossil6Path.getInputStream()), JsonObject.class);
+            Resource fossil6Path = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/fossils/fossil06.json"));
+            fossil6 = new Gson().fromJson(new InputStreamReader(fossil6Path.open()), JsonObject.class);
             JsonObject finalFossil6 = fossil6;
 
-            Resource fossil7Path = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/fossils/fossil07.json"));
-            fossil7 = new Gson().fromJson(new InputStreamReader(fossil7Path.getInputStream()), JsonObject.class);
+            Resource fossil7Path = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/fossils/fossil07.json"));
+            fossil7 = new Gson().fromJson(new InputStreamReader(fossil7Path.open()), JsonObject.class);
             JsonObject finalFossil7 = fossil7;
 
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
@@ -90,14 +91,14 @@ public class FossilFeature extends Feature<DefaultFeatureConfig> {
             return true;
         }
 
-        if (pos.getY() < 9 || !world.getBlockState(pos.add(0, -1, 0)).isOpaque() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState()))
+        if (pos.getY() < 9 || !world.getBlockState(pos.offset(0, -1, 0)).canOcclude() || world.getBlockState(pos.offset(0, -1, 0)).equals(Blocks.BEDROCK.defaultBlockState()))
             return true;
 
         int yChosen = new Random().nextInt(25) + 4;
         while (pos.getY() - yChosen < 5) {
             yChosen = new Random().nextInt(25) + 4;
         }
-        pos.add(0, -yChosen, 0);
+        pos.offset(0, -yChosen, 0);
         JsonConverter.StructureValues fossilChosen = structures.get("fossil" + (new Random().nextInt(structures.size()) + 1));
         int rotation = new Random().nextInt(4);
         for (int i = 0; i < fossilChosen.getBlockPositions().size(); i++) {
@@ -108,7 +109,7 @@ public class FossilFeature extends Feature<DefaultFeatureConfig> {
 
                 currBlockPos = WorldStructureManipulation.rotatePos(rotation, currBlockPos, fossilChosen.getSize());
 
-                WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
+                WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), currBlockType, currBlockProp, rotation);
             }
         }
 

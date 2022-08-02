@@ -2,30 +2,28 @@ package io.github.vampirestudios.raa_dimension.generation.surface.random.element
 
 import com.google.gson.JsonObject;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
-
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 public class FloatingIslandSurfaceElement extends SurfaceElement {
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, ChunkAccess chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         if (noise > 1) {
-            BlockPos.Mutable pos = new BlockPos.Mutable(x, 50 + height + (noise), z);
+            BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, 50 + height + (noise), z);
             for (int i = 0; i < 2 + (noise / 4); i++) {
                 chunk.setBlockState(pos, defaultBlock, false);
-                pos.offset(Direction.UP);
+                pos.relative(Direction.UP);
             }
             for (int i = 0; i < 3 + (noise / 2); i++) {
                 chunk.setBlockState(pos, surfaceBlocks.getUnderMaterial(), false);
-                pos.offset(Direction.UP);
+                pos.relative(Direction.UP);
             }
             chunk.setBlockState(pos, surfaceBlocks.getTopMaterial(), false);
         }
@@ -39,8 +37,8 @@ public class FloatingIslandSurfaceElement extends SurfaceElement {
     public void deserialize(JsonObject obj) {}
 
     @Override
-    public Identifier getType() {
-        return new Identifier("raa_dimensions", "floating_island");
+    public ResourceLocation getType() {
+        return new ResourceLocation("raa_dimensions", "floating_island");
     }
 
     @Override

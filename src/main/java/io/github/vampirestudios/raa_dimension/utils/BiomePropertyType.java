@@ -1,16 +1,15 @@
 package io.github.vampirestudios.raa_dimension.utils;
 
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 /**
  * @author <a href="https://github.com/StellarHorizons">StellarHorizons</a>
  */
 public class BiomePropertyType<T> {
     private final T defaultValue;
-    private final Text name;
+    private final Component name;
 
-    private BiomePropertyType(T defaultValue, Text name) {
+    private BiomePropertyType(T defaultValue, Component name) {
         this.defaultValue = defaultValue;
         this.name = name;
     }
@@ -27,20 +26,20 @@ public class BiomePropertyType<T> {
         return defaultValue;
     }
 
-    public Text getName() {
+    public Component getName() {
         return name;
     }
 
     public static class Builder<T> {
         private T defaultValue = null;
-        private Text name = new LiteralText("");
+        private Component name = Component.literal("");
 
         public Builder<T> defaultValue(T defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
 
-        public Builder<T> name(Text name) {
+        public Builder<T> name(Component name) {
             this.name = name;
             return this;
         }

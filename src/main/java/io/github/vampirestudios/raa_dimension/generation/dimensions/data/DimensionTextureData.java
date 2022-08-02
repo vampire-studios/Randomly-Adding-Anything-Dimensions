@@ -1,27 +1,27 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions.data;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class DimensionTextureData {
 
-    private Identifier stoneTexture;
-    private Identifier tilesTexture;
-    private Identifier stoneBricksTexture;
-    private Identifier mossyStoneBricksTexture;
-    private Identifier crackedStoneBricksTexture;
-    private Identifier cobblestoneTexture;
-    private Identifier mossyCobblestoneTexture;
-    private Identifier chiseledTexture;
-    private Identifier crackedChiseledTexture;
-    private Identifier mossyChiseledTexture;
-    private Identifier polishedTexture;
-    private Identifier iceTexture;
-    private Identifier moonTexture;
-    private Identifier sunTexture;
+    private ResourceLocation stoneTexture;
+    private ResourceLocation tilesTexture;
+    private ResourceLocation stoneBricksTexture;
+    private ResourceLocation mossyStoneBricksTexture;
+    private ResourceLocation crackedStoneBricksTexture;
+    private ResourceLocation cobblestoneTexture;
+    private ResourceLocation mossyCobblestoneTexture;
+    private ResourceLocation chiseledTexture;
+    private ResourceLocation crackedChiseledTexture;
+    private ResourceLocation mossyChiseledTexture;
+    private ResourceLocation polishedTexture;
+    private ResourceLocation iceTexture;
+    private ResourceLocation moonTexture;
+    private ResourceLocation sunTexture;
 
-    public DimensionTextureData(Identifier stoneTexture, Identifier tilesTexture, Identifier stoneBricksTexture, Identifier mossyStoneBricksTexture, Identifier crackedStoneBricksTexture,
-                                Identifier cobblestoneTexture, Identifier mossyCobblestoneTexture, Identifier chiseledTexture, Identifier crackedChiseledTexture,
-                                Identifier mossyChiseledTexture, Identifier polishedTexture, Identifier iceTexture, Identifier moonTexture, Identifier sunTexture) {
+    public DimensionTextureData(ResourceLocation stoneTexture, ResourceLocation tilesTexture, ResourceLocation stoneBricksTexture, ResourceLocation mossyStoneBricksTexture, ResourceLocation crackedStoneBricksTexture,
+                                ResourceLocation cobblestoneTexture, ResourceLocation mossyCobblestoneTexture, ResourceLocation chiseledTexture, ResourceLocation crackedChiseledTexture,
+                                ResourceLocation mossyChiseledTexture, ResourceLocation polishedTexture, ResourceLocation iceTexture, ResourceLocation moonTexture, ResourceLocation sunTexture) {
         this.stoneTexture = stoneTexture;
         this.tilesTexture = tilesTexture;
         this.stoneBricksTexture = stoneBricksTexture;
@@ -38,149 +38,149 @@ public class DimensionTextureData {
         this.sunTexture = sunTexture;
     }
 
-    public Identifier getStoneTexture() {
+    public ResourceLocation getStoneTexture() {
         return stoneTexture;
     }
 
-    public Identifier getTilesTexture() {
+    public ResourceLocation getTilesTexture() {
         return tilesTexture;
     }
 
-    public Identifier getStoneBricksTexture() {
+    public ResourceLocation getStoneBricksTexture() {
         return stoneBricksTexture;
     }
 
-    public Identifier getMossyStoneBricksTexture() {
+    public ResourceLocation getMossyStoneBricksTexture() {
         return mossyStoneBricksTexture;
     }
 
-    public Identifier getCrackedStoneBricksTexture() {
+    public ResourceLocation getCrackedStoneBricksTexture() {
         return crackedStoneBricksTexture;
     }
 
-    public Identifier getCobblestoneTexture() {
+    public ResourceLocation getCobblestoneTexture() {
         return cobblestoneTexture;
     }
 
-    public Identifier getMossyCobblestoneTexture() {
+    public ResourceLocation getMossyCobblestoneTexture() {
         return mossyCobblestoneTexture;
     }
 
-    public Identifier getChiseledTexture() {
+    public ResourceLocation getChiseledTexture() {
         return chiseledTexture;
     }
 
-    public Identifier getCrackedChiseledTexture() {
+    public ResourceLocation getCrackedChiseledTexture() {
         return crackedChiseledTexture;
     }
 
-    public Identifier getMossyChiseledTexture() {
+    public ResourceLocation getMossyChiseledTexture() {
         return mossyChiseledTexture;
     }
 
-    public Identifier getPolishedTexture() {
+    public ResourceLocation getPolishedTexture() {
         return polishedTexture;
     }
 
-    public Identifier getIceTexture() {
+    public ResourceLocation getIceTexture() {
         return iceTexture;
     }
 
-    public Identifier getMoonTexture() {
+    public ResourceLocation getMoonTexture() {
         return moonTexture;
     }
 
-    public Identifier getSunTexture() {
+    public ResourceLocation getSunTexture() {
         return sunTexture;
     }
 
     public static class Builder {
 
-        private Identifier stoneTexture;
-        private Identifier tilesTexture;
-        private Identifier stoneBricksTexture;
-        private Identifier mossyStoneBricksTexture;
-        private Identifier crackedStoneBricksTexture;
-        private Identifier cobblestoneTexture;
-        private Identifier mossyCobblestoneTexture;
-        private Identifier chiseledTexture;
-        private Identifier crackedChiseledTexture;
-        private Identifier mossyChiseledTexture;
-        private Identifier polishedTexture;
-        private Identifier iceTexture;
-        private Identifier moonTexture;
-        private Identifier sunTexture;
+        private ResourceLocation stoneTexture;
+        private ResourceLocation tilesTexture;
+        private ResourceLocation stoneBricksTexture;
+        private ResourceLocation mossyStoneBricksTexture;
+        private ResourceLocation crackedStoneBricksTexture;
+        private ResourceLocation cobblestoneTexture;
+        private ResourceLocation mossyCobblestoneTexture;
+        private ResourceLocation chiseledTexture;
+        private ResourceLocation crackedChiseledTexture;
+        private ResourceLocation mossyChiseledTexture;
+        private ResourceLocation polishedTexture;
+        private ResourceLocation iceTexture;
+        private ResourceLocation moonTexture;
+        private ResourceLocation sunTexture;
 
         public static Builder create() {
             return new Builder();
         }
 
-        public Builder stoneTexture(Identifier stoneTexture) {
+        public Builder stoneTexture(ResourceLocation stoneTexture) {
             this.stoneTexture = stoneTexture;
             return this;
         }
 
-        public Builder tilesTexture(Identifier tilesTexture) {
+        public Builder tilesTexture(ResourceLocation tilesTexture) {
             this.tilesTexture = tilesTexture;
             return this;
         }
 
-        public Builder stoneBricksTexture(Identifier stoneBricksTexture) {
+        public Builder stoneBricksTexture(ResourceLocation stoneBricksTexture) {
             this.stoneBricksTexture = stoneBricksTexture;
             return this;
         }
 
-        public Builder mossyStoneBricksTexture(Identifier mossyStoneBricksTexture) {
+        public Builder mossyStoneBricksTexture(ResourceLocation mossyStoneBricksTexture) {
             this.mossyStoneBricksTexture = mossyStoneBricksTexture;
             return this;
         }
 
-        public Builder crackedStoneBricksTexture(Identifier crackedStoneBricksTexture) {
+        public Builder crackedStoneBricksTexture(ResourceLocation crackedStoneBricksTexture) {
             this.crackedStoneBricksTexture = crackedStoneBricksTexture;
             return this;
         }
 
-        public Builder cobblestoneTexture(Identifier cobblestoneTexture) {
+        public Builder cobblestoneTexture(ResourceLocation cobblestoneTexture) {
             this.cobblestoneTexture = cobblestoneTexture;
             return this;
         }
 
-        public Builder mossyCobblestoneTexture(Identifier mossyCobblestoneTexture) {
+        public Builder mossyCobblestoneTexture(ResourceLocation mossyCobblestoneTexture) {
             this.mossyCobblestoneTexture = mossyCobblestoneTexture;
             return this;
         }
 
-        public Builder chiseledTexture(Identifier chiseledTexture) {
+        public Builder chiseledTexture(ResourceLocation chiseledTexture) {
             this.chiseledTexture = chiseledTexture;
             return this;
         }
 
-        public Builder crackedChiseledTexture(Identifier crackedChiseledTexture) {
+        public Builder crackedChiseledTexture(ResourceLocation crackedChiseledTexture) {
             this.crackedChiseledTexture = crackedChiseledTexture;
             return this;
         }
 
-        public Builder mossyChiseledTexture(Identifier mossyChiseledTexture) {
+        public Builder mossyChiseledTexture(ResourceLocation mossyChiseledTexture) {
             this.mossyChiseledTexture = mossyChiseledTexture;
             return this;
         }
 
-        public Builder polishedTexture(Identifier polishedTexture) {
+        public Builder polishedTexture(ResourceLocation polishedTexture) {
             this.polishedTexture = polishedTexture;
             return this;
         }
 
-        public Builder iceTexture(Identifier iceTexture) {
+        public Builder iceTexture(ResourceLocation iceTexture) {
             this.iceTexture = iceTexture;
             return this;
         }
 
-        public Builder moonTexture(Identifier moonTexture) {
+        public Builder moonTexture(ResourceLocation moonTexture) {
             this.moonTexture = moonTexture;
             return this;
         }
 
-        public Builder sunTexture(Identifier sunTexture) {
+        public Builder sunTexture(ResourceLocation sunTexture) {
             this.sunTexture = sunTexture;
             return this;
         }

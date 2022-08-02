@@ -7,17 +7,15 @@
     "BiomeMixin",
     "CaveCarverConfigAccessor",
     "EntityMixin",
-    "LevelStorageSessionMixin",
+//    "LevelStorageSessionMixin",
     "LivingEntityMixin",
     "MinecraftServerMixin",
-    "MixinDynamicRegistryManager",
-    "RegistryOpsMixin",
-    "SkyPropertiesMixin",
+//    "MixinDynamicRegistryManager",
+//    "RegistryOpsMixin",
+//    "SkyPropertiesMixin",
     "StepAndDestroyBlockGoalMixin"
   ],
-  "client": [
-    "SkyPropertiesAccessor"
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }

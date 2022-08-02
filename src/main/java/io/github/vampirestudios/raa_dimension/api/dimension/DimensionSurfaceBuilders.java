@@ -1,7 +1,8 @@
+/*
 package io.github.vampirestudios.raa_dimension.api.dimension;
 
 import io.github.vampirestudios.raa_dimension.init.SurfaceBuilders;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
+import net.minecraft.world.level.levelgen.SurfaceSystem;
 
 public enum DimensionSurfaceBuilders {
     DARK_BADLANDS,
@@ -16,7 +17,7 @@ public enum DimensionSurfaceBuilders {
     LAZY_NOISE,
     HYPER_FLAT;
 
-    public SurfaceBuilder<?> getSurfaceBuilder() {
+    public SurfaceSystem<?> getSurfaceBuilder() {
         if (this == DARK_BADLANDS) return SurfaceBuilders.DARK_BADLANDS;
         if (this == PATCHY_DESERT) return SurfaceBuilders.PATCHY_DESERT;
         if (this == PATCHY_BADLANDS) return SurfaceBuilders.PATCHY_BADLANDS;
@@ -32,3 +33,4 @@ public enum DimensionSurfaceBuilders {
     }
 
 }
+*/

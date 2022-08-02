@@ -1,8 +1,8 @@
 package io.github.vampirestudios.raa_dimension;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.TeleportTarget;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.portal.PortalInfo;
 
 public interface EntityPlacer {
-	TeleportTarget placeEntity(Entity entity);
+	PortalInfo placeEntity(Entity entity);
 }

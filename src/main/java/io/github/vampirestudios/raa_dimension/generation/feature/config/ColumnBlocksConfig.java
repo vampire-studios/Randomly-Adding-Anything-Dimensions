@@ -2,11 +2,11 @@ package io.github.vampirestudios.raa_dimension.generation.feature.config;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.gen.feature.FeatureConfig;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
-public class ColumnBlocksConfig implements FeatureConfig {
+public class ColumnBlocksConfig implements FeatureConfiguration {
 	public final BlockState topBlock;
 	public final BlockState middleBlock;
 	public final BlockState insideBlock;

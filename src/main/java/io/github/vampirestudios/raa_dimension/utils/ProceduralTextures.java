@@ -1,8 +1,7 @@
 package io.github.vampirestudios.raa_dimension.utils;
 
-import net.minecraft.util.math.MathHelper;
-
 import java.util.Random;
+import net.minecraft.util.Mth;
 
 public class ProceduralTextures {
 	public static ColorGradient makeStonePalette(CustomColor color, Random random) {
@@ -22,7 +21,7 @@ public class ProceduralTextures {
 					.setHue(random.nextFloat())
 					.setSaturation(MHelper.randRange(0.3F, 1F, random))
 					.setBrightness(MHelper.randRange(0.3F, 0.85F, random));
-			float cos = MathHelper.cos(color.getHue() * MHelper.PI2);
+			float cos = Mth.cos(color.getHue() * MHelper.PI2);
 			float hue = cos * 0.1F;
 			float sat = cos * 0.15F;
 			return TextureHelper.makeDistortedPalette(color, hue, sat, 0.5F);
@@ -45,7 +44,7 @@ public class ProceduralTextures {
 				.setHue(random.nextFloat())
 				.setSaturation(MHelper.randRange(0.4F, 1, random))
 				.setBrightness(MHelper.randRange(0.8F, 1, random));
-		float cos = MathHelper.cos(color.getHue() * MHelper.PI2);
+		float cos = Mth.cos(color.getHue() * MHelper.PI2);
 		float hue = cos * 0.3F;
 		float sat = cos * 0.25F;
 		return TextureHelper.makeDistortedPalette(color, hue, sat, 1.2F);
@@ -56,7 +55,7 @@ public class ProceduralTextures {
 				.setHue(random.nextFloat())
 				.setSaturation(MHelper.randRange(0.3F, 1F, random))
 				.setBrightness(MHelper.randRange(0.3F, 0.85F, random));
-		float cos = MathHelper.cos(color.getHue() * MHelper.PI2);
+		float cos = Mth.cos(color.getHue() * MHelper.PI2);
 		float hue = cos * 0.05F;
 		float sat = cos * 0.12F;
 		return TextureHelper.makeDistortedPalette(color, hue, sat, 0.5F);

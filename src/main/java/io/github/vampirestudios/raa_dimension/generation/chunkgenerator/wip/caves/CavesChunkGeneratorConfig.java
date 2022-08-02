@@ -6,9 +6,9 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.caves;
 
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 
-public class CavesChunkGeneratorConfig extends ChunkGeneratorSettings {
+public class CavesChunkGeneratorConfig extends NoiseGeneratorSettings {
     public CavesChunkGeneratorConfig() {
         super();
     }

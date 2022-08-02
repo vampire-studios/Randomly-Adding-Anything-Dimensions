@@ -9,16 +9,16 @@ import io.github.vampirestudios.raa_dimension.init.Dimensions;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,9 +32,9 @@ public class PortalShrineFeature extends Feature<PortalShrineFeatureConfig> {
         super(codec);
     }
 
-    public static void placePiece(ServerWorldAccess world, BlockPos pos, JsonConverter.StructureValues piece, int decay) {
-        int themeNum = Rands.randInt(PortalHubThemes.PORTAL_HUB_THEMES.getIds().size());
-        PortalHubTheme theme = PortalHubThemes.PORTAL_HUB_THEMES.get(themeNum);
+    public static void placePiece(ServerLevelAccessor world, BlockPos pos, JsonConverter.StructureValues piece, int decay) {
+        int themeNum = Rands.randInt(PortalHubThemes.PORTAL_HUB_THEMES.keySet().size());
+        PortalHubTheme theme = PortalHubThemes.PORTAL_HUB_THEMES.byId(themeNum);
         assert theme != null;
         for (int i = 0; i < piece.getBlockPositions().size(); i++) {
             Vec3i currBlockPos = piece.getBlockPositions().get(i);
@@ -44,31 +44,31 @@ public class PortalShrineFeature extends Feature<PortalShrineFeatureConfig> {
             if (decay <= 0 || !Rands.chance(14 - decay)) {
                 switch (currBlockType) {
                     case "minecraft:stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), Registry.BLOCK.getId(theme.getBlock()).toString(), new HashMap<>(), 0);
+                        WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), Registry.BLOCK.getKey(theme.getBlock()).toString(), new HashMap<>(), 0);
                         break;
                     case "minecraft:stone_brick_slab":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), Registry.BLOCK.getId(theme.getSlab()).toString(), currBlockProp, 0);
+                        WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), Registry.BLOCK.getKey(theme.getSlab()).toString(), currBlockProp, 0);
                         break;
                     case "minecraft:stone_brick_stairs":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), Registry.BLOCK.getId(theme.getStairs()).toString(), currBlockProp, 0);
+                        WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), Registry.BLOCK.getKey(theme.getStairs()).toString(), currBlockProp, 0);
                         break;
                     case "minecraft:stone_brick_wall":
                         if (themeNum < 14) {
-                            WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), Registry.BLOCK.getId(theme.getWall()).toString(), new HashMap<>(), 0);
+                            WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), Registry.BLOCK.getKey(theme.getWall()).toString(), new HashMap<>(), 0);
                         } else if (themeNum < 16) {
-                            WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), Registry.BLOCK.getId(theme.getWall()).toString(), new HashMap<>(), 0);
+                            WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), Registry.BLOCK.getKey(theme.getWall()).toString(), new HashMap<>(), 0);
                         } else {
                             currBlockProp.remove("up");
-                            WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), Registry.BLOCK.getId(theme.getWall()).toString(), new HashMap<>(), 0);
+                            WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), Registry.BLOCK.getKey(theme.getWall()).toString(), new HashMap<>(), 0);
                         }
                         break;
                     case "minecraft:orange_wool":
                         List<DimensionData> dimensionDataList = new ArrayList<>();
                         Dimensions.DIMENSIONS.forEach(dimensionDataList::add);
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + Rands.list(dimensionDataList).getName().toLowerCase() + "_portal", currBlockProp, 0);
+                        WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), "raa_dimensions:" + Rands.list(dimensionDataList).getName().toLowerCase() + "_portal", currBlockProp, 0);
                         break;
                     default:
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, 0);
+                        WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), currBlockType, currBlockProp, 0);
                         break;
                 }
             }
@@ -77,16 +77,16 @@ public class PortalShrineFeature extends Feature<PortalShrineFeatureConfig> {
 
 
     @Override
-    public boolean generate(FeatureContext<PortalShrineFeatureConfig> context) {
-        BlockPos pos = context.getOrigin();
-        StructureWorldAccess world = context.getWorld();
+    public boolean place(FeaturePlaceContext<PortalShrineFeatureConfig> context) {
+        BlockPos pos = context.origin();
+        WorldGenLevel world = context.level();
         JsonObject jsonObject = null;
-        PortalShrineFeatureConfig config = context.getConfig();
+        PortalShrineFeatureConfig config = context.config();
         try {
-            Resource path = Objects.requireNonNull(world.getServer()).getResourceManager().getResource(new Identifier(RAADimensionAddon.MOD_ID, String.format("structures/portal_shrine/%sp-shrine-%s.json", config.getAmount(), config.getVariant())));
-            jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
+            Resource path = Objects.requireNonNull(world.getServer()).getResourceManager().getResourceOrThrow(new ResourceLocation(RAADimensionAddon.MOD_ID, String.format("structures/portal_shrine/%sp-shrine-%s.json", config.getAmount(), config.getVariant())));
+            jsonObject = new Gson().fromJson(new InputStreamReader(path.open()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
-            structures = new HashMap<String, JsonConverter.StructureValues>() {{
+            structures = new HashMap<>() {{
                 put(String.format("structures/portal_shrine/%sp-shrine-%s.json", config.getAmount(), config.getVariant()), converter.loadStructure(finalJsonObject));
             }};
         } catch (IOException e) {
@@ -99,7 +99,7 @@ public class PortalShrineFeature extends Feature<PortalShrineFeatureConfig> {
         }
 
         //Cheeky way of limiting these structures to the overworld
-        if (!world.getDimension().equals(DimensionType.OVERWORLD)) {
+        if (!world.dimensionType().equals(BuiltinDimensionTypes.OVERWORLD)) {
             return true;
         }
 

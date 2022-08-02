@@ -1,13 +1,13 @@
 package io.github.vampirestudios.raa_dimension.item;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.Rarity;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 
 public class DimensionalPortalKeyItem extends Item {
 
     public DimensionalPortalKeyItem() {
-        super(new Item.Settings().group(ItemGroup.MISC).maxCount(1).rarity(Rarity.RARE));
+        super(new Item.Properties().tab(CreativeModeTab.TAB_MISC).stacksTo(1).rarity(Rarity.RARE));
     }
 
 }

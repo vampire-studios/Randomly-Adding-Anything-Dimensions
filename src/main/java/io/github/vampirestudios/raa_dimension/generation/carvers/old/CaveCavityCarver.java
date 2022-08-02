@@ -4,32 +4,38 @@ import com.google.common.collect.ImmutableSet;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.utils.OpenSimplexNoise;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ProbabilityConfig;
-
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.CarvingMask;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.carver.CarvingContext;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
-public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
+public class CaveCavityCarver extends WorldCarver<ProbabilityFeatureConfiguration> {
 
 	private final float[] ledgeWidthArrayYIndex = new float[1024];
 	protected static long noiseSeed;
 	protected static OpenSimplexNoise noiseGen;
-	protected static final BlockState STONE = Blocks.STONE.getDefaultState();
-	protected static final BlockState LAVA = Blocks.LAVA.getDefaultState();
-	protected static final BlockState WATER = Blocks.WATER.getDefaultState();
-	protected static final BlockState MAGMA = Blocks.MAGMA_BLOCK.getDefaultState();
-	protected static final BlockState OBSIDIAN = Blocks.OBSIDIAN.getDefaultState();
+	protected static final BlockState STONE = Blocks.STONE.defaultBlockState();
+	protected static final BlockState LAVA = Blocks.LAVA.defaultBlockState();
+	protected static final BlockState WATER = Blocks.WATER.defaultBlockState();
+	protected static final BlockState MAGMA = Blocks.MAGMA_BLOCK.defaultBlockState();
+	protected static final BlockState OBSIDIAN = Blocks.OBSIDIAN.defaultBlockState();
 
 	// Blocks that we can carve out.
 	/*private static final Map<BlockState, BlockState> canReplaceMap;
@@ -46,60 +52,14 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 	}*/
 
 	// Used to keep track of what block to use to fill in certain air/liquids
-	protected BlockState replacementBlock = Blocks.STONE.getDefaultState();
-	private DimensionData dimensionData;
-
-	// Associates what block to use when in which biome when setting the replacementBlock.
-//	private static Map<Biome, BlockState> fillerBiomeMap;
-
-
-	/**
-	 * Have to make this map in UltraAmplified setup method since the biomes needs to be initialized first
-	 */
-	/*public static void setFillerMap() {
-		if (fillerBiomeMap == null) {
-			fillerBiomeMap = new HashMap<>();
-
-			fillerBiomeMap.put(UABiomes.NETHERLAND, Blocks.NETHERRACK.getDefaultState());
-			fillerBiomeMap.put(UABiomes.ICED_TERRAIN, Blocks.ICE.getDefaultState());
-			fillerBiomeMap.put(UABiomes.ICE_SPIKES, Blocks.ICE.getDefaultState());
-			fillerBiomeMap.put(UABiomes.DEEP_FROZEN_OCEAN, Blocks.ICE.getDefaultState());
-			fillerBiomeMap.put(UABiomes.FROZEN_OCEAN, Blocks.ICE.getDefaultState());
-			fillerBiomeMap.put(UABiomes.BARREN_END_FIELD, Blocks.END_STONE.getDefaultState());
-			fillerBiomeMap.put(UABiomes.END_FIELD, Blocks.END_STONE.getDefaultState());
-		}
-	}
-
-	private static Map<Biome, BlockState> lavaFloorBiomeMap;*/
-
-
-	/**
-	 * Have to make this map in UltraAmplified setup method since the biomes needs to be initialized first
-	 */
-	/*public static void setLavaFloorMap() {
-		if (lavaFloorBiomeMap == null) {
-			lavaFloorBiomeMap = new HashMap<>();
-
-			lavaFloorBiomeMap.put(UABiomes.ICED_TERRAIN, Blocks.OBSIDIAN.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.ICE_SPIKES, Blocks.MAGMA_BLOCK.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.RELIC_SNOWY_TAIGA, Blocks.MAGMA_BLOCK.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.SNOWY_ROCKY_TAIGA, Blocks.MAGMA_BLOCK.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.SNOWY_TAIGA, Blocks.MAGMA_BLOCK.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.SNOWY_TUNDRA, Blocks.MAGMA_BLOCK.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.FROZEN_DESERT, Blocks.MAGMA_BLOCK.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.DEEP_FROZEN_OCEAN, Blocks.MAGMA_BLOCK.getDefaultState());
-			lavaFloorBiomeMap.put(UABiomes.FROZEN_OCEAN, Blocks.MAGMA_BLOCK.getDefaultState());
-		}
-	}*/
-
+	protected BlockState replacementBlock = Blocks.STONE.defaultBlockState();
+	private final DimensionData dimensionData;
 
 	/**
 	 * Sets the internal seed for this carver after we get the world seed. (Based on Nether's surface builder code)
 	 */
-	public static void setSeed(long seed)
-	{
-		if (noiseSeed != seed || noiseGen == null)
-		{
+	public static void setSeed(long seed) {
+		if (noiseSeed != seed || noiseGen == null) {
 			noiseGen = new OpenSimplexNoise(seed);
 			noiseSeed = seed;
 		}
@@ -107,47 +67,42 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 
 
 	public CaveCavityCarver(DimensionData dimensionData) {
-		super(ProbabilityConfig.CODEC, dimensionData);
-		this.alwaysCarvableBlocks = ImmutableSet.of(Registry.BLOCK.get(new Identifier(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")),
-				Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL,
-				Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA,
-				Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.PINK_TERRACOTTA, Blocks.GRAY_TERRACOTTA,
-				Blocks.LIGHT_GRAY_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.PURPLE_TERRACOTTA, Blocks.BLUE_TERRACOTTA, Blocks.BROWN_TERRACOTTA,
-				Blocks.GREEN_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.BLACK_TERRACOTTA, Blocks.SANDSTONE, Blocks.RED_SANDSTONE, Blocks.MYCELIUM,
-				Blocks.SNOW, Blocks.PACKED_ICE);
+		super(ProbabilityFeatureConfiguration.CODEC);
+//		this.alwaysCarvableBlocks = ImmutableSet.of(Registry.BLOCK.get(new ResourceLocation(RAADimensionAddon.MOD_ID, dimensionData.getName().toLowerCase() + "_stone")),
+//				Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL,
+//				Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA,
+//				Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.PINK_TERRACOTTA, Blocks.GRAY_TERRACOTTA,
+//				Blocks.LIGHT_GRAY_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.PURPLE_TERRACOTTA, Blocks.BLUE_TERRACOTTA, Blocks.BROWN_TERRACOTTA,
+//				Blocks.GREEN_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.BLACK_TERRACOTTA, Blocks.SANDSTONE, Blocks.RED_SANDSTONE, Blocks.MYCELIUM,
+//				Blocks.SNOW, Blocks.PACKED_ICE);
 		this.dimensionData = dimensionData;
 	}
-
 
 	/**
 	 * Checks whether the entire cave can spawn or not. (Not the individual parts)
 	 */
 	@Override
-	public boolean shouldCarve(Random random, int chunkX, int chunkZ, ProbabilityConfig config)
-	{
-		return random.nextFloat() <= 5 / 1000f;
+	public boolean isStartChunk(ProbabilityFeatureConfiguration config, RandomSource randomSource) {
+		return randomSource.nextFloat() <= 5 / 1000f;
 	}
 
-
 	@Override
-	public boolean carve(Chunk region, Function<BlockPos, Biome> biomeBlockPos, Random random, int seaLevel, int chunkX, int chunkZ, int originalX, int originalZ, BitSet mask, ProbabilityConfig config)
+	public boolean carve(CarvingContext region, ProbabilityFeatureConfiguration config, ChunkAccess chunk, Function<BlockPos, Holder<Biome>> biomeBlockPos, RandomSource random, Aquifer aquifer, ChunkPos pos, CarvingMask mask)
 	{
 
 		int i = (this.getBranchFactor() * 2 - 1) * 16;
-		double xpos = chunkX * 16 + random.nextInt(16);
+		double xpos = pos.x * 16 + random.nextInt(16);
 		double height = random.nextInt(random.nextInt(2) + 1) + 34;
-		double zpos = chunkZ * 16 + random.nextInt(16);
+		double zpos = pos.z * 16 + random.nextInt(16);
 		float xzNoise2 = random.nextFloat() * ((float) Math.PI * 1F);
 		float xzCosNoise = (random.nextFloat() - 0.5F) / 16.0F;
 		float widthHeightBase = (random.nextFloat() + random.nextFloat()) / 16; // width And Height Modifier
-		this.carveCavity(region, biomeBlockPos, random, seaLevel, originalX, originalZ, xpos, height, zpos, widthHeightBase, xzNoise2, xzCosNoise, 0, i, random.nextDouble() + 20D, mask);
+		this.carveCavity(chunk, biomeBlockPos, random, pos.x, pos.z, xpos, height, zpos, widthHeightBase, xzNoise2, xzCosNoise, 0, i, random.nextDouble() + 20D, mask);
 		return true;
 	}
 
 
-	private void carveCavity(Chunk world, Function<BlockPos, Biome> biomeBlockPos, Random random, int seaLevel, int mainChunkX, int mainChunkZ, double randomBlockX, double randomBlockY, double randomBlockZ, float widthHeightBase, float xzNoise2, float xzCosNoise, int startIteration, int maxIteration, double heightMultiplier, BitSet mask)
-	{
-
+	private void carveCavity(ChunkAccess world, Function<BlockPos, Holder<Biome>> biomeBlockPos, RandomSource random, int mainChunkX, int mainChunkZ, double randomBlockX, double randomBlockY, double randomBlockZ, float widthHeightBase, float xzNoise2, float xzCosNoise, int startIteration, int maxIteration, double heightMultiplier, CarvingMask mask) {
 		float ledgeWidth = 1.0F;
 
 		// CONTROLS THE LEDGES' WIDTH! FINALLY FOUND WHAT THIS JUNK DOES
@@ -176,7 +131,7 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 		float f4 = 0.0F;
 		float f1 = 0.0F;
 
-		double placementXZBound = 2D + MathHelper.sin(1 * (float) Math.PI / maxIteration) * widthHeightBase;
+		double placementXZBound = 2D + Mth.sin(1 * (float) Math.PI / maxIteration) * widthHeightBase;
 		double placementYBound = placementXZBound * heightMultiplier;
 		placementXZBound = placementXZBound * 32D; // thickness of the "room" itself
 		placementYBound = placementYBound * 2.2D;
@@ -192,7 +147,7 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 	}
 
 
-	protected boolean carveAtTarget(Chunk world, Function<BlockPos, Biome> biomeBlockPos, Random random, int mainChunkX, int mainChunkZ, double xRange, double yRange, double zRange, double placementXZBound, double placementYBound, BitSet mask)
+	protected boolean carveAtTarget(ChunkAccess world, Function<BlockPos, Holder<Biome>> biomeBlockPos, RandomSource random, int mainChunkX, int mainChunkZ, double xRange, double yRange, double zRange, double placementXZBound, double placementYBound, CarvingMask mask)
 	{
 
 		double xPos = mainChunkX * 16 + 8;
@@ -202,21 +157,21 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 		if (!(xRange < xPos - 16.0D - multipliedXZBound) && !(zRange < zPos - 16.0D - multipliedXZBound) && !(xRange > xPos + 16.0D + multipliedXZBound) && !(zRange > zPos + 16.0D + multipliedXZBound))
 		{
 
-			int xMin = Math.max(MathHelper.floor(xRange - placementXZBound) - mainChunkX * 16 - 1, 0);
-			int xMax = Math.min(MathHelper.floor(xRange + placementXZBound) - mainChunkX * 16 + 1, 16);
-			int yMin = Math.max(MathHelper.floor(yRange - placementYBound) - 1, 5);
-			int yMax = Math.min(MathHelper.floor(yRange + placementYBound) + 1, this.heightLimit);
-			int zMin = Math.max(MathHelper.floor(zRange - placementXZBound) - mainChunkZ * 16 - 1, 0);
-			int zMax = Math.min(MathHelper.floor(zRange + placementXZBound) - mainChunkZ * 16 + 1, 16);
+			int xMin = Math.max(Mth.floor(xRange - placementXZBound) - mainChunkX * 16 - 1, 0);
+			int xMax = Math.min(Mth.floor(xRange + placementXZBound) - mainChunkX * 16 + 1, 16);
+			int yMin = Math.max(Mth.floor(yRange - placementYBound) - 1, 5);
+			int yMax = Math.min(Mth.floor(yRange + placementYBound) + 1, world.getHeight());
+			int zMin = Math.max(Mth.floor(zRange - placementXZBound) - mainChunkZ * 16 - 1, 0);
+			int zMax = Math.min(Mth.floor(zRange + placementXZBound) - mainChunkZ * 16 + 1, 16);
 			if (xMin <= xMax && yMin <= yMax && zMin <= zMax)
 			{
 				boolean flag = false;
 				BlockState secondaryFloorBlockstate;
 				BlockState currentBlockstate;
 				BlockState aboveBlockstate;
-				BlockPos.Mutable mutable = new BlockPos.Mutable();
-				BlockPos.Mutable mutableUp = new BlockPos.Mutable();
-				BlockPos.Mutable mutableDown = new BlockPos.Mutable();
+				BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+				BlockPos.MutableBlockPos mutableUp = new BlockPos.MutableBlockPos();
+				BlockPos.MutableBlockPos mutableDown = new BlockPos.MutableBlockPos();
 				Biome biome;
 				double stalagmiteDouble = 0;
 
@@ -237,12 +192,12 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 							}
 
 							mutable.set(x, 60, z);
-							biome = biomeBlockPos.apply(mutable);
+							biome = biomeBlockPos.apply(mutable).value();
 							/*replacementBlock = fillerBiomeMap.get(biome);
 							if (replacementBlock == null) {
 								replacementBlock = STONE;
 							}*/
-							secondaryFloorBlockstate = Blocks.NETHERRACK.getDefaultState();
+							secondaryFloorBlockstate = Blocks.NETHERRACK.defaultBlockState();
 
 							for (int y = yMax; y > yMin; y--)
 							{
@@ -380,7 +335,7 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 											flag = true;
 										}
 									}
-									else if (this.canCarveBlock(currentBlockstate, aboveBlockstate)/* || canReplaceMap.containsKey(currentBlockstate)*/)
+									/*else if (this.canCarveBlock(currentBlockstate, aboveBlockstate)*//* || canReplaceMap.containsKey(currentBlockstate)*//*)
 									{
 
 										if (y < 11)
@@ -414,7 +369,7 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 										}
 
 										flag = true;
-									}
+									}*/
 
 								}
 							}
@@ -433,15 +388,6 @@ public class CaveCavityCarver extends RAACarver<ProbabilityConfig> {
 		{
 			return false;
 		}
-	}
-
-
-	/**
-	 * MC doesn't seem to do anything with the returned value in the end. Strange. I wonder why.
-	 */
-	@Override
-	protected boolean isPositionExcluded(double scaledRelativeX, double scaledRelativeY, double scaledRelativeZ, int y) {
-		return true;
 	}
 
 }

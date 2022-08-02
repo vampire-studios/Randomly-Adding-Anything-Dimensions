@@ -5,14 +5,15 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,24 +21,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class MushRuinFeature extends Feature<DefaultFeatureConfig> {
+public class MushRuinFeature extends Feature<NoneFeatureConfiguration> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
 
-    public MushRuinFeature(Codec<DefaultFeatureConfig> function) {
+    public MushRuinFeature(Codec<NoneFeatureConfiguration> function) {
         super(function);
     }
 
     @Override
-    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-        BlockPos pos = context.getOrigin();
-        StructureWorldAccess world = context.getWorld();
-        Random rand = context.getRandom();
-        DefaultFeatureConfig config = context.getConfig();
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+        BlockPos pos = context.origin();
+        WorldGenLevel world = context.level();
+        RandomSource rand = context.random();
+        NoneFeatureConfiguration config = context.config();
         JsonObject jsonObject = null;
         try {
-            Resource path = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/mushruin.json"));
-            jsonObject = new Gson().fromJson(new InputStreamReader(path.getInputStream()), JsonObject.class);
+            Resource path = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/mushruin.json"));
+            jsonObject = new Gson().fromJson(new InputStreamReader(path.open()), JsonObject.class);
             JsonObject finalJsonObject = jsonObject;
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
                 put("mushruin", converter.loadStructure(finalJsonObject));
@@ -67,7 +68,7 @@ public class MushRuinFeature extends Feature<DefaultFeatureConfig> {
 
                 currBlockPos = WorldStructureManipulation.rotatePos(rotation, currBlockPos, shrine.getSize());
 
-                WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
+                WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), currBlockType, currBlockProp, rotation);
             }
         }
 

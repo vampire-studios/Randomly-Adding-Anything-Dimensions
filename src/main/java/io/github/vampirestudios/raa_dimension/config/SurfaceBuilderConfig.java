@@ -1,3 +1,4 @@
+/*
 package io.github.vampirestudios.raa_dimension.config;
 
 import com.google.gson.JsonObject;
@@ -35,3 +36,4 @@ public class SurfaceBuilderConfig extends RAADataConfig {
         GsonHelper.getGson().toJson(main, fileWriter);
     }
 }
+*/

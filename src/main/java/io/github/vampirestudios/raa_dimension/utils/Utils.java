@@ -1,15 +1,10 @@
 package io.github.vampirestudios.raa_dimension.utils;
 
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceBuilderGenerator;
-import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
-import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,19 +52,19 @@ public class Utils {
         return name.toLowerCase(Locale.ENGLISH);
     }
 
-    public static Identifier addSuffixToPath(Identifier identifier, String suffix) {
-        return new Identifier(identifier.getNamespace(), identifier.getPath() + suffix);
+    public static ResourceLocation addSuffixToPath(ResourceLocation identifier, String suffix) {
+        return new ResourceLocation(identifier.getNamespace(), identifier.getPath() + suffix);
     }
 
-    public static Identifier addPrefixToPath(Identifier identifier, String prefix) {
-        return new Identifier(identifier.getNamespace(), prefix + identifier.getPath());
+    public static ResourceLocation addPrefixToPath(ResourceLocation identifier, String prefix) {
+        return new ResourceLocation(identifier.getNamespace(), prefix + identifier.getPath());
     }
 
-    public static Identifier addPrefixAndSuffixToPath(Identifier identifier, String prefix, String suffix) {
-        return new Identifier(identifier.getNamespace(), prefix + identifier.getPath() + suffix);
+    public static ResourceLocation addPrefixAndSuffixToPath(ResourceLocation identifier, String prefix, String suffix) {
+        return new ResourceLocation(identifier.getNamespace(), prefix + identifier.getPath() + suffix);
     }
 
-    public static TernarySurfaceConfig randomSurfaceBuilderConfig() {
+    /*public static TernarySurfaceConfig randomSurfaceBuilderConfig() {
         if (Rands.chance(6)) return SurfaceBuilder.GRASS_CONFIG;
 
         Map<String, TernarySurfaceConfig> surfaceBuilders = new HashMap<>();
@@ -90,56 +85,56 @@ public class Utils {
         return Rands.map(surfaceBuilders).getValue();
     }
 
-    public static TernarySurfaceConfig fromIdentifierToConfig(Identifier name) {
-        if (name.equals(new Identifier("gravel_config"))) return SurfaceBuilder.GRAVEL_CONFIG;
-        if (name.equals(new Identifier("grass_config"))) return SurfaceBuilder.GRASS_CONFIG;
-        if (name.equals(new Identifier("stone_config"))) return SurfaceBuilder.STONE_CONFIG;
-        if (name.equals(new Identifier("coarse_dirt_config"))) return SurfaceBuilder.COARSE_DIRT_CONFIG;
-        if (name.equals(new Identifier("sand_config"))) return SurfaceBuilder.SAND_CONFIG;
-        if (name.equals(new Identifier("grass_sand_underwater_config"))) return SurfaceBuilder.GRASS_SAND_UNDERWATER_CONFIG;
-        if (name.equals(new Identifier("sand_sand_underwater_config"))) return SurfaceBuilder.SAND_SAND_UNDERWATER_CONFIG;
-        if (name.equals(new Identifier("badlands_config"))) return SurfaceBuilder.BADLANDS_CONFIG;
-        if (name.equals(new Identifier("mycelium_config"))) return SurfaceBuilder.MYCELIUM_CONFIG;
-        if (name.equals(new Identifier("nether_config"))) return SurfaceBuilder.NETHER_CONFIG;
-        if (name.equals(new Identifier("soul_sand_config"))) return SurfaceBuilder.SOUL_SAND_CONFIG;
-        if (name.equals(new Identifier("end_config"))) return SurfaceBuilder.END_CONFIG;
+    public static TernarySurfaceConfig fromIdentifierToConfig(ResourceLocation name) {
+        if (name.equals(new ResourceLocation("gravel_config"))) return SurfaceBuilder.GRAVEL_CONFIG;
+        if (name.equals(new ResourceLocation("grass_config"))) return SurfaceBuilder.GRASS_CONFIG;
+        if (name.equals(new ResourceLocation("stone_config"))) return SurfaceBuilder.STONE_CONFIG;
+        if (name.equals(new ResourceLocation("coarse_dirt_config"))) return SurfaceBuilder.COARSE_DIRT_CONFIG;
+        if (name.equals(new ResourceLocation("sand_config"))) return SurfaceBuilder.SAND_CONFIG;
+        if (name.equals(new ResourceLocation("grass_sand_underwater_config"))) return SurfaceBuilder.GRASS_SAND_UNDERWATER_CONFIG;
+        if (name.equals(new ResourceLocation("sand_sand_underwater_config"))) return SurfaceBuilder.SAND_SAND_UNDERWATER_CONFIG;
+        if (name.equals(new ResourceLocation("badlands_config"))) return SurfaceBuilder.BADLANDS_CONFIG;
+        if (name.equals(new ResourceLocation("mycelium_config"))) return SurfaceBuilder.MYCELIUM_CONFIG;
+        if (name.equals(new ResourceLocation("nether_config"))) return SurfaceBuilder.NETHER_CONFIG;
+        if (name.equals(new ResourceLocation("soul_sand_config"))) return SurfaceBuilder.SOUL_SAND_CONFIG;
+        if (name.equals(new ResourceLocation("end_config"))) return SurfaceBuilder.END_CONFIG;
 
         return SurfaceBuilder.GRASS_CONFIG;
     }
 
-    public static Identifier fromConfigToIdentifier(TernarySurfaceConfig config) {
-        if (config.equals(SurfaceBuilder.GRAVEL_CONFIG)) return new Identifier("gravel_config");
+    public static ResourceLocation fromConfigToIdentifier(TernarySurfaceConfig config) {
+        if (config.equals(SurfaceBuilder.GRAVEL_CONFIG)) return new ResourceLocation("gravel_config");
 
-        if (config.equals(SurfaceBuilder.GRASS_CONFIG)) return new Identifier("grass_config");
-        if (config.equals(SurfaceBuilder.STONE_CONFIG)) return new Identifier("stone_config");
-        if (config.equals(SurfaceBuilder.COARSE_DIRT_CONFIG)) return new Identifier("coarse_dirt_config");
-        if (config.equals(SurfaceBuilder.SAND_CONFIG)) return new Identifier("sand_config");
-        if (config.equals(SurfaceBuilder.GRASS_SAND_UNDERWATER_CONFIG)) return new Identifier("grass_sand_underwater_config");
-        if (config.equals(SurfaceBuilder.SAND_SAND_UNDERWATER_CONFIG)) return new Identifier("sand_sand_underwater_config");
-        if (config.equals(SurfaceBuilder.BADLANDS_CONFIG)) return new Identifier("badlands_config");
-        if (config.equals(SurfaceBuilder.MYCELIUM_CONFIG)) return new Identifier("mycelium_config");
-        if (config.equals(SurfaceBuilder.NETHER_CONFIG)) return new Identifier("nether_config");
-        if (config.equals(SurfaceBuilder.SOUL_SAND_CONFIG)) return new Identifier("soul_sand_config");
-        if (config.equals(SurfaceBuilder.END_CONFIG)) return new Identifier("end_config");
-        if (config.equals(SurfaceBuilder.CRIMSON_NYLIUM_CONFIG)) return new Identifier("crimson_nylium_config");
-        if (config.equals(SurfaceBuilder.WARPED_NYLIUM_CONFIG)) return new Identifier("warped_nylium_config");
+        if (config.equals(SurfaceBuilder.GRASS_CONFIG)) return new ResourceLocation("grass_config");
+        if (config.equals(SurfaceBuilder.STONE_CONFIG)) return new ResourceLocation("stone_config");
+        if (config.equals(SurfaceBuilder.COARSE_DIRT_CONFIG)) return new ResourceLocation("coarse_dirt_config");
+        if (config.equals(SurfaceBuilder.SAND_CONFIG)) return new ResourceLocation("sand_config");
+        if (config.equals(SurfaceBuilder.GRASS_SAND_UNDERWATER_CONFIG)) return new ResourceLocation("grass_sand_underwater_config");
+        if (config.equals(SurfaceBuilder.SAND_SAND_UNDERWATER_CONFIG)) return new ResourceLocation("sand_sand_underwater_config");
+        if (config.equals(SurfaceBuilder.BADLANDS_CONFIG)) return new ResourceLocation("badlands_config");
+        if (config.equals(SurfaceBuilder.MYCELIUM_CONFIG)) return new ResourceLocation("mycelium_config");
+        if (config.equals(SurfaceBuilder.NETHER_CONFIG)) return new ResourceLocation("nether_config");
+        if (config.equals(SurfaceBuilder.SOUL_SAND_CONFIG)) return new ResourceLocation("soul_sand_config");
+        if (config.equals(SurfaceBuilder.END_CONFIG)) return new ResourceLocation("end_config");
+        if (config.equals(SurfaceBuilder.CRIMSON_NYLIUM_CONFIG)) return new ResourceLocation("crimson_nylium_config");
+        if (config.equals(SurfaceBuilder.WARPED_NYLIUM_CONFIG)) return new ResourceLocation("warped_nylium_config");
 
-        return new Identifier("grass_config");
+        return new ResourceLocation("grass_config");
     }
 
-    public static SurfaceBuilder<?> newRandomSurfaceBuilder() {
+    public static SurfaceSystem<?> newRandomSurfaceBuilder() {
         //random surface builder
         if (Rands.chance(2)) {
             return SurfaceBuilderGenerator.RANDOM_SURFACE_BUILDER.getRandom(Rands.getRandom());
         }
 
         //choose the default type of surface builder
-        SurfaceBuilder<?> sb = Registry.SURFACE_BUILDER.get(new Identifier(Rands.list(surfaceBuilders)));
+        SurfaceSystem<?> sb = Registry.SURFACE_BUILDER.get(new ResourceLocation(Rands.list(surfaceBuilders)));
         if (sb == null) { //dunno why it's null sometimes, but if it is, default to the default
             sb = SurfaceBuilder.DEFAULT; //TODO: fix this instead of a hack
         }
         return sb;
-    }
+    }*/
 
     public static boolean checkBitFlag(int toCheck, int flag) {
         return (toCheck & flag) == flag;
@@ -152,8 +147,8 @@ public class Utils {
     public static String generateCivsName() throws IOException {
         String civilizationName;
         Random rand = new Random();
-        Identifier surnames = new Identifier(RAADimensionAddon.MOD_ID, "names/civilizations.txt");
-        InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(surnames).getInputStream();
+        ResourceLocation surnames = new ResourceLocation(RAADimensionAddon.MOD_ID, "names/civilizations.txt");
+        InputStream stream = Minecraft.getInstance().getResourceManager().open(surnames);
         Scanner scanner = new Scanner(Objects.requireNonNull(stream));
         StringBuilder builder = new StringBuilder();
         while (scanner.hasNextLine()) {
@@ -167,7 +162,7 @@ public class Utils {
         return civilizationName;
     }
 
-    public static void createSpawnsFile(String name, ServerWorldAccess world, BlockPos pos) {
+    public static void createSpawnsFile(String name, ServerLevelAccessor world, BlockPos pos) {
         /*try {
             String path;
             World world2 = world.getWorld();

@@ -1,5 +1,6 @@
 package io.github.vampirestudios.raa_dimension.config.screen.dimensions;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionColorPalette;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
@@ -8,16 +9,14 @@ import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.widget.DynamicElementListWidget;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.text.DecimalFormat;
@@ -30,7 +29,7 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
 
     DimensionData data;
 
-    public RAADimensionDescriptionListWidget(MinecraftClient client, int width, int height, int top, int bottom, Identifier backgroundLocation) {
+    public RAADimensionDescriptionListWidget(Minecraft client, int width, int height, int top, int bottom, ResourceLocation backgroundLocation) {
         super(client, width, height, top, bottom, backgroundLocation);
     }
 
@@ -45,7 +44,7 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
     }
 
     @Override
-    public int addItem(Entry item) {
+    public int addItem(io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry item) {
         return super.addItem(item);
     }
 
@@ -56,61 +55,61 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
     public void addMaterial(DimensionListScreen og, DimensionData dimensionData) {
         this.data = dimensionData;
         clearItems();
-        addItem(new TitleMaterialOverrideEntry(og, dimensionData, new LiteralText(WordUtils.capitalizeFully(dimensionData.getName())).formatted(Formatting.UNDERLINE, Formatting.BOLD)));
+        addItem(new TitleMaterialOverrideEntry(og, dimensionData, Component.literal(WordUtils.capitalizeFully(dimensionData.getName())).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD)));
         DimensionColorPalette colorPalette = dimensionData.getDimensionColorPalette();
-//        addItem(new TitleEntry(new LiteralText(WordUtils.capitalizeFully(dimensionData.getName())).formatted(Formatting.UNDERLINE, Formatting.BOLD)));
-        addItem(new TextEntry(new TranslatableText("config.text.raa.identifier", dimensionData.getId().toString())));
+//        addItem(new TitleEntry(Component.literal(WordUtils.capitalizeFully(dimensionData.getName())).withStyle(Formatting.UNDERLINE, Formatting.BOLD)));
+        addItem(new TextEntry(Component.translatable("config.text.raa.identifier", dimensionData.getId().toString())));
 
-        addItem(new TextEntry(new TranslatableText("config.text.raa.hasSky", new TranslatableText("config.text.raa.boolean.value." + dimensionData.getCustomSkyInformation().hasSky()))));
-        addItem(new TextEntry(new TranslatableText("config.text.raa.hasSkyLight", new TranslatableText("config.text.raa.boolean.value." + dimensionData.getCustomSkyInformation().hasSkyLight()))));
-        addItem(new TextEntry(new TranslatableText("config.text.raa.canSleep", new TranslatableText("config.text.raa.boolean.value." + dimensionData.canSleep()))));
-        addItem(new TextEntry(new TranslatableText("config.text.raa.waterVaporize", new TranslatableText("config.text.raa.boolean.value." + dimensionData.doesWaterVaporize()))));
-        addItem(new TextEntry(new TranslatableText("config.text.raa.renderFog", new TranslatableText("config.text.raa.boolean.value." + dimensionData.hasThickFog()))));
+        addItem(new TextEntry(Component.translatable("config.text.raa.hasSky", Component.translatable("config.text.raa.boolean.value." + dimensionData.getCustomSkyInformation().hasSky()))));
+        addItem(new TextEntry(Component.translatable("config.text.raa.hasSkyLight", Component.translatable("config.text.raa.boolean.value." + dimensionData.getCustomSkyInformation().hasSkyLight()))));
+        addItem(new TextEntry(Component.translatable("config.text.raa.canSleep", Component.translatable("config.text.raa.boolean.value." + dimensionData.canSleep()))));
+        addItem(new TextEntry(Component.translatable("config.text.raa.waterVaporize", Component.translatable("config.text.raa.boolean.value." + dimensionData.doesWaterVaporize()))));
+        addItem(new TextEntry(Component.translatable("config.text.raa.renderFog", Component.translatable("config.text.raa.boolean.value." + dimensionData.hasThickFog()))));
 
         //determine formatting colors
         //the numbers will have to change when more dangerous dimensions are added
-        Formatting difficultyFormatting = Formatting.GREEN;
-        if (dimensionData.getDifficulty() > 2) difficultyFormatting = Formatting.YELLOW;
-        if (dimensionData.getDifficulty() > 6) difficultyFormatting = Formatting.RED;
-        if (dimensionData.getDifficulty() > 10) difficultyFormatting = Formatting.DARK_RED;
-        addItem(new TextEntry(new TranslatableText("config.text.raa.difficulty", new LiteralText(dimensionData.getDifficulty() + "").formatted(difficultyFormatting))));
+        ChatFormatting difficultyFormatting = ChatFormatting.GREEN;
+        if (dimensionData.getDifficulty() > 2) difficultyFormatting = ChatFormatting.YELLOW;
+        if (dimensionData.getDifficulty() > 6) difficultyFormatting = ChatFormatting.RED;
+        if (dimensionData.getDifficulty() > 10) difficultyFormatting = ChatFormatting.DARK_RED;
+        addItem(new TextEntry(Component.translatable("config.text.raa.difficulty", Component.literal(dimensionData.getDifficulty() + "").withStyle(difficultyFormatting))));
 
-        addItem(new TitleEntry(new TranslatableText("config.title.raa.advancedInformation").formatted(Formatting.UNDERLINE, Formatting.BOLD)));
-//        addItem(new TextEntry(new TranslatableText("config.text.raa.chunkGenerator", WordUtils.capitalizeFully(dimensionData.getDimensionChunkGenerator().toString().replace("_", " ").toLowerCase()))));
+        addItem(new TitleEntry(Component.translatable("config.title.raa.advancedInformation").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD)));
+//        addItem(new TextEntry(Component.translatable("config.text.raa.chunkGenerator", WordUtils.capitalizeFully(dimensionData.getDimensionChunkGenerator().toString().replace("_", " ").toLowerCase()))));
 
         if (dimensionData.getFlags() != 0) {
-            addItem(new TitleEntry(new TranslatableText("config.title.raa.flags").formatted(Formatting.UNDERLINE, Formatting.BOLD)));
+            addItem(new TitleEntry(Component.translatable("config.title.raa.flags").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD)));
             int flags = dimensionData.getFlags();
             if (Utils.checkBitFlag(flags, Utils.LUSH))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.lush").formatted(Formatting.GREEN), "config.tooltip.raa.lush", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.lush").withStyle(ChatFormatting.GREEN), "config.tooltip.raa.lush", og));
             if (Utils.checkBitFlag(flags, Utils.CIVILIZED))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.civilized").formatted(Formatting.DARK_GREEN), "config.tooltip.raa.civilized", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.civilized").withStyle(ChatFormatting.DARK_GREEN), "config.tooltip.raa.civilized", og));
             if (Utils.checkBitFlag(flags, Utils.ABANDONED))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.abandoned").formatted(Formatting.GRAY), "config.tooltip.raa.abandoned", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.abandoned").withStyle(ChatFormatting.GRAY), "config.tooltip.raa.abandoned", og));
             if (Utils.checkBitFlag(flags, Utils.DEAD))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.dead").formatted(Formatting.DARK_GRAY), "config.tooltip.raa.dead", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.dead").withStyle(ChatFormatting.DARK_GRAY), "config.tooltip.raa.dead", og));
             if (Utils.checkBitFlag(flags, Utils.DRY))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.dry").formatted(Formatting.YELLOW), "config.tooltip.raa.dry", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.dry").withStyle(ChatFormatting.YELLOW), "config.tooltip.raa.dry", og));
             if (Utils.checkBitFlag(flags, Utils.TECTONIC))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.tectonic").formatted(Formatting.DARK_GRAY), "config.tooltip.raa.tectonic", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.tectonic").withStyle(ChatFormatting.DARK_GRAY), "config.tooltip.raa.tectonic", og));
             if (Utils.checkBitFlag(flags, Utils.MOLTEN))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.molten").formatted(Formatting.YELLOW), "config.tooltip.raa.molten", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.molten").withStyle(ChatFormatting.YELLOW), "config.tooltip.raa.molten", og));
             if (Utils.checkBitFlag(flags, Utils.CORRUPTED))
-                addItem(new TextEntryWithTooltip(new TranslatableText("config.text.raa.flags.corrupted").formatted(Formatting.DARK_RED), "config.tooltip.raa.corrupted", og));
+                addItem(new TextEntryWithTooltip(Component.translatable("config.text.raa.flags.corrupted").withStyle(ChatFormatting.DARK_RED), "config.tooltip.raa.corrupted", og));
         }
 
         if (dimensionData.getCivilizationInfluences().size() > 0) {
-            addItem(new TitleEntry(new TranslatableText("config.title.raa.civs").formatted(Formatting.UNDERLINE, Formatting.BOLD)));
+            addItem(new TitleEntry(Component.translatable("config.title.raa.civs").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD)));
             for (Map.Entry<String, Double> pair : dimensionData.getCivilizationInfluences().entrySet()) {
                 if (pair.getValue() != 1.0) {
-                    addItem(new TextEntry(new TranslatableText("config.text.raa.civs.var", pair.getKey(), new DecimalFormat("##.00").format(pair.getValue() * 100))));
+                    addItem(new TextEntry(Component.translatable("config.text.raa.civs.var", pair.getKey(), new DecimalFormat("##.00").format(pair.getValue() * 100))));
                 } else {
-                    addItem(new TextEntry(new TranslatableText("config.text.raa.civs.var.home", pair.getKey(), new DecimalFormat("##.00").format(pair.getValue() * 100))));
+                    addItem(new TextEntry(Component.translatable("config.text.raa.civs.var.home", pair.getKey(), new DecimalFormat("##.00").format(pair.getValue() * 100))));
                 }
             }
         }
 
-        addItem(new TitleEntry(new TranslatableText("config.title.raa.colors").formatted(Formatting.UNDERLINE, Formatting.BOLD)));
+        addItem(new TitleEntry(Component.translatable("config.title.raa.colors").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD)));
 
         if (dimensionData.getCustomSkyInformation().hasSky()) {
             addItem(new ColorEntry("config.text.raa.skyColor", colorPalette.getSkyColor()));
@@ -122,7 +121,7 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         addItem(new ColorEntry("config.text.raa.waterColor", dimensionData.getBiomeData().get(0).getWaterColor()));
     }
 
-    public static class ColorEntry extends Entry {
+    public static class ColorEntry extends io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry {
         private final String s;
         private final int color;
 
@@ -132,8 +131,8 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public void render(MatrixStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
-            int i = MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, Formatting.GRAY + I18n.translate(s) + Formatting.WHITE + I18n.translate("#" + Integer.toHexString(color).replace("ff", "")), x, y, 16777215);
+        public void render(PoseStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
+            int i = Minecraft.getInstance().font.drawShadow(matrixStack, ChatFormatting.GRAY + I18n.get(s) + ChatFormatting.WHITE + I18n.get("#" + Integer.toHexString(color).replace("ff", "")), x, y, 16777215);
             fillGradient(matrixStack, i + 1, y + 1, i + 1 + entryHeight, y + 1 + entryHeight, color, color);
         }
 
@@ -143,19 +142,24 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public List<? extends Element> children() {
+        public List<? extends NarratableEntry> narratables() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
             return Collections.emptyList();
         }
     }
 
-    public static class TitleMaterialOverrideEntry extends Entry {
+    public static class TitleMaterialOverrideEntry extends io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry {
         protected String s;
-        private final ButtonWidget overrideButton;
+        private final Button overrideButton;
 
-        public TitleMaterialOverrideEntry(DimensionListScreen og, DimensionData material, Text text) {
-            this.s = text.asString();
-            String btnText = I18n.translate("config.button.raa.edit");
-            overrideButton = new ButtonWidget(0, 0, MinecraftClient.getInstance().textRenderer.getWidth(btnText) + 10, 20, new LiteralText(btnText), widget -> {
+        public TitleMaterialOverrideEntry(DimensionListScreen og, DimensionData material, Component text) {
+            this.s = text.getString();
+            String btnText = I18n.get("config.button.raa.edit");
+            overrideButton = new Button(0, 0, Minecraft.getInstance().font.width(btnText) + 10, 20, Component.literal(btnText), widget -> {
                 openClothConfigForMaterial(og, material);
             });
         }
@@ -164,17 +168,17 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         private static void openClothConfigForMaterial(DimensionListScreen og, DimensionData material) {
             ConfigBuilder builder = ConfigBuilder.create()
                     .setParentScreen(og)
-                    .setTitle(new TranslatableText("config.title.raa.config_specific", WordUtils.capitalizeFully(material.getName())));
-            ConfigCategory category = builder.getOrCreateCategory(new LiteralText("null")); // The name is not required if we only have 1 category in Cloth Config 1.8+
+                    .setTitle(Component.translatable("config.title.raa.config_specific", WordUtils.capitalizeFully(material.getName())));
+            ConfigCategory category = builder.getOrCreateCategory(Component.literal("null")); // The name is not required if we only have 1 category in Cloth Config 1.8+
             ConfigEntryBuilder eb = builder.entryBuilder();
             category.addEntry(
-                    eb.startStrField(new TranslatableText("config.field.raa.identifier"), material.getId().getPath())
+                    eb.startStrField(Component.translatable("config.field.raa.identifier"), material.getId().getPath())
                             .setDefaultValue(material.getId().getPath())
                             .setSaveConsumer(material::setId)
                             .setErrorSupplier(str -> {
                                 if (str.toLowerCase().equals(str))
                                     return Optional.empty();
-                                return Optional.of(new TranslatableText("config.error.raa.identifier.no.caps"));
+                                return Optional.of(Component.translatable("config.error.raa.identifier.no.caps"));
                             })
                             .build()
             );
@@ -233,13 +237,13 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
 //            category.addEntry(biomeData.build());
 
             category.addEntry(
-                    eb.startBooleanToggle(new TranslatableText("config.field.raa.hasSky"), material.getCustomSkyInformation().hasSky())
+                    eb.startBooleanToggle(Component.translatable("config.field.raa.hasSky"), material.getCustomSkyInformation().hasSky())
                             .setDefaultValue(material.getCustomSkyInformation().hasSky())
                             .setSaveConsumer(material.getCustomSkyInformation()::setHasSky)
                             .build()
             );
             category.addEntry(
-                    eb.startBooleanToggle(new TranslatableText("config.field.raa.hasSkyLight"), material.getCustomSkyInformation().hasSkyLight())
+                    eb.startBooleanToggle(Component.translatable("config.field.raa.hasSkyLight"), material.getCustomSkyInformation().hasSkyLight())
                             .setDefaultValue(material.getCustomSkyInformation().hasSkyLight())
                             .setSaveConsumer(material.getCustomSkyInformation()::setHasSkyLight)
                             .build()
@@ -262,33 +266,33 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
 //                );
 //            }
             category.addEntry(
-                    eb.startBooleanToggle(new TranslatableText("config.field.raa.canSleep"), material.canSleep())
+                    eb.startBooleanToggle(Component.translatable("config.field.raa.canSleep"), material.canSleep())
                             .setDefaultValue(material.canSleep())
                             .setSaveConsumer(material::setCanSleep)
                             .build()
             );
             category.addEntry(
-                    eb.startBooleanToggle(new TranslatableText("config.field.raa.doesWaterVaporize"), material.doesWaterVaporize())
+                    eb.startBooleanToggle(Component.translatable("config.field.raa.doesWaterVaporize"), material.doesWaterVaporize())
                             .setDefaultValue(material.doesWaterVaporize())
                             .setSaveConsumer(material::setWaterVaporize)
                             .build()
             );
             category.addEntry(
-                    eb.startBooleanToggle(new TranslatableText("config.field.raa.shouldRenderFog"), material.hasThickFog())
+                    eb.startBooleanToggle(Component.translatable("config.field.raa.shouldRenderFog"), material.hasThickFog())
                             .setDefaultValue(material.hasThickFog())
                             .setSaveConsumer(material::setRenderFog)
                             .build()
             );
             builder.setSavingRunnable(RAADimensionAddon.DIMENSIONS_CONFIG::overrideFile);
-            MinecraftClient.getInstance().openScreen(builder.build());
+            Minecraft.getInstance().setScreen(builder.build());
         }
 
         @Override
-        public void render(MatrixStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
-            matrixStack.push();
+        public void render(PoseStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
+            matrixStack.pushPose();
             matrixStack.scale(1.4F, 1.4F, 1.4F);
-            MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, s, x / 1.4f, (y + 5) / 1.4f, 16777215);
-            matrixStack.pop();
+            Minecraft.getInstance().font.drawShadow(matrixStack, s, x / 1.4f, (y + 5) / 1.4f, 16777215);
+            matrixStack.popPose();
             overrideButton.x = x + entryWidth - overrideButton.getWidth();
             overrideButton.y = y;
             overrideButton.render(matrixStack, mouseX, mouseY, delta);
@@ -300,26 +304,31 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public List<? extends Element> children() {
+        public List<? extends NarratableEntry> narratables() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
             return Collections.singletonList(overrideButton);
         }
     }
 
-    public static class TextEntryWithTooltip extends Entry {
+    public static class TextEntryWithTooltip extends io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry {
         protected String s;
         protected String tooltip;
         protected DimensionListScreen screen;
 
-        public TextEntryWithTooltip(Text text, String tooltip, DimensionListScreen screen) {
-            this.s = text.asString();
-            this.tooltip = I18n.hasTranslation(tooltip) ? I18n.translate(tooltip) : null;
+        public TextEntryWithTooltip(Component text, String tooltip, DimensionListScreen screen) {
+            this.s = text.getString();
+            this.tooltip = I18n.exists(tooltip) ? I18n.get(tooltip) : null;
             this.screen = screen;
         }
 
         @Override
-        public void render(MatrixStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
-            MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, s, x, y, 16777215);
-            if (tooltip != null && mouseX >= x && mouseY >= y && mouseX <= x + MinecraftClient.getInstance().textRenderer.getWidth(s) && mouseY <= y + getItemHeight())
+        public void render(PoseStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
+            Minecraft.getInstance().font.drawShadow(matrixStack, s, x, y, 16777215);
+            if (tooltip != null && mouseX >= x && mouseY >= y && mouseX <= x + Minecraft.getInstance().font.width(s) && mouseY <= y + getItemHeight())
                 screen.tooltip = tooltip;
         }
 
@@ -329,21 +338,26 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public List<? extends Element> children() {
+        public List<? extends NarratableEntry> narratables() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
             return Collections.emptyList();
         }
     }
 
-    public static class TextEntry extends Entry {
+    public static class TextEntry extends io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry {
         protected String s;
 
-        public TextEntry(Text text) {
-            this.s = text.asString();
+        public TextEntry(Component text) {
+            this.s = text.getString();
         }
 
         @Override
-        public void render(MatrixStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
-            MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, s, x, y, 16777215);
+        public void render(PoseStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
+            Minecraft.getInstance().font.drawShadow(matrixStack, s, x, y, 16777215);
         }
 
         @Override
@@ -352,25 +366,30 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public List<? extends Element> children() {
+        public List<? extends NarratableEntry> narratables() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
             return Collections.emptyList();
         }
     }
 
-    public static class TitleEntry extends Entry {
+    public static class TitleEntry extends io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry {
         protected String s;
 
         public TitleEntry(String s) {
             this.s = s;
         }
 
-        public TitleEntry(Text text) {
-            this.s = text.asString();
+        public TitleEntry(Component text) {
+            this.s = text.getString();
         }
 
         @Override
-        public void render(MatrixStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
-            MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, s, x, y + 10, 16777215);
+        public void render(PoseStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
+            Minecraft.getInstance().font.drawShadow(matrixStack, s, x, y + 10, 16777215);
         }
 
         @Override
@@ -379,12 +398,17 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public List<? extends Element> children() {
+        public List<? extends NarratableEntry> narratables() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
             return Collections.emptyList();
         }
     }
 
-    public static class EmptyEntry extends Entry {
+    public static class EmptyEntry extends io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry {
         private final int height;
 
         public EmptyEntry(int height) {
@@ -392,7 +416,7 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public void render(MatrixStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
+        public void render(PoseStack matrixStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
 
         }
 
@@ -402,12 +426,17 @@ public class RAADimensionDescriptionListWidget extends DynamicElementListWidget<
         }
 
         @Override
-        public List<? extends Element> children() {
+        public List<? extends NarratableEntry> narratables() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
             return Collections.emptyList();
         }
     }
 
-    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<Entry> {
+    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<io.github.vampirestudios.raa_dimension.config.screen.dimensions.RAADimensionDescriptionListWidget.Entry> {
 
     }
 

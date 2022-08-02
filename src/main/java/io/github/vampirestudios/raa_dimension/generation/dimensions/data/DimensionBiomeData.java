@@ -1,13 +1,11 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions.data;
 
-import io.github.vampirestudios.raa_dimension.utils.Utils;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public class DimensionBiomeData {
-    private Identifier id;
+    private ResourceLocation id;
     private String biomeName;
     private BiomeParameters biomeParameters;
     private float depth;
@@ -27,14 +25,14 @@ public class DimensionBiomeData {
     private float towerChance;
     private boolean hasMushrooms;
     private boolean hasMossyRocks;
-    private Identifier surfaceBuilder;
-    private Identifier surfaceConfig;
+    private ResourceLocation surfaceBuilder;
+    private ResourceLocation surfaceConfig;
     private List<CarverType> carvers;
 
-    DimensionBiomeData(Identifier id, String biomeName, BiomeParameters biomeParameters, float depth, float scale, float temperature, float downfall, int waterColor,
+    DimensionBiomeData(ResourceLocation id, String biomeName, BiomeParameters biomeParameters, float depth, float scale, float temperature, float downfall, int waterColor,
                        int grassColor, int foliageColor, List<DimensionTreeData> treeData, float corruptedCratersChance, float nonCorruptedCratersChance,
                        boolean spawnsCratersInNonCorrupted, float largeSkeletonTreeChance, float campfireChance, float outpostChance, float towerChance,
-                       boolean hasMushrooms, boolean hasMossyRocks, Identifier surfaceBuilder, Identifier surfaceConfig, List<CarverType> carvers) {
+                       boolean hasMushrooms, boolean hasMossyRocks, ResourceLocation surfaceBuilder, ResourceLocation surfaceConfig, List<CarverType> carvers) {
         this.id = id;
         this.biomeName = biomeName;
         this.biomeParameters = biomeParameters;
@@ -60,11 +58,11 @@ public class DimensionBiomeData {
         this.carvers = carvers;
     }
 
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return id;
     }
 
-    public void setId(Identifier id) {
+    public void setId(ResourceLocation id) {
         this.id = id;
     }
 
@@ -172,28 +170,12 @@ public class DimensionBiomeData {
         return hasMossyRocks;
     }
 
-    public Identifier getSurfaceBuilder() {
-        return surfaceBuilder;
-    }
-
-    public void setSurfaceBuilder(String surfaceBuilder) {
-        this.surfaceBuilder = new Identifier(surfaceBuilder);
-    }
-
-    public TernarySurfaceConfig getSurfaceConfig() {
-        return Utils.fromIdentifierToConfig(surfaceConfig);
-    }
-
-    public void setSurfaceConfig(String surfaceConfig) {
-        this.surfaceConfig = new Identifier(surfaceConfig);
-    }
-
     public List<CarverType> getCarvers() {
         return carvers;
     }
 
     public static class Builder {
-        private Identifier id;
+        private ResourceLocation id;
         private String name;
         private BiomeParameters biomeParameters;
         private float depth;
@@ -213,15 +195,15 @@ public class DimensionBiomeData {
         private float towerChance;
         private boolean hasMushrooms;
         private boolean hasMossyRocks;
-        private Identifier surfaceBuilder;
-        private Identifier surfaceConfig;
+        private ResourceLocation surfaceBuilder;
+        private ResourceLocation surfaceConfig;
         private List<CarverType> carvers;
 
         private Builder() {
 
         }
 
-        public static Builder create(Identifier id, String name) {
+        public static Builder create(ResourceLocation id, String name) {
             Builder builder = new Builder();
             builder.id = id;
             builder.name = name;
@@ -233,7 +215,7 @@ public class DimensionBiomeData {
             return new Builder();
         }
 
-        public Builder id(Identifier id) {
+        public Builder id(ResourceLocation id) {
             this.id = id;
             return this;
         }
@@ -333,12 +315,12 @@ public class DimensionBiomeData {
             return this;
         }
 
-        public Builder surfaceBuilder(Identifier surfaceBuilder) {
+        public Builder surfaceBuilder(ResourceLocation surfaceBuilder) {
             this.surfaceBuilder = surfaceBuilder;
             return this;
         }
 
-        public Builder surfaceConfig(Identifier surfaceConfig) {
+        public Builder surfaceConfig(ResourceLocation surfaceConfig) {
             this.surfaceConfig = surfaceConfig;
             return this;
         }

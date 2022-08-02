@@ -6,11 +6,9 @@ import io.github.vampirestudios.raa_core.config.RAADataConfig;
 import io.github.vampirestudios.raa_core.helpers.GsonHelper;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.init.Dimensions;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.registry.Registry;
-
 import java.io.FileWriter;
 import java.util.Arrays;
+import net.minecraft.core.Registry;
 
 public class DimensionsConfig extends RAADataConfig {
     public DimensionsConfig(String fileName) {
@@ -24,14 +22,14 @@ public class DimensionsConfig extends RAADataConfig {
 
     @Override
     protected JsonObject upgrade(JsonObject json, int version) {
-        JsonArray dimensions = JsonHelper.getArray(json, "dimensions");
+        JsonArray dimensions = net.minecraft.util.GsonHelper.getAsJsonArray(json, "dimensions");
 
         switch (version) {
             case 0:
                 break;
             case 1:
                 iterateArrayObjects(dimensions, dimension -> {
-                    if (!JsonHelper.isString(dimension.get("id")))
+                    if (!net.minecraft.util.GsonHelper.isStringValue(dimension.get("id")))
                         dimension.addProperty("id", GsonHelper.idFromOldStyle(dimension.getAsJsonObject("id")).toString());
                     if (dimension.has("dimensionColorPallet")) {
                         dimension.add("dimensionColorPalette", dimension.getAsJsonObject("dimensionColorPallet"));
@@ -39,7 +37,7 @@ public class DimensionsConfig extends RAADataConfig {
                     dimension.add("hasSkyLight", dimension.get("hasLight"));
 
                     JsonObject biomeData = dimension.getAsJsonObject("biomeData");
-                    if (!JsonHelper.isString(biomeData.get("id")))
+                    if (!net.minecraft.util.GsonHelper.isStringValue(biomeData.get("id")))
                         biomeData.addProperty("id", GsonHelper.idFromOldStyle(biomeData.getAsJsonObject("id")).toString());
 
                     /*if (!dimension.has("dimensionChunkGenerator")) {
@@ -54,7 +52,7 @@ public class DimensionsConfig extends RAADataConfig {
 
     @Override
     protected void load(JsonObject jsonObject) {
-        DimensionData[] dimensionsData = GsonHelper.getGson().fromJson(JsonHelper.getArray(jsonObject, "dimensions"), DimensionData[].class);
+        DimensionData[] dimensionsData = GsonHelper.getGson().fromJson(net.minecraft.util.GsonHelper.getAsJsonArray(jsonObject, "dimensions"), DimensionData[].class);
         Arrays.stream(dimensionsData).forEach(dimensionData -> Registry.register(Dimensions.DIMENSIONS, dimensionData.getId(), dimensionData));
     }
 

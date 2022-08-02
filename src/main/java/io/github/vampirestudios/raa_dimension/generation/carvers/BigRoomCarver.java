@@ -1,31 +1,31 @@
 package io.github.vampirestudios.raa_dimension.generation.carvers;
 
-import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.mixin.CaveCarverConfigAccessor;
-import net.minecraft.class_6350;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.carver.Carver;
-import net.minecraft.world.gen.carver.CarverContext;
-import net.minecraft.world.gen.carver.CaveCarverConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.CarvingMask;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.carver.CarvingContext;
+import net.minecraft.world.level.levelgen.carver.CaveCarverConfiguration;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 
-import java.util.BitSet;
-import java.util.Random;
 import java.util.function.Function;
 
-public class BigRoomCarver extends RAACarver {
-    public BigRoomCarver(DimensionData data) {
-        super(data);
+public class BigRoomCarver extends WorldCarver<CaveCarverConfiguration> {
+    public BigRoomCarver() {
+        super(CaveCarverConfiguration.CODEC);
     }
 
     @Override
-    public boolean carve(CarverContext carverContext, CaveCarverConfig carverConfig, Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, class_6350 arg, ChunkPos pos, BitSet carvingMask) {
+    public boolean carve(CarvingContext carverContext, CaveCarverConfiguration carverConfig, ChunkAccess chunk, Function<BlockPos, Holder<Biome>> posToBiome, RandomSource random, Aquifer arg, ChunkPos pos, CarvingMask carvingMask) {
         //positions
         double posX = (pos.x* 16) + random.nextInt(16);
         double posZ = (pos.z* 16) + random.nextInt(16);
-        double posY = random.nextInt(carverContext.getMaxY());
+        double posY = random.nextInt(carverContext.getGenDepth());
 
         //modifiers
         double xVelocity = random.nextDouble() - 0.5;
@@ -41,7 +41,7 @@ public class BigRoomCarver extends RAACarver {
         int bigIndex = random.nextInt(128) + 64; // some caves won't become massive
 
         for (int i = 0; i < 128; i++) {
-            Carver.SkipPredicate skipPredicate = (context, scaledRelativeX, scaledRelativeY, scaledRelativeZ, y) -> isPositionExcluded(scaledRelativeX, scaledRelativeY, scaledRelativeZ, (int) ((CaveCarverConfigAccessor)carverConfig).getFloorLevel().get(random));
+            WorldCarver.CarveSkipChecker skipPredicate = (context, scaledRelativeX, scaledRelativeY, scaledRelativeZ, y) -> isPositionExcluded(scaledRelativeX, scaledRelativeY, scaledRelativeZ, (int) ((CaveCarverConfigAccessor)carverConfig).getFloorLevel().sample(random));
             //calculate per-section modifiers
             double xDirectionMod = (random.nextDouble() - 0.5);
             double zDirectionMod = (random.nextDouble() - 0.5);
@@ -76,14 +76,14 @@ public class BigRoomCarver extends RAACarver {
             if (i == bigIndex) { //big room
                 cmod = 1.01;
             }
-            this.carveRegion(carverContext, carverConfig, chunk, posToBiome, random.nextLong(), arg, posX, posY, posZ, yaw, pitch, carvingMask, skipPredicate);
+            this.carveEllipsoid(carverContext, carverConfig, chunk, posToBiome, arg, posX, posY, posZ, yaw, pitch, carvingMask, skipPredicate);
         }
 
         return true;
     }
 
     @Override
-    public boolean shouldCarve(CaveCarverConfig config, Random random) {
+    public boolean isStartChunk(CaveCarverConfiguration config, RandomSource random) {
         return random.nextFloat() <= config.probability;
     }
 

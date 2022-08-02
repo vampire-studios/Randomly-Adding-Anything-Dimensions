@@ -3,24 +3,24 @@ package io.github.vampirestudios.raa_dimension.generation.feature;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import io.github.vampirestudios.raa_dimension.generation.feature.config.ColumnBlocksConfig;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.material.Material;
 
-import java.util.Random;
 import java.util.Set;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
 public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 	protected long seed;
-	private final BlockState AIR = Blocks.AIR.getDefaultState();
+	private final BlockState AIR = Blocks.AIR.defaultBlockState();
 	public final Set<Block> irreplacableBlocks;
 
 	public ColumnRampFeature(Codec<ColumnBlocksConfig> configCodec) {
@@ -29,12 +29,12 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 	}
 
 	@Override
-	public boolean generate(FeatureContext<ColumnBlocksConfig> context) {
-		BlockPos position = context.getOrigin();
-		StructureWorldAccess world = context.getWorld();
-		Random random = context.getRandom();
-		ColumnBlocksConfig featureConfig = context.getConfig();
-		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
+	public boolean place(FeaturePlaceContext<ColumnBlocksConfig> context) {
+		BlockPos position = context.origin();
+		WorldGenLevel world = context.level();
+		RandomSource random = context.random();
+		ColumnBlocksConfig featureConfig = context.config();
+		BlockPos.MutableBlockPos blockpos$Mutable = new BlockPos.MutableBlockPos(position.getX(), position.getY(), position.getZ());
 		int minWidth = 4;
 		int currentHeight = 0;
 		int ceilingHeight;
@@ -43,7 +43,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 		int heightDiff = 0;
 
 		//finds ceiling
-		while (!world.getBlockState(blockpos$Mutable.up(currentHeight)).isAir())
+		while (!world.getBlockState(blockpos$Mutable.above(currentHeight)).isAir())
 		{
 			//too high for ramp to generate
 			if (blockpos$Mutable.getY() > 254)
@@ -55,7 +55,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 		ceilingHeight = blockpos$Mutable.getY();
 
 		//finds floor above ceiling
-		while (world.getBlockState(blockpos$Mutable.up(currentHeight)).isAir())
+		while (world.getBlockState(blockpos$Mutable.above(currentHeight)).isAir())
 		{
 			//too high for ramp to generate
 			if (blockpos$Mutable.getY() > 254)
@@ -64,7 +64,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 			}
 			blockpos$Mutable.move(Direction.UP);
 		}
-		topFloorHeight = blockpos$Mutable.up(currentHeight).getY();
+		topFloorHeight = blockpos$Mutable.above(currentHeight).getY();
 
 		//too thick or thin for ramp to generate
 		if (topFloorHeight - ceilingHeight > 7 || topFloorHeight - ceilingHeight < 2)
@@ -183,18 +183,18 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 					}
 
 					BlockState block = world.getBlockState(blockpos$Mutable);
-					if (!block.isIn(BlockTags.LEAVES) && !block.isIn(BlockTags.LOGS) && !irreplacableBlocks.contains(block.getBlock()) && xzDiffSquaredStretched <= circleBounds)
+					if (!block.is(BlockTags.LEAVES) && !block.is(BlockTags.LOGS) && !irreplacableBlocks.contains(block.getBlock()) && xzDiffSquaredStretched <= circleBounds)
 					{
-						world.setBlockState(blockpos$Mutable, AIR, 2);
+						world.setBlock(blockpos$Mutable, AIR, 2);
 
 						//adds top block to exposed middle block after air was set
-						BlockState blockBelowAir = world.getBlockState(blockpos$Mutable.down());
-						BlockState blockBelowBelowAir = world.getBlockState(blockpos$Mutable.down(2));
+						BlockState blockBelowAir = world.getBlockState(blockpos$Mutable.below());
+						BlockState blockBelowBelowAir = world.getBlockState(blockpos$Mutable.below(2));
 						if (blockBelowAir.isAir()) {
-							if (featureConfig.topBlock.getMaterial() == Material.AGGREGATE && blockBelowBelowAir.getMaterial() == Material.AIR) {
-								world.setBlockState(blockpos$Mutable.down(), featureConfig.middleBlock, 2);
+							if (featureConfig.topBlock.getMaterial() == Material.SAND && blockBelowBelowAir.getMaterial() == Material.AIR) {
+								world.setBlock(blockpos$Mutable.below(), featureConfig.middleBlock, 2);
 							} else {
-								world.setBlockState(blockpos$Mutable.down(), featureConfig.topBlock, 2);
+								world.setBlock(blockpos$Mutable.below(), featureConfig.topBlock, 2);
 							}
 						}
 					}
@@ -232,7 +232,7 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 					{
 						if (!world.getBlockState(blockpos$Mutable).isAir())
 						{
-							world.setBlockState(blockpos$Mutable, featureConfig.insideBlock, 2);
+							world.setBlock(blockpos$Mutable, featureConfig.insideBlock, 2);
 						}
 					}
 					//We are at non-pillar space 
@@ -242,17 +242,17 @@ public class ColumnRampFeature extends Feature<ColumnBlocksConfig> {
 						//top block followed by 4 middle blocks below that
 						for (int downward = 0; downward < 6 && y - downward >= -3; downward++)
 						{
-							BlockState block = world.getBlockState(blockpos$Mutable.down(downward));
-							BlockState blockBelow = world.getBlockState(blockpos$Mutable.down(downward + 1));
+							BlockState block = world.getBlockState(blockpos$Mutable.below(downward));
+							BlockState blockBelow = world.getBlockState(blockpos$Mutable.below(downward + 1));
 							if (block == featureConfig.insideBlock)
 							{
-								if (downward == 1 && !(featureConfig.topBlock.getMaterial() == Material.AGGREGATE && blockBelow.getMaterial() == Material.AIR))
+								if (downward == 1 && !(featureConfig.topBlock.getMaterial() == Material.SAND && blockBelow.getMaterial() == Material.AIR))
 								{
-									world.setBlockState(blockpos$Mutable.down(downward), featureConfig.topBlock, 2);
+									world.setBlock(blockpos$Mutable.below(downward), featureConfig.topBlock, 2);
 								}
 								else
 								{
-									world.setBlockState(blockpos$Mutable.down(downward), featureConfig.middleBlock, 2);
+									world.setBlock(blockpos$Mutable.below(downward), featureConfig.middleBlock, 2);
 								}
 
 							}

@@ -49,17 +49,17 @@ public class DimensionNoiseConfigData {
                 return new SlideData.Builder();
             }
 
-            public Builder offset(int offset) {
+            public io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseConfigData.SlideData.Builder offset(int offset) {
                 this.offset = offset;
                 return this;
             }
 
-            public Builder size(int size) {
+            public io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseConfigData.SlideData.Builder size(int size) {
                 this.size = size;
                 return this;
             }
 
-            public Builder target(int target) {
+            public io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseConfigData.SlideData.Builder target(int target) {
                 this.target = target;
                 return this;
             }
@@ -111,22 +111,22 @@ public class DimensionNoiseConfigData {
                 return new Sampling.Builder();
             }
 
-            public Builder xzFactor(int xz_factor) {
+            public io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseConfigData.Sampling.Builder xzFactor(int xz_factor) {
                 this.xz_factor = xz_factor;
                 return this;
             }
 
-            public Builder xzScale(int xz_scale) {
+            public io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseConfigData.Sampling.Builder xzScale(int xz_scale) {
                 this.xz_scale = xz_scale;
                 return this;
             }
 
-            public Builder yFactor(int y_factor) {
+            public io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseConfigData.Sampling.Builder yFactor(int y_factor) {
                 this.y_factor = y_factor;
                 return this;
             }
 
-            public Builder yScale(int y_scale) {
+            public io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionNoiseConfigData.Sampling.Builder yScale(int y_scale) {
                 this.y_scale = y_scale;
                 return this;
             }

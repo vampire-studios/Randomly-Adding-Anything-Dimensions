@@ -1,3 +1,4 @@
+/*
 package io.github.vampirestudios.raa_dimension.mixin;
 
 import io.github.vampirestudios.raa_dimension.callbacks.SkyPropertiesCallback;
@@ -5,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.SkyProperties;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,10 +20,10 @@ public class SkyPropertiesMixin {
 
 	@Shadow
 	@Final
-	private static Object2ObjectMap<Identifier, SkyProperties> BY_IDENTIFIER;
+	private static Object2ObjectMap<ResourceLocation, SkyProperties> BY_IDENTIFIER;
 
 	@Inject(method = "<clinit>", at = @At("RETURN"))
 	private static void raa_init(CallbackInfo info) {
 		SkyPropertiesCallback.EVENT.invoker().handle(BY_IDENTIFIER);
 	}
-}
+}*/

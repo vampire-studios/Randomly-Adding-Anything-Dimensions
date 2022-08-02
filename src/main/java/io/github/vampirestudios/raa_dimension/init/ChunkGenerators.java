@@ -1,62 +1,71 @@
+/*
 package io.github.vampirestudios.raa_dimension.init;
 
 import net.minecraft.client.world.GeneratorType;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.source.FixedBiomeSource;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.*;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 
 public class ChunkGenerators {
-    /*public static final GeneratorType CHAOS = new GeneratorType("raa_surface") {
+    */
+/*public static final GeneratorType CHAOS = new GeneratorType("raa_surface") {
         protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
             return new ChaosChunkGenerator(new VanillaLayeredBiomeSource(seed, false, false, biomeRegistry), seed, () ->
                     chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.OVERWORLD));
         }
-    };*/
+    };*//*
+
     private static final GeneratorType FLAT = new GeneratorType("flat") {
-        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
-            return new FlatChunkGenerator(FlatChunkGeneratorConfig.getDefaultConfig(biomeRegistry));
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<NoiseGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new FlatLevelSource(FlatLevelGeneratorSettings.getDefault(biomeRegistry));
         }
     };
     private static final GeneratorType LARGE_BIOMES = new GeneratorType("large_biomes") {
-        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
-            return new NoiseChunkGenerator(new VanillaLayeredBiomeSource(seed, false, true, biomeRegistry), seed, () ->
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<NoiseGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseBasedChunkGenerator(new VanillaLayeredBiomeSource(seed, false, true, biomeRegistry), seed, () ->
                     chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.OVERWORLD));
         }
     };
     public static final GeneratorType AMPLIFIED = new GeneratorType("amplified") {
-        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
-            return new NoiseChunkGenerator(new VanillaLayeredBiomeSource(seed, false, false, biomeRegistry), seed, () -> {
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<NoiseGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseBasedChunkGenerator(new VanillaLayeredBiomeSource(seed, false, false, biomeRegistry), seed, () -> {
                 return chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.AMPLIFIED);
             });
         }
     };
     private static final GeneratorType SINGLE_BIOME_CAVES = new GeneratorType("single_biome_caves") {
-        public GeneratorOptions createDefaultOptions(DynamicRegistryManager.Impl registryManager, long seed, boolean generateStructures, boolean bonusChest) {
-            Registry<Biome> registry = registryManager.get(Registry.BIOME_KEY);
-            Registry<DimensionType> registry2 = registryManager.get(Registry.DIMENSION_TYPE_KEY);
-            Registry<ChunkGeneratorSettings> registry3 = registryManager.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY);
-            return new GeneratorOptions(seed, generateStructures, bonusChest, GeneratorOptions.getRegistryWithReplacedOverworld(DimensionType.createDefaultDimensionOptions(registry2, registry, registry3, seed), () ->
+        public WorldGenSettings createDefaultOptions(RegistryAccess.Impl registryManager, long seed, boolean generateStructures, boolean bonusChest) {
+            Registry<Biome> registry = registryManager.get(Registry.BIOME_REGISTRY);
+            Registry<DimensionType> registry2 = registryManager.get(Registry.DIMENSION_TYPE_REGISTRY);
+            Registry<NoiseGeneratorSettings> registry3 = registryManager.get(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
+            return new WorldGenSettings(seed, generateStructures, bonusChest, WorldGenSettings.withOverworld(DimensionType.createDefaultDimensionOptions(registry2, registry, registry3, seed), () ->
                     registry2.getOrThrow(DimensionType.OVERWORLD_CAVES_REGISTRY_KEY), this.getChunkGenerator(registry, registry3, seed)));
         }
 
-        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
-            return new NoiseChunkGenerator(new FixedBiomeSource(biomeRegistry.getOrThrow(BiomeKeys.PLAINS)), seed, () -> chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.CAVES));
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<NoiseGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseBasedChunkGenerator(new FixedBiomeSource(biomeRegistry.getOrThrow(Biomes.PLAINS)), seed, () -> chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.CAVES));
         }
     };
     private static final GeneratorType SINGLE_BIOME_FLOATING_ISLANDS = new GeneratorType("single_biome_floating_islands") {
-        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
-            return new NoiseChunkGenerator(new FixedBiomeSource(biomeRegistry.getOrThrow(BiomeKeys.PLAINS)), seed, () -> {
+        protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<NoiseGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+            return new NoiseBasedChunkGenerator(new FixedBiomeSource(biomeRegistry.getOrThrow(Biomes.PLAINS)), seed, () -> {
                 return chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.FLOATING_ISLANDS);
             });
         }
     };
-    /*public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, FloatingIslandsChunkGenerator> FLOATING_ISLANDS;
+    */
+/*public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, FloatingIslandsChunkGenerator> FLOATING_ISLANDS;
     public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, LayeredFloatingIslandsChunkGenerator> LAYERED_FLOATING;
     public static ChunkGeneratorType<FloatingIslandsChunkGeneratorConfig, PreClassicFloatingIslandsChunkGenerator> PRE_CLASSIC_FLOATING;
 
@@ -103,6 +112,7 @@ public class ChunkGenerators {
         CHECKERBOARD = RegistryUtils.registerChunkGenerator(new Identifier(MOD_ID, "checkerboard"), CheckerboardChunkGenerator::new, NoneGeneratorSettings::new, false);
 
         TEST = RegistryUtils.registerChunkGenerator(new Identifier(MOD_ID, "test"), TestChunkGenerator::new, OverworldChunkGeneratorConfig::new, false);
-    }*/
+    }*//*
 
-}
+
+}*/

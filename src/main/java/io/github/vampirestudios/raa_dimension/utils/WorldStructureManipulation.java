@@ -2,27 +2,29 @@ package io.github.vampirestudios.raa_dimension.utils;
 
 import com.google.common.collect.ImmutableList;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.block.*;
-import net.minecraft.block.enums.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.*;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.*;
 
 public class WorldStructureManipulation {
 
-    public static Vec3i circularSpawnCheck(ServerWorldAccess world, BlockPos pos, Vec3i size, float tolerance) {
+    public static Vec3i circularSpawnCheck(ServerLevelAccessor world, BlockPos pos, Vec3i size, float tolerance) {
         //Make sure the structure can spawn here
         int xOrigin = pos.getX();
         int zOrigin = pos.getZ();
@@ -31,8 +33,8 @@ public class WorldStructureManipulation {
         List<List<Float>> flatnessList = new ArrayList<>();
         for (float xOffset = xOrigin - size.getX(); xOffset < xOrigin + size.getX(); xOffset++) {
             for (float zOffset = zOrigin - size.getZ(); zOffset < zOrigin + size.getZ(); zOffset++) {
-                float yOffset = world.getTopPosition(Heightmap.Type.WORLD_SURFACE_WG, new BlockPos(xOffset, 0, zOffset)).getY();
-                boolean nonSpawnable = yOffset < 5 || (!world.getBlockState(new BlockPos(xOffset, yOffset - 1, zOffset)).isOpaque() && !world.getBlockState(new BlockPos(xOffset, yOffset - 2, zOffset)).isOpaque()) || world.getBlockState(new BlockPos(xOffset, yOffset - 1, zOffset)).equals(Blocks.BEDROCK.getDefaultState());
+                float yOffset = world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE_WG, new BlockPos(xOffset, 0, zOffset)).getY();
+                boolean nonSpawnable = yOffset < 5 || (!world.getBlockState(new BlockPos(xOffset, yOffset - 1, zOffset)).canOcclude() && !world.getBlockState(new BlockPos(xOffset, yOffset - 2, zOffset)).canOcclude()) || world.getBlockState(new BlockPos(xOffset, yOffset - 1, zOffset)).equals(Blocks.BEDROCK.defaultBlockState());
                 if (xOffset < xOrigin + 3 && zOffset < zOrigin + 3) {
                     flatnessList.add(Arrays.asList(xOffset, yOffset, zOffset, 0f));
                 }
@@ -69,34 +71,34 @@ public class WorldStructureManipulation {
             newPos = trySpawning(world, new BlockPos(xChosen, yChosen, zChosen), size, tolerance);
         }
 
-        if (newPos.compareTo(Vec3i.ZERO) == 0 || newPos.getY() > world.getTopY() - 1 - size.getY()) {
+        if (newPos.compareTo(Vec3i.ZERO) == 0 || newPos.getY() > world.getMaxBuildHeight() - 1 - size.getY()) {
             return Vec3i.ZERO;
         }
 
         return newPos;
     }
 
-    private static Vec3i trySpawning(ServerWorldAccess world, BlockPos pos, Vec3i size, float tolerance) {
-        if (world.getBlockState(pos.add(0, -1, 0)).isAir() || world.getBlockState(pos.add(0, -1, 0)).equals(Blocks.BEDROCK.getDefaultState())) {
+    private static Vec3i trySpawning(ServerLevelAccessor world, BlockPos pos, Vec3i size, float tolerance) {
+        if (world.getBlockState(pos.offset(0, -1, 0)).isAir() || world.getBlockState(pos.offset(0, -1, 0)).equals(Blocks.BEDROCK.defaultBlockState())) {
             return Vec3i.ZERO;
         }
         Map<Integer, Float> heights = new HashMap<>();
-        for (int i = 0; i < world.getTopY(); i++) {
+        for (int i = 0; i < world.getMaxBuildHeight(); i++) {
             heights.put(i, 0f);
         }
         int totalHeight = 0;
         float maxFreq = 0f;
         int maxHeight = 0;
         int modeHeight = 0;
-        int minHeight = world.getTopY();
+        int minHeight = world.getMaxBuildHeight();
         for (int xIndent = 0; xIndent < 12; xIndent++) {
             for (int zIndent = 0; zIndent < 12; zIndent++) {
                 if (Math.pow(xIndent - (size.getX() - 3) / 2f, 2) + Math.pow(zIndent - (size.getX() - 3) / 2f, 2) < Math.pow((size.getX() - 2) / 2f, 2)) {
-                    if (!world.getBlockState(new BlockPos(pos.add(xIndent, -1, zIndent))).isOpaque() && !world.getBlockState(new BlockPos(pos.add(xIndent, -2, zIndent))).isOpaque()) {
+                    if (!world.getBlockState(new BlockPos(pos.offset(xIndent, -1, zIndent))).canOcclude() && !world.getBlockState(new BlockPos(pos.offset(xIndent, -2, zIndent))).canOcclude()) {
                         return Vec3i.ZERO;
                     }
 
-                    int tempHeight = world.getTopPosition(Heightmap.Type.WORLD_SURFACE_WG, pos.add(xIndent, 0, zIndent)).getY();
+                    int tempHeight = world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE_WG, pos.offset(xIndent, 0, zIndent)).getY();
                     if (tempHeight < minHeight) {
                         minHeight = tempHeight;
                     }
@@ -108,7 +110,7 @@ public class WorldStructureManipulation {
                     List<Integer> tempHeights = Arrays.asList(tempHeight, tempHeight - 1, tempHeight - 2);
                     List<Float> tempFloats = Arrays.asList(1f, 0.5f, 0.25f);
                     for (int i = 0; i < 3; i++) {
-                        if (tempHeights.get(i) < 0 || tempHeights.get(i) > world.getTopY() - 1) {
+                        if (tempHeights.get(i) < 0 || tempHeights.get(i) > world.getMaxBuildHeight() - 1) {
                             return Vec3i.ZERO;
                         }
                         float tempFreqs = heights.get(tempHeights.get(i)) + tempFloats.get(i);
@@ -128,15 +130,15 @@ public class WorldStructureManipulation {
             return Vec3i.ZERO;
         }
 
-        return (pos.add(0, modeHeight - pos.getY(), 0));
+        return (pos.offset(0, modeHeight - pos.getY(), 0));
     }
 
-    public static void placeBlock(ServerWorldAccess world, BlockPos pos, String block, Map<String, String> properties, int rotation) {
+    public static void placeBlock(ServerLevelAccessor world, BlockPos pos, String block, Map<String, String> properties, int rotation) {
         //Place block
         Block parsedBlock;
-        if (!Registry.BLOCK.containsId(Identifier.tryParse(block))) parsedBlock = Blocks.STONE;
-        else parsedBlock = Registry.BLOCK.get(Identifier.tryParse(block));;
-        world.setBlockState(pos, parsedBlock.getDefaultState(), 2);
+        if (!Registry.BLOCK.containsKey(ResourceLocation.tryParse(block))) parsedBlock = Blocks.STONE;
+        else parsedBlock = Registry.BLOCK.get(ResourceLocation.tryParse(block));;
+        world.setBlock(pos, parsedBlock.defaultBlockState(), 2);
 
         //Rotate stuff
         String facing = "NORTH";
@@ -168,95 +170,95 @@ public class WorldStructureManipulation {
         }
 
         //Give properties to block
-        Block parsedBlock1 = Registry.BLOCK.get(Identifier.tryParse(block));
-        BlockState parsedBlockState = parsedBlock1.getDefaultState();
+        Block parsedBlock1 = Registry.BLOCK.get(ResourceLocation.tryParse(block));
+        BlockState parsedBlockState = parsedBlock1.defaultBlockState();
         if (world.getBlockState(pos) == parsedBlockState) { //Make sure the block you're trying to apply this stuff to *actually exists*
-            if (properties.get("waterlogged") != null && parsedBlock1 instanceof Waterloggable) {
+            if (properties.get("waterlogged") != null && parsedBlock1 instanceof SimpleWaterloggedBlock) {
                 //TODO: ~~
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.WATERLOGGED, properties.get("waterlogged").equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.WATERLOGGED, properties.get("waterlogged").equals("TRUE")), 2);
             } if (properties.get("type") != null) {
                 if (block.equals("minecraft:chest")) {
                     //TODO: [Chests]
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.CHEST_TYPE, ChestType.valueOf(properties.get("type").toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.CHEST_TYPE, ChestType.valueOf(properties.get("type").toUpperCase(Locale.ENGLISH))), 2);
                 } else {
                     //TODO: [Slabs]
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.SLAB_TYPE, SlabType.valueOf(properties.get("type").toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.SLAB_TYPE, SlabType.valueOf(properties.get("type").toUpperCase(Locale.ENGLISH))), 2);
                 }
             } if (properties.get("half") != null) {
                 //TODO: [Stairs]
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.BLOCK_HALF, BlockHalf.valueOf(properties.get("half").toUpperCase(Locale.ENGLISH))), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.HALF, Half.valueOf(properties.get("half").toUpperCase(Locale.ENGLISH))), 2);
             } if (properties.get("shape") != null) {
                 //TODO: [Stairs]
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.STAIR_SHAPE, StairShape.valueOf(properties.get("shape").toUpperCase(Locale.ENGLISH))), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.STAIRS_SHAPE, StairsShape.valueOf(properties.get("shape").toUpperCase(Locale.ENGLISH))), 2);
             } if (properties.get("facing") != null) {
                 if (block.equals("minecraft:barrel")) {
                     //TODO: Barrel
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.FACING, Direction.valueOf(facing.toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.FACING, Direction.valueOf(facing.toUpperCase(Locale.ENGLISH))), 2);
                 } else {
                     //TODO: [Anvils], [Chests], [Stairs], Bell, Blast_Furnace, Furnace, Grindstone, Smoker, Stonecutter, Ladders,
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.HORIZONTAL_FACING, Direction.valueOf(facing.toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.valueOf(facing.toUpperCase(Locale.ENGLISH))), 2);
                 }
             } if (properties.get("north") != null || properties.get("west") != null || properties.get("south") != null || properties.get("east") != null) {
                 if(!block.endsWith("_wall")) {
                     //TODO: [Fences], Iron Bars
                     //Fences and Iron Bars, both use booleans to represent their connection
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.NORTH, directions.getOrDefault("north", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.WEST, directions.getOrDefault("west", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.SOUTH, directions.getOrDefault("south", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.EAST, directions.getOrDefault("east", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.NORTH, directions.getOrDefault("north", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.WEST, directions.getOrDefault("west", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.SOUTH, directions.getOrDefault("south", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.EAST, directions.getOrDefault("east", "FALSE").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
                 } else {
                     //TODO: [Walls]
                     //Walls use an Enum (none, tall, low) to describe their connections to other neighbouring blocks
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.NORTH_WALL_SHAPE, WallShape.valueOf(directions.getOrDefault("north","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.WEST_WALL_SHAPE, WallShape.valueOf(directions.getOrDefault("west","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.SOUTH_WALL_SHAPE, WallShape.valueOf(directions.getOrDefault("south","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
-                    world.setBlockState(pos, world.getBlockState(pos).with(Properties.EAST_WALL_SHAPE, WallShape.valueOf(directions.getOrDefault("east","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.NORTH_WALL, WallSide.valueOf(directions.getOrDefault("north","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.WEST_WALL, WallSide.valueOf(directions.getOrDefault("west","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.SOUTH_WALL, WallSide.valueOf(directions.getOrDefault("south","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
+                    world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.EAST_WALL, WallSide.valueOf(directions.getOrDefault("east","none").replace("false","none").replace("true","low").toUpperCase(Locale.ENGLISH))), 2);
                 }
             } if (properties.get("up") != null) {
                 //TODO: [Walls]
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.UP, properties.get("up").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.UP, properties.get("up").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("open") != null) {
                 //TODO: Barrel
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.OPEN, properties.get("open").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.OPEN, properties.get("open").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("snowy") != null) {
                 //TODO: Grass_Block
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.SNOWY, properties.get("snowy").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.SNOWY, properties.get("snowy").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("lit") != null) {
                 //TODO: Blast_Furnace, Furnace, Smoker
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.LIT, properties.get("lit").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.LIT, properties.get("lit").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("bottom") != null) {
                 //TODO: ~~
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.BOTTOM, properties.get("bottom").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.BOTTOM, properties.get("bottom").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("hanging") != null) {
                 //TODO: Lantern
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.HANGING, properties.get("hanging").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.HANGING, properties.get("hanging").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("powered") != null) {
                 //TODO: [Pressure_Plates], Bell
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWERED, properties.get("powered").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.POWERED, properties.get("powered").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("unstable") != null) {
                 //TODO: TNT
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.UNSTABLE, properties.get("unstable").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.UNSTABLE, properties.get("unstable").toUpperCase(Locale.ENGLISH).equals("TRUE")), 2);
             } if (properties.get("face") != null) {
                 //TODO: Grindstone
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.WALL_MOUNT_LOCATION, WallMountLocation.valueOf(properties.get("face").toUpperCase(Locale.ENGLISH))), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.ATTACH_FACE, AttachFace.valueOf(properties.get("face").toUpperCase(Locale.ENGLISH))), 2);
             } if (properties.get("distance") != null) {
                 //TODO: Scaffolding
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.DISTANCE_0_7, Integer.parseInt(properties.get("distance"))), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.STABILITY_DISTANCE, Integer.parseInt(properties.get("distance"))), 2);
             } if (properties.get("attachment") != null) {
                 //TODO: Bell
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.ATTACHMENT, Attachment.valueOf(properties.get("attachment").toUpperCase(Locale.ENGLISH))), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.BELL_ATTACHMENT, BellAttachType.valueOf(properties.get("attachment").toUpperCase(Locale.ENGLISH))), 2);
             } if (properties.get("axis") != null) {
                 //TODO: Bone_Block
-                world.setBlockState(pos, world.getBlockState(pos).with(Properties.AXIS, Direction.Axis.fromName(axis)), 2);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.AXIS, Direction.Axis.byName(axis)), 2);
             }/* if (block.endsWith("_portal")) {
                 world.setBlockState(pos, world.getBlockState(pos).with(PortalBlock.ACTIVATED, Rands.chance(4)), 2);
             }*/
         }
     }
 
-    public static void spawnEntity(ServerWorldAccess world, BlockPos pos, String entity, Map<String, String> properties, float rotation) {
+    public static void spawnEntity(ServerLevelAccessor world, BlockPos pos, String entity, Map<String, String> properties, float rotation) {
         if (entity.equals("minecraft:armor_stand")) {
-            Entity armorStand = EntityType.ARMOR_STAND.create(world.toServerWorld());
+            Entity armorStand = EntityType.ARMOR_STAND.create(world.getLevel());
 
             List<ItemStack> helmets = ImmutableList.of(
                     new ItemStack(Items.LEATHER_HELMET),
@@ -297,25 +299,25 @@ public class WorldStructureManipulation {
                     new ItemStack(Items.DIAMOND_SWORD),
                     new ItemStack(Items.NETHERITE_SWORD)
             );
-            Objects.requireNonNull(armorStand).refreshPositionAndAngles(pos, rotation, 0f);
+            Objects.requireNonNull(armorStand).moveTo(pos, rotation, 0f);
 
             if (properties.get("head") != null && !Rands.chance(4)) {
-                armorStand.equipStack(EquipmentSlot.HEAD, helmets.get(Rands.randInt(Integer.parseInt(properties.get("head")))));
+                armorStand.setItemSlot(EquipmentSlot.HEAD, helmets.get(Rands.randInt(Integer.parseInt(properties.get("head")))));
             }
             if (properties.get("chest") != null && !Rands.chance(4)) {
-                armorStand.equipStack(EquipmentSlot.CHEST, chestplates.get(Rands.randInt(Integer.parseInt(properties.get("chest")))));
+                armorStand.setItemSlot(EquipmentSlot.CHEST, chestplates.get(Rands.randInt(Integer.parseInt(properties.get("chest")))));
             }
             if (properties.get("legs") != null && !Rands.chance(4)) {
-                armorStand.equipStack(EquipmentSlot.LEGS, leggings.get(Rands.randInt(Integer.parseInt(properties.get("legs")))));
+                armorStand.setItemSlot(EquipmentSlot.LEGS, leggings.get(Rands.randInt(Integer.parseInt(properties.get("legs")))));
             }
             if (properties.get("feet") != null && !Rands.chance(4)) {
-                armorStand.equipStack(EquipmentSlot.FEET, boots.get(Rands.randInt(Integer.parseInt(properties.get("feet")))));
+                armorStand.setItemSlot(EquipmentSlot.FEET, boots.get(Rands.randInt(Integer.parseInt(properties.get("feet")))));
             }
             if (properties.get("weapon") != null && !Rands.chance(3)) {
-                armorStand.equipStack(EquipmentSlot.MAINHAND, weapons.get(Rands.randInt(Integer.parseInt(properties.get("weapon")))));
+                armorStand.setItemSlot(EquipmentSlot.MAINHAND, weapons.get(Rands.randInt(Integer.parseInt(properties.get("weapon")))));
             }
 
-            world.spawnEntity(armorStand);
+            world.addFreshEntity(armorStand);
         }
     }
 

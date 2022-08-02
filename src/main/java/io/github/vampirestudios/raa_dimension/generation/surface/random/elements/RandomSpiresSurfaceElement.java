@@ -3,14 +3,12 @@ package io.github.vampirestudios.raa_dimension.generation.surface.random.element
 import com.google.gson.JsonObject;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
-
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 public class RandomSpiresSurfaceElement extends SurfaceElement {
@@ -23,14 +21,14 @@ public class RandomSpiresSurfaceElement extends SurfaceElement {
     }
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
-        BlockPos.Mutable pos = new BlockPos.Mutable(x, height, z);
+    public void generate(Random random, ChunkAccess chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, height, z);
 
         //don't place on water
-        if (chunk.getBlockState(pos.toImmutable().down()) == defaultFluid) return;
+        if (chunk.getBlockState(pos.immutable().below()) == defaultFluid) return;
 
         //don't place on air/void
-        if (chunk.getBlockState(pos.toImmutable().down()).isAir()) return;
+        if (chunk.getBlockState(pos.immutable().below()).isAir()) return;
 
         if (random.nextInt(spireChance) == 0) {
             int spireHeightRandom = random.nextInt(spireHeight);
@@ -57,8 +55,8 @@ public class RandomSpiresSurfaceElement extends SurfaceElement {
     }
 
     @Override
-    public Identifier getType() {
-        return new Identifier("raa_dimensions", "spires");
+    public ResourceLocation getType() {
+        return new ResourceLocation("raa_dimensions", "spires");
     }
 
     @Override

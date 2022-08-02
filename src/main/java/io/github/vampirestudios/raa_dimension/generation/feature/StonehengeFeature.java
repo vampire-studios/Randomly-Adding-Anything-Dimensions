@@ -2,38 +2,30 @@ package io.github.vampirestudios.raa_dimension.generation.feature;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
-import io.github.vampirestudios.raa_core.RAACore;
-import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.structure.Structure;
-import net.minecraft.structure.StructureManager;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
-import java.util.Random;
 import java.util.Set;
 
 // Thanks to TelepathicGrunt and the UltraAmplified mod for this class
-public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
+public class StonehengeFeature extends Feature<NoneFeatureConfiguration> {
 
-	public StonehengeFeature(Codec<DefaultFeatureConfig> function) {
+	public StonehengeFeature(Codec<NoneFeatureConfiguration> function) {
 		super(function);
 	}
 
 	private static int perfectStoneCount = 0;
 	private static boolean markedForPerfection = false;
 
-	protected static final Set<BlockState> unAcceptableBlocks = ImmutableSet.of(Blocks.AIR.getDefaultState(), Blocks.WATER.getDefaultState(), Blocks.LAVA.getDefaultState(), Blocks.SLIME_BLOCK.getDefaultState(), Blocks.CAVE_AIR.getDefaultState());
+	protected static final Set<BlockState> unAcceptableBlocks = ImmutableSet.of(Blocks.AIR.defaultBlockState(), Blocks.WATER.defaultBlockState(), Blocks.LAVA.defaultBlockState(), Blocks.SLIME_BLOCK.defaultBlockState(), Blocks.CAVE_AIR.defaultBlockState());
 
 	private enum StoneHengeType {
 		SIDE, CORNER
@@ -45,24 +37,24 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 
 
 	@Override
-	public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-		BlockPos position = context.getOrigin();
-		StructureWorldAccess world = context.getWorld();
-		Random rand = context.getRandom();
-		DefaultFeatureConfig config = context.getConfig();
+	public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+		BlockPos position = context.origin();
+		WorldGenLevel world = context.level();
+		RandomSource rand = context.random();
+		NoneFeatureConfiguration config = context.config();
 		//makes sure this stonehenge does not spawn too close to world height border or it will get cut off.
 		if (position.getY() > 248) {
 			return false;
 		}
 
-		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
+		BlockPos.MutableBlockPos blockpos$Mutable = new BlockPos.MutableBlockPos(position.getX(), position.getY(), position.getZ());
 		if (!validatePosition(world, blockpos$Mutable))
 		{
 			//height is inside a non-air block, move down until we reached an air block
 			while (blockpos$Mutable.getY() > world.getSeaLevel())
 			{
 				blockpos$Mutable.move(Direction.DOWN);
-				if (world.isAir(blockpos$Mutable))
+				if (world.isEmptyBlock(blockpos$Mutable))
 				{
 					break;
 				}
@@ -71,7 +63,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			//height is an air block, move down until we reached a solid block. We are now on the surface of a piece of land
 			while (blockpos$Mutable.getY() > world.getSeaLevel()) {
 				blockpos$Mutable.move(Direction.DOWN);
-				if (world.getBlockState(blockpos$Mutable).isOpaque()) {
+				if (world.getBlockState(blockpos$Mutable).canOcclude()) {
 					break;
 				}
 			}
@@ -92,25 +84,25 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		//6.7% of being a perfect stonehenge right off the bat
 		markedForPerfection = rand.nextInt(15) == 0;
 		perfectStoneCount = 0;
-		StructureManager templatemanager = world.getServer().getStructureManager();
-		Structure template;
+//		StructureManager templatemanager = world.getServer().getStructureManager();
+//		Structure template;
 		BlockState iblockstate = world.getBlockState(blockpos$Mutable);
 
-		world.setBlockState(blockpos$Mutable, iblockstate, 3);
+		world.setBlock(blockpos$Mutable, iblockstate, 3);
 
 		//SIDE STONES
 
-		//north stone
+		/*//north stone
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
 		if (template == null) {
 			RAACore.LOGGER.warn("a side stonehenge NTB does not exist!");
 			return false;
 		}
 
-		StructurePlacementData placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.NONE)
-				.setIgnoreEntities(false).setPosition(null);
+		StructurePlaceSettings placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.NONE)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, position, blockpos$Mutable.down(2).north(11).west(2), placementsettings, rand, 2);
+		template.place(world, position, blockpos$Mutable.below(2).north(11).west(2), placementsettings, rand, 2);
 
 		//East stone - rotated 90 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
@@ -119,10 +111,10 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_90)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.CLOCKWISE_90)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(2).east(11), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below(2).north(2).east(11), placementsettings, rand, 2);
 
 		//south stone - rotated 180 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
@@ -131,10 +123,10 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_180)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.CLOCKWISE_180)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(11).east(2), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below(2).south(11).east(2), placementsettings, rand, 2);
 
 		//West stone - rotated 270 degrees
 		template = pickStonehengeStyle(StoneHengeType.SIDE, rand, templatemanager);
@@ -144,10 +136,10 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.COUNTERCLOCKWISE_90)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.COUNTERCLOCKWISE_90)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(2).west(11), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below(2).south(2).west(11), placementsettings, rand, 2);
 
 		//CORNER STONE
 
@@ -159,10 +151,10 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.NONE)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.NONE)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(9).west(9), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below(2).north(9).west(9), placementsettings, rand, 2);
 
 		//north east stone
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
@@ -172,10 +164,10 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_90)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.CLOCKWISE_90)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).north(9).east(9), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below(2).north(9).east(9), placementsettings, rand, 2);
 
 		//south east stone
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
@@ -185,10 +177,10 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.CLOCKWISE_180)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.CLOCKWISE_180)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(9).east(9), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below(2).south(9).east(9), placementsettings, rand, 2);
 
 		//south west stone
 		template = pickStonehengeStyle(StoneHengeType.CORNER, rand, templatemanager);
@@ -198,20 +190,20 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.COUNTERCLOCKWISE_90)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.COUNTERCLOCKWISE_90)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down(2).south(9).west(9), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below(2).south(9).west(9), placementsettings, rand, 2);
 
 		//center of stonehenge.
 		//If all stones are perfect, generates crafting table, otherwise, place a small patch of stones
 		if (perfectStoneCount == 8)
 		{
-			template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehengeperfectcenter"));
+			template = templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehengeperfectcenter"));
 		}
 		else
 		{
-			template = templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehengecenter"));
+			template = templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehengecenter"));
 		}
 
 		if (template == null)
@@ -220,22 +212,22 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 			return false;
 		}
 
-		placementsettings = (new StructurePlacementData()).setMirror(BlockMirror.NONE).setRotation(BlockRotation.NONE)
-				.setIgnoreEntities(false).setPosition(null);
+		placementsettings = (new StructurePlaceSettings()).setMirror(Mirror.NONE).setRotation(Rotation.NONE)
+				.setIgnoreEntities(false).setRotationPivot(null);
 
-		template.place(world, blockpos$Mutable, blockpos$Mutable.down().north(2).west(2), placementsettings, rand, 2);
+		template.place(world, blockpos$Mutable, blockpos$Mutable.below().north(2).west(2), placementsettings, rand, 2);*/
 
 		return true;
 	}
 
 
-	private boolean validatePosition(ServerWorldAccess world, BlockPos position) {
-		BlockPos.Mutable blockpos$Mutable = new BlockPos.Mutable(position.getX(), position.getY(), position.getZ());
+	private boolean validatePosition(ServerLevelAccessor world, BlockPos position) {
+		BlockPos.MutableBlockPos blockpos$Mutable = new BlockPos.MutableBlockPos(position.getX(), position.getY(), position.getZ());
 		//makes sure it generates with land around it instead of cutting into cliffs or hanging over an edge by checking if block at north, east, west, and south are acceptable terrain blocks that appear only at top of land.
 		for (int x = -10; x <= 10; x = x + 5) {
 			for (int z = -10; z <= 10; z = z + 5) {
 				blockpos$Mutable.set(position).move(x, 0, z);
-				if (Math.abs(x * z) != 100 && (unAcceptableBlocks.contains(world.getBlockState(blockpos$Mutable.down(2))) && unAcceptableBlocks.contains(world.getBlockState(blockpos$Mutable.down(1))) && unAcceptableBlocks.contains(world.getBlockState(blockpos$Mutable)))) {
+				if (Math.abs(x * z) != 100 && (unAcceptableBlocks.contains(world.getBlockState(blockpos$Mutable.below(2))) && unAcceptableBlocks.contains(world.getBlockState(blockpos$Mutable.below(1))) && unAcceptableBlocks.contains(world.getBlockState(blockpos$Mutable)))) {
 					return false;
 				}
 			}
@@ -245,7 +237,7 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 
 
 	//picks one out of four templates for the stone henge
-	private Structure pickStonehengeStyle(StoneHengeType type, Random rand, StructureManager templatemanager)
+	/*private Structure pickStonehengeStyle(StoneHengeType type, Random rand, StructureManager templatemanager)
 	{
 		int hengeType;
 
@@ -267,40 +259,40 @@ public class StonehengeFeature extends Feature<DefaultFeatureConfig> {
 		{
 			if (hengeType == 0)
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge1"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge1"));
 			}
 			else if (hengeType == 1)
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge2"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge2"));
 			}
 			else if (hengeType == 2)
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge3"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge3"));
 			}
 			else
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge4"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge4"));
 			}
 		}
 		else
 		{
 			if (hengeType == 0)
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge5"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge5"));
 			}
 			else if (hengeType == 1)
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge6"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge6"));
 			}
 			else if (hengeType == 2)
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge7"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge7"));
 			}
 			else
 			{
-				return templatemanager.getStructure(new Identifier(RAADimensionAddon.MOD_ID + ":stonehenge8"));
+				return templatemanager.getStructure(new ResourceLocation(RAADimensionAddon.MOD_ID + ":stonehenge8"));
 			}
 		}
-	}
+	}*/
 
 }

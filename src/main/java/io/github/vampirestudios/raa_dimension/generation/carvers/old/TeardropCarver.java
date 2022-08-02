@@ -1,23 +1,22 @@
 package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ProbabilityConfig;
-
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 
-public class TeardropCarver extends RAACarver<ProbabilityConfig> {
+public class TeardropCarver extends RAACarver<ProbabilityFeatureConfiguration> {
     public TeardropCarver(DimensionData data) {
-        super(ProbabilityConfig.CODEC, data);
+        super(ProbabilityFeatureConfiguration.CODEC, data);
     }
 
     @Override
-    public boolean carve(Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, int seaLevel, int chunkX, int chunkZ, int mainChunkX, int mainChunkZ, BitSet carvingMask,
-                         ProbabilityConfig carverConfig) {
+    public boolean carve(ChunkAccess chunk, Function<BlockPos, Biome> posToBiome, Random random, int seaLevel, int chunkX, int chunkZ, int mainChunkX, int mainChunkZ, BitSet carvingMask,
+                         ProbabilityFeatureConfiguration carverConfig) {
 
         //initialize variables
         int x = (chunkX* 16) + random.nextInt(16);
@@ -60,7 +59,7 @@ public class TeardropCarver extends RAACarver<ProbabilityConfig> {
     }
 
     @Override
-    public boolean shouldCarve(Random random, int chunkX, int chunkZ, ProbabilityConfig config) {
+    public boolean shouldCarve(Random random, int chunkX, int chunkZ, ProbabilityFeatureConfiguration config) {
         return random.nextFloat() <= config.probability;
     }
 

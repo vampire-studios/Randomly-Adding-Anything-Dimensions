@@ -3,15 +3,14 @@ package io.github.vampirestudios.raa_dimension.generation.surface.random.element
 import com.google.gson.JsonObject;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
-
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 public class ClassicCliffsSurfaceElement extends SurfaceElement {
@@ -32,7 +31,7 @@ public class ClassicCliffsSurfaceElement extends SurfaceElement {
     }
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
+    public void generate(Random random, ChunkAccess chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
         x &= 15;
         z &= 15;
         height -= 1;
@@ -40,7 +39,7 @@ public class ClassicCliffsSurfaceElement extends SurfaceElement {
             if (height > seaLevel + maxSeaLevelAddition) {
                 height = seaLevel + maxSeaLevelAddition;
             }
-            BlockPos.Mutable pos = new BlockPos.Mutable(x, height, z);
+            BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, height, z);
             int basaltLayers = minBasaltLayers;
             if (noise > add1NoiseThreshold) {
                 basaltLayers += 1;
@@ -49,12 +48,12 @@ public class ClassicCliffsSurfaceElement extends SurfaceElement {
                 basaltLayers += 1;
             }
             for (int i = 0; i < basaltLayers; i++) {
-                chunk.setBlockState(pos, Blocks.DIRT.getDefaultState(), false);
-                pos.offset(Direction.UP);
+                chunk.setBlockState(pos, Blocks.DIRT.defaultBlockState(), false);
+                pos.relative(Direction.UP);
             }
             for (int i = 0; i < 3; i++) {
                 chunk.setBlockState(pos, surfaceBlocks.getUnderMaterial(), false);
-                pos.offset(Direction.UP);
+                pos.relative(Direction.UP);
             }
             chunk.setBlockState(pos, surfaceBlocks.getTopMaterial(), false);
         }
@@ -81,8 +80,8 @@ public class ClassicCliffsSurfaceElement extends SurfaceElement {
     }
 
     @Override
-    public Identifier getType() {
-        return new Identifier("raa_dimensions", "classic_cliffs");
+    public ResourceLocation getType() {
+        return new ResourceLocation("raa_dimensions", "classic_cliffs");
     }
 
     @Override

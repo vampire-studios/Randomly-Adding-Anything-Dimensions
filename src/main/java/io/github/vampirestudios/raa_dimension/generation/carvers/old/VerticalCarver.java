@@ -1,23 +1,22 @@
 package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ProbabilityConfig;
-
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 
-public class VerticalCarver extends RAACarver<ProbabilityConfig> {
+public class VerticalCarver extends RAACarver<ProbabilityFeatureConfiguration> {
     public VerticalCarver(DimensionData data) {
-        super(ProbabilityConfig.CODEC, data);
+        super(ProbabilityFeatureConfiguration.CODEC, data);
     }
 
     @Override
-    public boolean carve(Chunk chunk, Function<BlockPos, Biome> posToBiome, Random random, int seaLevel, int chunkX, int chunkZ, int mainChunkX, int mainChunkZ, BitSet carvingMask, ProbabilityConfig carverConfig) {
+    public boolean carve(ChunkAccess chunk, Function<BlockPos, Biome> posToBiome, Random random, int seaLevel, int chunkX, int chunkZ, int mainChunkX, int mainChunkZ, BitSet carvingMask, ProbabilityFeatureConfiguration carverConfig) {
 
         double x = (chunkX * 16 + random.nextInt(16));
         double y = random.nextInt(256);
@@ -32,14 +31,14 @@ public class VerticalCarver extends RAACarver<ProbabilityConfig> {
         return true;
     }
 
-    protected void carveCave(Chunk chunk, Function<BlockPos, Biome> posToBiome, long seed, int seaLevel, int mainChunkX, int mainChunkZ, double x, double y, double z, float yaw, double yawPitchRatio, BitSet carvingMask) {
-        double d = 1.5D + (double)(MathHelper.sin(1.5707964F) * yaw);
+    protected void carveCave(ChunkAccess chunk, Function<BlockPos, Biome> posToBiome, long seed, int seaLevel, int mainChunkX, int mainChunkZ, double x, double y, double z, float yaw, double yawPitchRatio, BitSet carvingMask) {
+        double d = 1.5D + (double)(Mth.sin(1.5707964F) * yaw);
         double e = d * yawPitchRatio;
         this.carveRegion(chunk, posToBiome, seed, seaLevel, mainChunkX, mainChunkZ, x + 1.0D, y, z, d, e, carvingMask);
     }
 
     @Override
-    public boolean shouldCarve(Random random, int chunkX, int chunkZ, ProbabilityConfig config) {
+    public boolean shouldCarve(Random random, int chunkX, int chunkZ, ProbabilityFeatureConfiguration config) {
         return random.nextFloat() <= config.probability;
     }
 

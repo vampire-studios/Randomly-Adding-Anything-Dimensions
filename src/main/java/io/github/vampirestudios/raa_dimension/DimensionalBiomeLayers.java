@@ -1,9 +1,7 @@
+/*
 package io.github.vampirestudios.raa_dimension;
 
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.DefaultedRegistry;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.biome.layer.ContinentLayer;
 import net.minecraft.world.biome.layer.IncreaseEdgeCurvatureLayer;
 import net.minecraft.world.biome.layer.ScaleLayer;
@@ -11,7 +9,10 @@ import net.minecraft.world.biome.layer.type.IdentitySamplingLayer;
 import net.minecraft.world.biome.layer.type.InitLayer;
 import net.minecraft.world.biome.layer.util.*;
 import net.minecraft.world.biome.source.BiomeLayerSampler;
-
+import net.minecraft.world.level.biome.Biome;
+import LayerFactory;
+import LayerSampleContext;
+import LayerSampler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +56,8 @@ public class DimensionalBiomeLayers {
         @Override
         public int sample(LayerRandomnessSource context, int x, int y) {
             List<Biome> biomeList = new ArrayList<>(biomes);
-            return BuiltinRegistries.BIOME.getRawId(biomeList.get(context.nextInt(biomeList.size())));
+            return BuiltinRegistries.BIOME.getId(biomeList.get(context.nextInt(biomeList.size())));
         }
     }
 }
+*/

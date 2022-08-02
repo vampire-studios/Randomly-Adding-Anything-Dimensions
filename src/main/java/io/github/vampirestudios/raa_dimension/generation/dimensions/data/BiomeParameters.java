@@ -2,30 +2,22 @@ package io.github.vampirestudios.raa_dimension.generation.dimensions.data;
 
 public class BiomeParameters {
 
-    private float altitude;
-    private float weirdness;
-    private float offset;
     private float temperature;
     private float humidity;
+    private float continentalness;
+    private float erosion;
+    private float weirdness;
+    private float depth;
+    private float offset;
 
-    public BiomeParameters(float altitude, float weirdness, float offset, float temperature, float humidity) {
-        this.altitude = altitude;
-        this.weirdness = weirdness;
-        this.offset = offset;
+    public BiomeParameters(float temperature, float humidity, float continentalness, float erosion, float weirdness, float depth, float offset) {
         this.temperature = temperature;
         this.humidity = humidity;
-    }
-
-    public float getAltitude() {
-        return altitude;
-    }
-
-    public float getWeirdness() {
-        return weirdness;
-    }
-
-    public float getOffset() {
-        return offset;
+        this.continentalness = continentalness;
+        this.erosion = erosion;
+        this.weirdness = weirdness;
+        this.depth = depth;
+        this.offset = offset;
     }
 
     public float getTemperature() {
@@ -36,31 +28,38 @@ public class BiomeParameters {
         return humidity;
     }
 
+    public float getContinentalness() {
+        return continentalness;
+    }
+
+    public float getErosion() {
+        return erosion;
+    }
+
+    public float getWeirdness() {
+        return weirdness;
+    }
+
+    public float getDepth() {
+        return depth;
+    }
+
+    public float getOffset() {
+        return offset;
+    }
+
     public static class Builder {
 
-        private float altitude;
-        private float weirdness;
-        private float offset;
         private float temperature;
         private float humidity;
+        private float continentalness;
+        private float erosion;
+        private float weirdness;
+        private float depth;
+        private float offset;
 
         public static Builder builder() {
             return new Builder();
-        }
-
-        public Builder altitude(float altitude) {
-            this.altitude = altitude;
-            return this;
-        }
-
-        public Builder weirdness(float weirdness) {
-            this.weirdness = weirdness;
-            return this;
-        }
-
-        public Builder offset(float offset) {
-            this.offset = offset;
-            return this;
         }
 
         public Builder temperature(float temperature) {
@@ -73,8 +72,33 @@ public class BiomeParameters {
             return this;
         }
 
+        public Builder continentalness(float continentalness) {
+            this.continentalness = continentalness;
+            return this;
+        }
+
+        public Builder erosion(float erosion) {
+            this.erosion = erosion;
+            return this;
+        }
+
+        public Builder weirdness(float weirdness) {
+            this.weirdness = weirdness;
+            return this;
+        }
+
+        public Builder depth(float depth) {
+            this.depth = depth;
+            return this;
+        }
+
+        public Builder offset(float offset) {
+            this.offset = offset;
+            return this;
+        }
+
         public BiomeParameters create() {
-            return new BiomeParameters(altitude, weirdness, offset, temperature, humidity);
+            return new BiomeParameters(temperature, humidity, continentalness, erosion, weirdness, depth, offset);
         }
     }
 

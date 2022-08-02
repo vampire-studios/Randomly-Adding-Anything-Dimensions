@@ -5,53 +5,42 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.*;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.feature.*;
+import net.minecraft.core.*;
+import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.apache.logging.log4j.Level;
 
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DynamicRegistryManagerBlame {
 
-        public static void printUnregisteredWorldgenConfiguredStuff(DynamicRegistryManager.Impl imp){
+        public static void printUnregisteredWorldgenConfiguredStuff(RegistryAccess.Frozen imp){
 
             // Create a store here to minimize memory impact and let it get garbaged collected later.
-            Map<String, Set<Identifier>> unconfiguredStuffMap = new HashMap<>();
+            Map<String, Set<ResourceLocation>> unconfiguredStuffMap = new HashMap<>();
             Set<String> collectedPossibleIssueMods = new HashSet<>();
             HashSet<String> brokenConfiguredStuffSet = new HashSet<>();
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Pattern pattern = Pattern.compile("\"(?:Name|type|location)\": *\"([a-z0-9_.-:]+)\"");
 
             // ConfiguredFeatures
-            imp.getOptional(Registry.CONFIGURED_FEATURE_KEY).ifPresent(configuredFeatureRegistry ->
-                    imp.getOptional(Registry.BIOME_KEY).ifPresent(mutableRegistry -> mutableRegistry.getEntries()
-                            .forEach(mapEntry -> findUnregisteredConfiguredFeatures(mapEntry, unconfiguredStuffMap, brokenConfiguredStuffSet, (MutableRegistry<ConfiguredFeature<?, ?>>) configuredFeatureRegistry, gson))));
+            imp.registry(Registry.PLACED_FEATURE_REGISTRY).ifPresent(configuredFeatureRegistry ->
+                    imp.registry(Registry.BIOME_REGISTRY).ifPresent(mutableRegistry -> mutableRegistry.entrySet()
+                            .forEach(mapEntry -> findUnregisteredConfiguredFeatures(mapEntry, unconfiguredStuffMap, brokenConfiguredStuffSet, (WritableRegistry<PlacedFeature>) configuredFeatureRegistry, gson))));
 
             printUnregisteredStuff(unconfiguredStuffMap, "ConfiguredFeature");
-            extractModNames(unconfiguredStuffMap, collectedPossibleIssueMods, pattern);
-
-            // ConfiguredStructures
-            imp.getOptional(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY).ifPresent(configuredStructureRegistry ->
-                    imp.getOptional(Registry.BIOME_KEY).ifPresent(mutableRegistry -> mutableRegistry.getEntries()
-                            .forEach(mapEntry -> findUnregisteredConfiguredStructures(mapEntry, unconfiguredStuffMap, (MutableRegistry<ConfiguredStructureFeature<?, ?>>) configuredStructureRegistry, gson))));
-
-            printUnregisteredStuff(unconfiguredStuffMap, "ConfiguredStructure");
-            extractModNames(unconfiguredStuffMap, collectedPossibleIssueMods, pattern);
-
-            // ConfiguredCarvers
-            imp.getOptional(Registry.CONFIGURED_CARVER_KEY).ifPresent(configuredCarverRegistry ->
-                    imp.getOptional(Registry.BIOME_KEY).ifPresent(mutableRegistry -> mutableRegistry.getEntries()
-                            .forEach(mapEntry -> findUnregisteredConfiguredCarver(mapEntry, unconfiguredStuffMap, (MutableRegistry<ConfiguredCarver<?>>) configuredCarverRegistry, gson))));
-
-            printUnregisteredStuff(unconfiguredStuffMap, "ConfiguredStructure");
             extractModNames(unconfiguredStuffMap, collectedPossibleIssueMods, pattern);
 
             if(collectedPossibleIssueMods.size() != 0){
@@ -72,7 +61,7 @@ public class DynamicRegistryManagerBlame {
             collectedPossibleIssueMods.clear();
         }
 
-        private static void extractModNames(Map<String, Set<Identifier>> unconfiguredStuffMap, Set<String> collectedPossibleIssueMods, Pattern pattern) {
+        private static void extractModNames(Map<String, Set<ResourceLocation>> unconfiguredStuffMap, Set<String> collectedPossibleIssueMods, Pattern pattern) {
             unconfiguredStuffMap.keySet()
                     .forEach(jsonString -> {
                         Matcher match = pattern.matcher(jsonString);
@@ -90,22 +79,22 @@ public class DynamicRegistryManagerBlame {
          * Prints all unregistered configured features to the log.
          */
     private static void findUnregisteredConfiguredFeatures(
-            Map.Entry<RegistryKey<Biome>, Biome>  mapEntry,
-            Map<String, Set<Identifier>> unregisteredFeatureMap,
+            Map.Entry<ResourceKey<Biome>, Biome>  mapEntry,
+            Map<String, Set<ResourceLocation>> unregisteredFeatureMap,
             HashSet<String> brokenConfiguredStuffSet,
-            MutableRegistry<ConfiguredFeature<?,?>> configuredFeatureRegistry,
+            WritableRegistry<PlacedFeature> configuredFeatureRegistry,
             Gson gson)
     {
 
-        for(List<Supplier<ConfiguredFeature<?, ?>>> generationStageList : mapEntry.getValue().getGenerationSettings().getFeatures()){
-            for(Supplier<ConfiguredFeature<?, ?>> configuredFeatureSupplier : generationStageList){
+        for(HolderSet<PlacedFeature> generationStageList : mapEntry.getValue().getGenerationSettings().features()){
+            for(Holder<PlacedFeature> configuredFeatureSupplier : generationStageList){
 
-                Identifier biomeID = mapEntry.getKey().getValue();
-                if(configuredFeatureRegistry.getId(configuredFeatureSupplier.get()) == null &&
-                        BuiltinRegistries.CONFIGURED_FEATURE.getId(configuredFeatureSupplier.get()) == null)
+                ResourceLocation biomeID = mapEntry.getKey().location();
+                if(configuredFeatureRegistry.getKey(configuredFeatureSupplier.value()) == null &&
+                        BuiltinRegistries.PLACED_FEATURE.getKey(configuredFeatureSupplier.value()) == null)
                 {
                     try{
-                        ConfiguredFeature.REGISTRY_CODEC
+                        PlacedFeature.CODEC
                                 .encode(configuredFeatureSupplier, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().left()
                                 .ifPresent(configuredFeatureJSON ->
                                         cacheUnregisteredObject(
@@ -118,23 +107,20 @@ public class DynamicRegistryManagerBlame {
                         if(!brokenConfiguredStuffSet.contains(configuredFeatureSupplier.toString())){
                             brokenConfiguredStuffSet.add(configuredFeatureSupplier.toString());
 
-                            ConfiguredFeature<?,?> cf = configuredFeatureSupplier.get();
+                            PlacedFeature cf = configuredFeatureSupplier.value();
 
                             // Getting bottommost cf way is from Quark. Very nice!
-                            Feature<?> feature = cf.feature;
-                            FeatureConfig config = cf.config;
+                            ConfiguredFeature<?, ?> configuredFeature = cf.feature().value();
+                            Feature<?> feature = configuredFeature.feature();
+                            FeatureConfiguration config = configuredFeature.config();
 
-                            // Get the base feature of the CF. Will not get nested CFs such as trees in Feature.RANDOM_SELECTOR.
-                            while(config instanceof DecoratedFeatureConfig) {
-                                DecoratedFeatureConfig decoratedConfig = (DecoratedFeatureConfig) config;
-                                feature = decoratedConfig.feature.get().feature;
-                                config = decoratedConfig.feature.get().config;
-                            }
+                            String errorReport = """
 
-                            String errorReport = "\n****************** Experimental Blame Report ******************" +
-                                    "\n\n Found a ConfiguredFeature that was unabled to be turned into JSON which is... bad." +
+                                    ****************** Experimental Blame Report ******************
+
+                                     Found a ConfiguredFeature that was unabled to be turned into JSON which is... bad.""" +
                                     "\n This is all the info we can get about this strange... object." +
-                                    "\n Top level cf [feature:" + configuredFeatureSupplier.toString() + " | config: " + configuredFeatureSupplier.get().toString() + "]" +
+                                    "\n Top level cf [feature:" + configuredFeatureSupplier + " | config: " + configuredFeatureSupplier.value().toString() + "]" +
                                     "\n bottomost level cf [feature:" + feature.toString() + " | config: " + config.toString() + "]" +
                                     "\n\n";
 
@@ -147,66 +133,10 @@ public class DynamicRegistryManagerBlame {
         }
     }
 
-    /**
-     * Prints all unregistered configured structures to the log.
-     */
-    private static void findUnregisteredConfiguredStructures(
-            Map.Entry<RegistryKey<Biome>, Biome>  mapEntry,
-            Map<String, Set<Identifier>> unregisteredStructureMap,
-            MutableRegistry<ConfiguredStructureFeature<?,?>> configuredStructureRegistry,
-            Gson gson)
-    {
-        for(Supplier<ConfiguredStructureFeature<?, ?>> configuredStructureSupplier : mapEntry.getValue().getGenerationSettings().getStructureFeatures()){
-
-            Identifier biomeID = mapEntry.getKey().getValue();
-            if(configuredStructureRegistry.getId(configuredStructureSupplier.get()) == null &&
-                    BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE.getId(configuredStructureSupplier.get()) == null)
-            {
-                ConfiguredStructureFeature.CODEC
-                        .encode(configuredStructureSupplier.get(), JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().left()
-                        .ifPresent(configuredStructureJSON ->
-                                cacheUnregisteredObject(
-                                        configuredStructureJSON,
-                                        unregisteredStructureMap,
-                                        biomeID,
-                                        gson));
-            }
-        }
-    }
-
-    /**
-     * Prints all unregistered configured carver to the log.
-     */
-    private static void findUnregisteredConfiguredCarver(
-            Map.Entry<RegistryKey<Biome>, Biome>  mapEntry,
-            Map<String, Set<Identifier>> unregisteredCarverMap,
-            MutableRegistry<ConfiguredCarver<?>> configuredCarverRegistry,
-            Gson gson)
-    {
-        for(GenerationStep.Carver carvingStage : GenerationStep.Carver.values()) {
-            for (Supplier<ConfiguredCarver<?>> configuredCarverSupplier : mapEntry.getValue().getGenerationSettings().getCarversForStep(carvingStage)) {
-
-                Identifier biomeID = mapEntry.getKey().getValue();
-                if(configuredCarverRegistry.getId(configuredCarverSupplier.get()) == null &&
-                        BuiltinRegistries.CONFIGURED_CARVER.getId(configuredCarverSupplier.get()) == null)
-                {
-                    ConfiguredCarver.REGISTRY_CODEC
-                            .encode(configuredCarverSupplier, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().left()
-                            .ifPresent(configuredCarverJSON ->
-                                    cacheUnregisteredObject(
-                                            configuredCarverJSON,
-                                            unregisteredCarverMap,
-                                            biomeID,
-                                            gson));
-                }
-            }
-        }
-    }
-
     private static void cacheUnregisteredObject(
             JsonElement configuredObjectJSON,
-            Map<String, Set<Identifier>> unregisteredObjectMap,
-            Identifier biomeID,
+            Map<String, Set<ResourceLocation>> unregisteredObjectMap,
+            ResourceLocation biomeID,
             Gson gson)
     {
         String cfstring = gson.toJson(configuredObjectJSON);
@@ -217,8 +147,8 @@ public class DynamicRegistryManagerBlame {
         unregisteredObjectMap.get(cfstring).add(biomeID);
     }
 
-    private static void printUnregisteredStuff(Map<String, Set<Identifier>> unregisteredStuffMap, String type){
-        for(Map.Entry<String, Set<Identifier>> entry : unregisteredStuffMap.entrySet()){
+    private static void printUnregisteredStuff(Map<String, Set<ResourceLocation>> unregisteredStuffMap, String type){
+        for(Map.Entry<String, Set<ResourceLocation>> entry : unregisteredStuffMap.entrySet()){
 
             // Add extra info to the log.
             String errorReport = "\n****************** Blame Report ******************" +

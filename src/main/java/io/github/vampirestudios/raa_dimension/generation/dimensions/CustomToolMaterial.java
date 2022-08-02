@@ -1,14 +1,14 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
 import io.github.vampirestudios.raa_dimension.utils.Utils;
-import net.minecraft.item.ToolMaterial;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.crafting.Ingredient;
 
-public class CustomToolMaterial implements ToolMaterial {
+public class CustomToolMaterial implements Tier {
 
-    private transient Identifier materialId;
+    private transient ResourceLocation materialId;
     private int durability;
     private float miningSpeed;
     private float attackDamage;
@@ -19,7 +19,7 @@ public class CustomToolMaterial implements ToolMaterial {
     private float axeAttackSpeed;
     private float swordAttackDamage;
 
-    public CustomToolMaterial(Identifier materialId, int durability, float miningSpeed, float attackDamage, int miningLevel,
+    public CustomToolMaterial(ResourceLocation materialId, int durability, float miningSpeed, float attackDamage, int miningLevel,
                               int enchantability, float hoeAttackSpeed, float axeAttackDamage, float axeAttackSpeed, float swordAttackDamage) {
         this.materialId = materialId;
         this.durability = durability;
@@ -34,7 +34,7 @@ public class CustomToolMaterial implements ToolMaterial {
     }
 
     @Override
-    public int getDurability() {
+    public int getUses() {
         return durability;
     }
 
@@ -44,7 +44,7 @@ public class CustomToolMaterial implements ToolMaterial {
     }
 
     @Override
-    public float getMiningSpeedMultiplier() {
+    public float getSpeed() {
         return miningSpeed;
     }
 
@@ -54,7 +54,7 @@ public class CustomToolMaterial implements ToolMaterial {
     }
 
     @Override
-    public float getAttackDamage() {
+    public float getAttackDamageBonus() {
         return attackDamage;
     }
 
@@ -64,7 +64,7 @@ public class CustomToolMaterial implements ToolMaterial {
     }
 
     @Override
-    public int getMiningLevel() {
+    public int getLevel() {
         return miningLevel;
     }
 
@@ -74,7 +74,7 @@ public class CustomToolMaterial implements ToolMaterial {
     }
 
     @Override
-    public int getEnchantability() {
+    public int getEnchantmentValue() {
         return this.enchantability;
     }
 
@@ -85,7 +85,7 @@ public class CustomToolMaterial implements ToolMaterial {
 
     @Override
     public Ingredient getRepairIngredient() {
-        return Ingredient.ofItems(Registry.ITEM.get(Utils.addSuffixToPath(materialId, "_cobblestone")));
+        return Ingredient.of(Registry.ITEM.get(Utils.addSuffixToPath(materialId, "_cobblestone")));
     }
 
     public float getHoeAttackSpeed() {

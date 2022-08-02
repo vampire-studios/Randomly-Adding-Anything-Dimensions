@@ -1,8 +1,8 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.caves;
 
 import net.minecraft.world.IWorld;
-import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
+import net.minecraft.world.level.biome.BiomeSource;
 
 public class FlatCavesChunkGenerator extends SurfaceChunkGenerator<CavesChunkGeneratorConfig> {
     private final double[] noiseFalloff = this.buildNoiseFalloff();

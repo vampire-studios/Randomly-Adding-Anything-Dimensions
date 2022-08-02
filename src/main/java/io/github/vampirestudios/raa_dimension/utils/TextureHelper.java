@@ -1,13 +1,13 @@
 package io.github.vampirestudios.raa_dimension.utils;
 
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.math.Vector3f;
 import io.github.vampirestudios.raa_dimension.RAADimensionAddon;
 import io.github.vampirestudios.vampirelib.utils.Utils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.Mth;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -31,7 +31,7 @@ public class TextureHelper {
 	}
 	
 	public static void setPixel(NativeImage img, int x, int y, int r, int g, int b) {
-		img.setPixelColor(x, y, color(r, g, b));
+		img.setPixelRGBA(x, y, color(r, g, b));
 	}
 	
 	public static int color(int r, int g, int b) {
@@ -42,29 +42,29 @@ public class TextureHelper {
 		return (a << 24) | (b << 16) | (g << 8) | r;
 	}
 	
-	public static Identifier makeBlockTextureID(String name) {
+	public static ResourceLocation makeBlockTextureID(String name) {
 		return RAADimensionAddon.id("block/" + name);
 	}
 	
-	public static Identifier makeItemTextureID(String name) {
+	public static ResourceLocation makeItemTextureID(String name) {
 		return RAADimensionAddon.id("item/" + name);
 	}
 
-	public static Identifier makeArmorTextureID(String name) {
+	public static ResourceLocation makeArmorTextureID(String name) {
 		return RAADimensionAddon.id("models/misc/armor/" + name);
 	}
 	
 	public static CustomColor getFromTexture(NativeImage img, int x, int y) {
-		return COLOR.forceRGB().set(img.getPixelColor(x, y));
+		return COLOR.forceRGB().set(img.getPixelRGBA(x, y));
 	}
 
 	public static CustomColor getFromTexture(BufferTexture img, float x, float y) {
-		int x1 = MathHelper.floor(MHelper.wrap(x, img.getWidth()));
-		int y1 = MathHelper.floor(MHelper.wrap(y, img.getHeight()));
+		int x1 = Mth.floor(MHelper.wrap(x, img.getWidth()));
+		int y1 = Mth.floor(MHelper.wrap(y, img.getHeight()));
 		int x2 = (x1 + 1) % img.getWidth();
 		int y2 = (y1 + 1) % img.getHeight();
-		float deltaX = x - MathHelper.floor(x);
-		float deltaY = y - MathHelper.floor(y);
+		float deltaX = x - Mth.floor(x);
+		float deltaY = y - Mth.floor(y);
 
 		COLOR.forceRGB().set(img.getPixel(x1, y1));
 		float r1 = COLOR.getRed();
@@ -90,28 +90,28 @@ public class TextureHelper {
 		float b4 = COLOR.getBlue();
 		float a4 = COLOR.getAlpha();
 
-		r1 = MathHelper.lerp(deltaX, r1, r2);
-		g1 = MathHelper.lerp(deltaX, g1, g2);
-		b1 = MathHelper.lerp(deltaX, b1, b2);
-		a1 = MathHelper.lerp(deltaX, a1, a2);
+		r1 = Mth.lerp(deltaX, r1, r2);
+		g1 = Mth.lerp(deltaX, g1, g2);
+		b1 = Mth.lerp(deltaX, b1, b2);
+		a1 = Mth.lerp(deltaX, a1, a2);
 
-		r2 = MathHelper.lerp(deltaX, r3, r4);
-		g2 = MathHelper.lerp(deltaX, g3, g4);
-		b2 = MathHelper.lerp(deltaX, b3, b4);
-		a2 = MathHelper.lerp(deltaX, a3, a4);
+		r2 = Mth.lerp(deltaX, r3, r4);
+		g2 = Mth.lerp(deltaX, g3, g4);
+		b2 = Mth.lerp(deltaX, b3, b4);
+		a2 = Mth.lerp(deltaX, a3, a4);
 
-		r1 = MathHelper.lerp(deltaY, r1, r2);
-		g1 = MathHelper.lerp(deltaY, g1, g2);
-		b1 = MathHelper.lerp(deltaY, b1, b2);
-		a1 = MathHelper.lerp(deltaY, a1, a2);
+		r1 = Mth.lerp(deltaY, r1, r2);
+		g1 = Mth.lerp(deltaY, g1, g2);
+		b1 = Mth.lerp(deltaY, b1, b2);
+		a1 = Mth.lerp(deltaY, a1, a2);
 
 		return COLOR.set(r1, g1, b1, a1);
 	}
 
-	public static NativeImage loadImage(Identifier name) {
+	public static NativeImage loadImage(ResourceLocation name) {
 		try {
-			Resource input = MinecraftClient.getInstance().getResourceManager().getResource(Utils.appendAndPrependToPath(name, "textures/", ".png"));
-			return NativeImage.read(input.getInputStream());
+			Resource input = Minecraft.getInstance().getResourceManager().getResourceOrThrow(Utils.appendAndPrependToPath(name, "textures/", ".png"));
+			return NativeImage.read(input.open());
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -121,9 +121,9 @@ public class TextureHelper {
 	
 	public static NativeImage loadImage(String name) {
 		try {
-			Identifier id = RAADimensionAddon.id(name);
-			Resource input = MinecraftClient.getInstance().getResourceManager().getResource(id);
-			return NativeImage.read(input.getInputStream());
+			ResourceLocation id = RAADimensionAddon.id(name);
+			Resource input = Minecraft.getInstance().getResourceManager().getResourceOrThrow(id);
+			return NativeImage.read(input.open());
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -133,9 +133,9 @@ public class TextureHelper {
 	
 	public static NativeImage loadImage(String namespace, String name) {
 		try {
-			Identifier id = new Identifier(namespace, name);
-			Resource input = MinecraftClient.getInstance().getResourceManager().getResource(id);
-			return NativeImage.read(input.getInputStream());
+			ResourceLocation id = new ResourceLocation(namespace, name);
+			Resource input = Minecraft.getInstance().getResourceManager().getResourceOrThrow(id);
+			return NativeImage.read(input.open());
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -171,10 +171,10 @@ public class TextureHelper {
 				float v3 = (float) noise.eval(px1, py2) * 0.5F + 0.5F;
 				float v4 = (float) noise.eval(px2, py2) * 0.5F + 0.5F;
 
-				v1 = MathHelper.lerp(nx, v1, v2);
-				v2 = MathHelper.lerp(nx, v3, v4);
+				v1 = Mth.lerp(nx, v1, v2);
+				v2 = Mth.lerp(nx, v3, v4);
 
-				v1 = MathHelper.lerp(ny, v1, v2);
+				v1 = Mth.lerp(ny, v1, v2);
 				COLOR.set(v1, v1, v1);
 				texture.setPixel(x, y, COLOR);
 			}
@@ -201,10 +201,10 @@ public class TextureHelper {
 				float v3 = (float) noise.eval(px1, py2) * 0.5F + 0.5F;
 				float v4 = (float) noise.eval(px2, py2) * 0.5F + 0.5F;
 
-				v1 = MathHelper.lerp(nx, v1, v2);
-				v2 = MathHelper.lerp(nx, v3, v4);
+				v1 = Mth.lerp(nx, v1, v2);
+				v2 = Mth.lerp(nx, v3, v4);
 
-				v1 = MathHelper.lerp(ny, v1, v2);
+				v1 = Mth.lerp(ny, v1, v2);
 				COLOR.set(v1, v1, v1);
 				texture.setPixel(x, y, COLOR);
 			}
@@ -232,10 +232,10 @@ public class TextureHelper {
 				float v3 = (float) noise.eval(px1, py2) * 0.5F + 0.5F;
 				float v4 = (float) noise.eval(px2, py2) * 0.5F + 0.5F;
 
-				v1 = MathHelper.lerp(nx, v1, v2);
-				v2 = MathHelper.lerp(nx, v3, v4);
+				v1 = Mth.lerp(nx, v1, v2);
+				v2 = Mth.lerp(nx, v3, v4);
 
-				v1 = MathHelper.lerp(ny, v1, v2);
+				v1 = Mth.lerp(ny, v1, v2);
 				COLOR.set(v1, v1, v1);
 				texture.setPixel(x, y, COLOR);
 			}
@@ -314,9 +314,9 @@ public class TextureHelper {
 		for (int x = 0; x < texture.getWidth(); x++) {
 			for (int y = 0; y < texture.getHeight(); y++) {
 				COLOR.set(texture.getPixel(x, y));
-				float r = (float) MathHelper.floor(COLOR.getRed() * levels) / levels;
-				float g = (float) MathHelper.floor(COLOR.getGreen() * levels) / levels;
-				float b = (float) MathHelper.floor(COLOR.getBlue() * levels) / levels;
+				float r = (float) Mth.floor(COLOR.getRed() * levels) / levels;
+				float g = (float) Mth.floor(COLOR.getGreen() * levels) / levels;
+				float b = (float) Mth.floor(COLOR.getBlue() * levels) / levels;
 				COLOR.set(r, g, b);
 				texture.setPixel(x, y, COLOR);
 			}
@@ -326,8 +326,8 @@ public class TextureHelper {
 
 	public static BufferTexture distort(BufferTexture texture, BufferTexture distortion, float amount) {
 		BufferTexture result = new BufferTexture(texture.getWidth(), texture.getHeight());
-		Vec3f dirX = new Vec3f();
-		Vec3f dirY = new Vec3f();
+		Vector3f dirX = new Vector3f();
+		Vector3f dirY = new Vector3f();
 		COLOR.forceRGB();
 		for (int x = 0; x < texture.getWidth(); x++) {
 			for (int y = 0; y < texture.getHeight(); y++) {
@@ -344,8 +344,8 @@ public class TextureHelper {
 				dirX.cross(dirY);
 				dirX.normalize();
 
-				float dx = dirX.getX() * amount;
-				float dy = dirX.getY() * amount;
+				float dx = dirX.x() * amount;
+				float dy = dirX.y() * amount;
 				result.setPixel(x, y, getFromTexture(texture, x + dx, y + dy));
 			}
 		}
@@ -370,9 +370,9 @@ public class TextureHelper {
 			for (int y = 0; y < texture.getHeight(); y++) {
 				COLOR.set(texture.getPixel(x, y));
 				COLOR2.set(texture.getPixel(MHelper.wrap(x + offsetX, texture.getWidth()), MHelper.wrap(y + offsetY, texture.getHeight())));
-				float r = MathHelper.abs(COLOR.getRed() - COLOR2.getRed());
-				float g = MathHelper.abs(COLOR.getGreen() - COLOR2.getGreen());
-				float b = MathHelper.abs(COLOR.getBlue() - COLOR2.getBlue());
+				float r = Mth.abs(COLOR.getRed() - COLOR2.getRed());
+				float g = Mth.abs(COLOR.getGreen() - COLOR2.getGreen());
+				float b = Mth.abs(COLOR.getBlue() - COLOR2.getBlue());
 				result.setPixel(x, y, COLOR.set(r, g, b));
 			}
 		}
@@ -588,7 +588,7 @@ public class TextureHelper {
 				COLOR.set(texture.getPixel(x, y));
 				float v1 = COLOR.switchToHSV().getBrightness();
 				float v2 = getAverageColor(texture, x, y, 1).switchToHSV().getBrightness();
-				disp += MathHelper.abs(v1 - v2);
+				disp += Mth.abs(v1 - v2);
 				count ++;
 			}
 		}

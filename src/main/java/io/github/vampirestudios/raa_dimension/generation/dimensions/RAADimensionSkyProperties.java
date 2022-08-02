@@ -1,41 +1,36 @@
 package io.github.vampirestudios.raa_dimension.generation.dimensions;
 
-import io.github.vampirestudios.cab.Vector4i;
-import io.github.vampirestudios.cab.api.AstralBodyModifier;
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
 import io.github.vampirestudios.raa_dimension.utils.Color;
 import io.github.vampirestudios.raa_dimension.utils.Utils;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.render.SkyProperties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.world.phys.Vec3;
 
-public class RAADimensionSkyProperties extends SkyProperties implements AstralBodyModifier {
+public class RAADimensionSkyProperties extends DimensionSpecialEffects {
 
 	private final DimensionData dimensionData;
 
 	public RAADimensionSkyProperties(DimensionData dimensionData) {
-		super(dimensionData.getCloudHeight(), false, SkyType.NORMAL, dimensionData.getCustomSkyInformation().hasSky(), false);
+		super(dimensionData.getCloudHeight(), false, DimensionSpecialEffects.SkyType.NORMAL, dimensionData.getCustomSkyInformation().hasSky(), false);
 		this.dimensionData = dimensionData;
 	}
 
 	@Override
-	public Vec3d adjustFogColor(Vec3d color, float sunHeight) {
+	public Vec3 getBrightnessDependentFogColor(Vec3 color, float sunHeight) {
 		if (Utils.checkBitFlag(dimensionData.getFlags(), Utils.LUCID)) {
-			return color.multiply(0.15000000596046448D);
+			return color.scale(0.15000000596046448D);
 		}
 		int fogColor2 = dimensionData.getDimensionColorPalette().getFogColor();
 		int[] rgbColor = Color.intToRgb(fogColor2);
-		return new Vec3d(rgbColor[0] / 255.0, rgbColor[1] / 255.0, rgbColor[2] / 255.0);
+		return new Vec3(rgbColor[0] / 255.0, rgbColor[1] / 255.0, rgbColor[2] / 255.0);
 	}
 
 	@Override
-	public boolean useThickFog(int camX, int camY) {
+	public boolean isFoggyAt(int camX, int camY) {
 		return false;
 	}
 
-	@Override
+	/*@Override
 	@Environment(EnvType.CLIENT)
 	public float getSunSize() {
 		return dimensionData.getCustomSkyInformation().getSunSize();
@@ -64,17 +59,17 @@ public class RAADimensionSkyProperties extends SkyProperties implements AstralBo
 	}
 
 	@Override
-	public Identifier getSunTexture() {
+	public ResourceLocation getSunTexture() {
 		return dimensionData.getTexturesInformation().getSunTexture();
 	}
 
 	@Override
-	public Identifier getMoonTexture() {
+	public ResourceLocation getMoonTexture() {
 		return dimensionData.getTexturesInformation().getMoonTexture();
 	}
 
 	@Override
 	public boolean hasCustomAstralBody() {
 		return true;
-	}
+	}*/
 }

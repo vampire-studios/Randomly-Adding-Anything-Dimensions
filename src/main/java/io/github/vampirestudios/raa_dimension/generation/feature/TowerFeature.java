@@ -8,38 +8,40 @@ import io.github.vampirestudios.raa_dimension.generation.dimensions.data.Dimensi
 import io.github.vampirestudios.raa_dimension.utils.JsonConverter;
 import io.github.vampirestudios.raa_dimension.utils.WorldStructureManipulation;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.loot.LootTables;
-import net.minecraft.resource.Resource;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class TowerFeature extends Feature<DefaultFeatureConfig> {
+public class TowerFeature extends Feature<NoneFeatureConfiguration> {
     private JsonConverter converter = new JsonConverter();
     private Map<String, JsonConverter.StructureValues> structures;
     private DimensionData dimensionData;
 
-    public TowerFeature(DimensionData dimensionDataIn, Codec<DefaultFeatureConfig> function) {
+    public TowerFeature(DimensionData dimensionDataIn, Codec<NoneFeatureConfiguration> function) {
         super(function);
         dimensionData = dimensionDataIn;
     }
 
-    private void placePiece(ServerWorldAccess world, BlockPos pos, int rotation, JsonConverter.StructureValues piece, int decay) {
+    private void placePiece(ServerLevelAccessor world, BlockPos pos, int rotation, JsonConverter.StructureValues piece, int decay) {
         for (int i = 0; i < piece.getBlockPositions().size(); i++) {
             Vec3i currBlockPos = piece.getBlockPositions().get(i);
             String currBlockType = piece.getBlockTypes().get(piece.getBlockStates().get(i));
@@ -50,47 +52,44 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
 
             //Spawn blocks
             if (currBlockType.equals("minecraft:air") || (decay > 0 && Rands.chance(14 - decay))) {
-                WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "minecraft:air", currBlockProp, rotation);
+                WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), "minecraft:air", currBlockProp, rotation);
             } else {
                 switch (currBlockType) {
-                    case "minecraft:stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + dimensionData.getId().getPath() + "_stone_bricks", currBlockProp, rotation);
-                        break;
-                    case "minecraft:chiseled_stone_bricks":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), "raa_dimensions:" + "chiseled_" + dimensionData.getId().getPath(), currBlockProp, rotation);
-                        break;
-                    case "minecraft:ladder":
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, 4 - rotation);
-                        break;
-                    default:
-                        WorldStructureManipulation.placeBlock(world, pos.add(currBlockPos), currBlockType, currBlockProp, rotation);
-                        break;
+                    case "minecraft:stone_bricks" ->
+                            WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), "raa_dimensions:" + dimensionData.getId().getPath() + "_stone_bricks", currBlockProp, rotation);
+                    case "minecraft:chiseled_stone_bricks" ->
+                            WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), "raa_dimensions:" + "chiseled_" + dimensionData.getId().getPath(), currBlockProp, rotation);
+                    case "minecraft:ladder" ->
+                            WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), currBlockType, currBlockProp, 4 - rotation);
+                    default ->
+                            WorldStructureManipulation.placeBlock(world, pos.offset(currBlockPos), currBlockType, currBlockProp, rotation);
                 }
             }
         }
     }
 
-    private void fillWindows(ServerWorldAccess world, BlockPos pos, int fill) {
+    private void fillWindows(ServerLevelAccessor world, BlockPos pos, int fill) {
         //Fill windows part-way if outside or all the way if next to blocks
+        Registry<DimensionType> registry = world.registryAccess().ownedRegistryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         for (int i = 0; i < 4; i++) {
-            float xPart = 6.5f - 5.5f * MathHelper.cos((float) (Math.PI / 2 * i));
-            float zPart = 6.5f - 5.5f * MathHelper.sin((float) (Math.PI / 2 * i));
-            float xPart2 = 6.5f - 6.5f * MathHelper.cos((float) (Math.PI / 2 * i));
-            float zPart2 = 6.5f - 6.5f * MathHelper.sin((float) (Math.PI / 2 * i));
+            float xPart = 6.5f - 5.5f * Mth.cos((float) (Math.PI / 2 * i));
+            float zPart = 6.5f - 5.5f * Mth.sin((float) (Math.PI / 2 * i));
+            float xPart2 = 6.5f - 6.5f * Mth.cos((float) (Math.PI / 2 * i));
+            float zPart2 = 6.5f - 6.5f * Mth.sin((float) (Math.PI / 2 * i));
 
             for (int j = 2; j < 4; j++) {
-                if (!world.isAir(pos.add(MathHelper.floor(xPart2), j, MathHelper.floor(zPart2))) || (fill + 2 == j) || fill == 2) {
-                    world.setBlockState(pos.add(MathHelper.floor(xPart), j, MathHelper.floor(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                if (!world.isEmptyBlock(pos.offset(Mth.floor(xPart2), j, Mth.floor(zPart2))) || (fill + 2 == j) || fill == 2) {
+                    world.setBlock(pos.offset(Mth.floor(xPart), j, Mth.floor(zPart)), Registry.BLOCK.get(ResourceLocation.tryParse("raa_dimensions:" + registry.getKey(world.dimensionType()).getPath().substring(4) + "_stone_bricks")).defaultBlockState(), 2);
                 }
-                if (!world.isAir(pos.add(MathHelper.ceil(xPart2), j, MathHelper.ceil(zPart2))) || (fill + 2 == j) || fill == 2) {
-                    world.setBlockState(pos.add(MathHelper.ceil(xPart), j, MathHelper.ceil(zPart)), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                if (!world.isEmptyBlock(pos.offset(Mth.ceil(xPart2), j, Mth.ceil(zPart2))) || (fill + 2 == j) || fill == 2) {
+                    world.setBlock(pos.offset(Mth.ceil(xPart), j, Mth.ceil(zPart)), Registry.BLOCK.get(ResourceLocation.tryParse("raa_dimensions:" + registry.getKey(world.dimensionType()).getPath().substring(4) + "_stone_bricks")).defaultBlockState(), 2);
                 }
             }
         }
     }
 
-    private void placeDecoration(ServerWorldAccess world, BlockPos pos, int rotation, List<String> blocks, List<Vec3i> blockPos, List<Map<String, String>> blockProps) {
-        if (!world.isAir(pos.add(0, -1, 0))) {
+    private void placeDecoration(ServerLevelAccessor world, BlockPos pos, int rotation, List<String> blocks, List<Vec3i> blockPos, List<Map<String, String>> blockProps, RandomSource random) {
+        if (!world.isEmptyBlock(pos.offset(0, -1, 0))) {
             for (int i = 0; i < blockPos.size(); i++) {
                 String currBlock = blocks.get(i);
                 Vec3i currPos = blockPos.get(i);
@@ -102,8 +101,8 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
 
                 //Rotate
                 int xTemp = x;
-                x = (x + z) * Math.round(MathHelper.cos((float) (Math.PI / 2f * (rotation - z))));
-                z = (xTemp + z) * -Math.round(MathHelper.sin((float) (Math.PI / 2f * (rotation - z))));
+                x = (x + z) * Math.round(Mth.cos((float) (Math.PI / 2f * (rotation - z))));
+                z = (xTemp + z) * -Math.round(Mth.sin((float) (Math.PI / 2f * (rotation - z))));
                 currPos = new Vec3i(x, currPos.getY(), z);
 
                 //Spawn entity
@@ -114,7 +113,7 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                     } else {
                         standRotation = 45f;
                     }
-                    WorldStructureManipulation.spawnEntity(world, pos.add(currPos), "minecraft:" + currBlock, blockProps.get(i), standRotation);
+                    WorldStructureManipulation.spawnEntity(world, pos.offset(currPos), "minecraft:" + currBlock, blockProps.get(i), standRotation);
 
                     //Spawn block
                 } else {
@@ -147,20 +146,20 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                         currBlock = "chest";
                     }
 
-                    WorldStructureManipulation.placeBlock(world, pos.add(currPos), "minecraft:" + currBlock, currProps, rotation);
+                    WorldStructureManipulation.placeBlock(world, pos.offset(currPos), "minecraft:" + currBlock, currProps, rotation);
 
                     //Chest loot
                     if (chestType == 1) {
-                        LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(x, y, z), LootTables.SHIPWRECK_SUPPLY_CHEST);
+                        RandomizableContainerBlockEntity.setLootTable(world, random, pos.offset(x, y, z), BuiltInLootTables.SHIPWRECK_SUPPLY);
                     } else if (chestType == 2) {
-                        LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(x, y, z), LootTables.VILLAGE_WEAPONSMITH_CHEST);
+                        RandomizableContainerBlockEntity.setLootTable(world, random, pos.offset(x, y, z), BuiltInLootTables.VILLAGE_WEAPONSMITH);
                     } else if (chestType == 3) {
                         if (Rands.chance(5)) {
-                            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(x, y, z), LootTables.SIMPLE_DUNGEON_CHEST);
+                            RandomizableContainerBlockEntity.setLootTable(world, random, pos.offset(x, y, z), BuiltInLootTables.SIMPLE_DUNGEON);
                         } else if (Rands.chance(8)) {
-                            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(x, y, z), LootTables.STRONGHOLD_LIBRARY_CHEST);
+                            RandomizableContainerBlockEntity.setLootTable(world, random, pos.offset(x, y, z), BuiltInLootTables.STRONGHOLD_LIBRARY);
                         } else {
-                            LootableContainerBlockEntity.setLootTable(world, Rands.getRandom(), pos.add(x, y, z), LootTables.VILLAGE_CARTOGRAPHER_CHEST);
+                            RandomizableContainerBlockEntity.setLootTable(world, random, pos.offset(x, y, z), BuiltInLootTables.VILLAGE_CARTOGRAPHER);
                         }
                     }
                 }
@@ -168,9 +167,9 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         }
     }
 
-    private void placeRoom(ServerWorldAccess world, BlockPos pos, Map<String, JsonConverter.StructureValues> pieces, String type, int decay) {
+    private void placeRoom(ServerLevelAccessor world, BlockPos pos, Map<String, JsonConverter.StructureValues> pieces, String type, int decay, RandomSource random) {
         //walls
-        placePiece(world, pos.add(1, 0, 1), 0, pieces.get("tower_walls"), decay + 2);
+        placePiece(world, pos.offset(1, 0, 1), 0, pieces.get("tower_walls"), decay + 2);
         //stairs/ladders
         if (Rands.chance(2)) {
             placePiece(world, pos, new Random().nextInt(4), pieces.get("tower_stairs"), decay - 1);
@@ -215,104 +214,97 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
 
         //Populate room based on type
         switch (type) {
-            case "Storage":
+            case "Storage" -> {
                 //Center barrels
                 for (int i = 0; i < 8; i++) {
-                    world.setBlockState(pos.add(6 + i % 2, 0, 5 + i / 2), Blocks.BARREL.getDefaultState().with(Properties.FACING, Direction.UP), 2);
+                    world.setBlock(pos.offset(6 + i % 2, 0, 5 + i / 2), Blocks.BARREL.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.UP), 2);
                     if (i % 6 / 2 != 0) {
-                        world.setBlockState(pos.add(6 + i % 2, 1, 5 + i / 2), Blocks.BARREL.getDefaultState().with(Properties.FACING, Direction.UP), 2);
+                        world.setBlock(pos.offset(6 + i % 2, 1, 5 + i / 2), Blocks.BARREL.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.UP), 2);
                     }
                 }
-                world.setBlockState(pos.add(5, 0, 7), Blocks.BARREL.getDefaultState().with(Properties.FACING, Direction.UP), 2);
-                world.setBlockState(pos.add(8, 0, 6), Blocks.BARREL.getDefaultState().with(Properties.FACING, Direction.UP), 2);
+                world.setBlock(pos.offset(5, 0, 7), Blocks.BARREL.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.UP), 2);
+                world.setBlock(pos.offset(8, 0, 6), Blocks.BARREL.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.UP), 2);
 
                 //Storage corners
                 for (int i = 0; i < 4; i++) {
                     randIndex = rand.nextInt(5);
-                    placeDecoration(world, pos.add(3 + 7 * (i / 2), 0, 3 + 7 * Math.round(MathHelper.sin((float) (Math.PI / 3 * i)))), i, cornerBlocks.get(randIndex), cornerPos.get(randIndex), cornerProps.get(randIndex));
+                    placeDecoration(world, pos.offset(3 + 7 * (i / 2), 0, 3 + 7 * Math.round(Mth.sin((float) (Math.PI / 3 * i)))), i, cornerBlocks.get(randIndex), cornerPos.get(randIndex), cornerProps.get(randIndex), random);
                 }
 
                 //Storage center
                 randIndex = rand.nextInt(5);
-                placeDecoration(world, pos.add(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
+                placeDecoration(world, pos.offset(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex), random);
                 randIndex = rand.nextInt(5);
-                placeDecoration(world, pos.add(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
-
+                placeDecoration(world, pos.offset(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex), random);
                 fillWindows(world, pos, 2);
-                break;
-            case "Armory":
+            }
+            case "Armory" -> {
                 //Center iron bars
                 for (int i = 0; i < 4; i++) {
-                    world.setBlockState(pos.add(6 + i % 2, 0, 5 + i / 2 * 3), Blocks.IRON_BARS.getDefaultState().with(Properties.WEST, true).with(Properties.EAST, true), 2);
+                    world.setBlock(pos.offset(6 + i % 2, 0, 5 + i / 2 * 3), Blocks.IRON_BARS.defaultBlockState().setValue(BlockStateProperties.WEST, true).setValue(BlockStateProperties.EAST, true), 2);
                 }
-                world.setBlockState(pos.add(5, 0, 5), Blocks.IRON_BARS.getDefaultState().with(Properties.SOUTH, true).with(Properties.EAST, true), 2);
-                world.setBlockState(pos.add(5, 0, 8), Blocks.IRON_BARS.getDefaultState().with(Properties.NORTH, true).with(Properties.EAST, true), 2);
-                world.setBlockState(pos.add(8, 0, 5), Blocks.IRON_BARS.getDefaultState().with(Properties.SOUTH, true).with(Properties.WEST, true), 2);
-                world.setBlockState(pos.add(8, 0, 8), Blocks.IRON_BARS.getDefaultState().with(Properties.NORTH, true).with(Properties.WEST, true), 2);
-                world.setBlockState(pos.add(5, 0, 7), Blocks.IRON_BARS.getDefaultState().with(Properties.NORTH, true).with(Properties.SOUTH, true), 2);
-                world.setBlockState(pos.add(8, 0, 6), Blocks.IRON_BARS.getDefaultState().with(Properties.NORTH, true).with(Properties.SOUTH, true), 2);
+                world.setBlock(pos.offset(5, 0, 5), Blocks.IRON_BARS.defaultBlockState().setValue(BlockStateProperties.SOUTH, true).setValue(BlockStateProperties.EAST, true), 2);
+                world.setBlock(pos.offset(5, 0, 8), Blocks.IRON_BARS.defaultBlockState().setValue(BlockStateProperties.NORTH, true).setValue(BlockStateProperties.EAST, true), 2);
+                world.setBlock(pos.offset(8, 0, 5), Blocks.IRON_BARS.defaultBlockState().setValue(BlockStateProperties.SOUTH, true).setValue(BlockStateProperties.WEST, true), 2);
+                world.setBlock(pos.offset(8, 0, 8), Blocks.IRON_BARS.defaultBlockState().setValue(BlockStateProperties.NORTH, true).setValue(BlockStateProperties.WEST, true), 2);
+                world.setBlock(pos.offset(5, 0, 7), Blocks.IRON_BARS.defaultBlockState().setValue(BlockStateProperties.NORTH, true).setValue(BlockStateProperties.SOUTH, true), 2);
+                world.setBlock(pos.offset(8, 0, 6), Blocks.IRON_BARS.defaultBlockState().setValue(BlockStateProperties.NORTH, true).setValue(BlockStateProperties.SOUTH, true), 2);
 
                 //Armory corners
                 for (int i = 0; i < 4; i++) {
                     randIndex = rand.nextInt(5) + 5;
-                    placeDecoration(world, pos.add(3 + 7 * (i / 2), 0, 3 + 7 * Math.round(MathHelper.sin((float) (Math.PI / 3 * i)))), i, cornerBlocks.get(randIndex), cornerPos.get(randIndex), cornerProps.get(randIndex));
+                    placeDecoration(world, pos.offset(3 + 7 * (i / 2), 0, 3 + 7 * Math.round(Mth.sin((float) (Math.PI / 3 * i)))), i, cornerBlocks.get(randIndex), cornerPos.get(randIndex), cornerProps.get(randIndex), random);
                 }
 
                 //Armory center
                 randIndex = rand.nextInt(5) + 5;
-                placeDecoration(world, pos.add(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
+                placeDecoration(world, pos.offset(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex), random);
                 randIndex = rand.nextInt(5) + 5;
-                placeDecoration(world, pos.add(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
-
+                placeDecoration(world, pos.offset(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex), random);
                 fillWindows(world, pos, 0);
-                break;
-            case "Barracks":
+            }
+            case "Barracks" -> {
                 //Center Books/Beds
                 for (int i = 0; i < 4; i++) {
-                    world.setBlockState(pos.add(6 + i % 2, 0, 6 + i / 2), Blocks.OAK_PLANKS.getDefaultState(), 2);
-                    world.setBlockState(pos.add(6 + i % 2, 1, 6 + i / 2), Blocks.BOOKSHELF.getDefaultState(), 2);
+                    world.setBlock(pos.offset(6 + i % 2, 0, 6 + i / 2), Blocks.OAK_PLANKS.defaultBlockState(), 2);
+                    world.setBlock(pos.offset(6 + i % 2, 1, 6 + i / 2), Blocks.BOOKSHELF.defaultBlockState(), 2);
                 }
                 List<String> bedSheets = Arrays.asList("white_carpet", "red_carpet");
                 List<Vec3i> bedPos = Arrays.asList(Vec3i.ZERO, new Vec3i(0, 0, 1), new Vec3i(0, 1, 0), new Vec3i(0, 1, 1));
                 List<Map<String, String>> bedProps = Arrays.asList(ImmutableMap.of("facing", "NORTH", "half", "TOP", "shape", "STRAIGHT"), ImmutableMap.of("facing", "SOUTH", "half", "TOP", "shape", "STRAIGHT"), new HashMap<>(), new HashMap<>());
                 for (int i = 0; i < 4; i++) {
                     int x = 5 + 3 * (i / 2);
-                    int z = 5 + 3 * Math.round(MathHelper.sin((float) (Math.PI / 3 * i)));
+                    int z = 5 + 3 * Math.round(Mth.sin((float) (Math.PI / 3 * i)));
                     List<String> bedItems = Arrays.asList("oak_stairs", "oak_stairs", bedSheets.get((i + 1) % 2), bedSheets.get(i % 2));
-                    placeDecoration(world, pos.add(x, 0, z), (i + 1) % 4, bedItems, bedPos, bedProps);
+                    placeDecoration(world, pos.offset(x, 0, z), (i + 1) % 4, bedItems, bedPos, bedProps, random);
                     if (i % 2 == 0) {
                         List<String> tableItems = Arrays.asList("scaffolding", "oak_pressure_plate");
                         List<Vec3i> tablePos = Arrays.asList(Vec3i.ZERO, new Vec3i(0, 1, 0));
                         List<Map<String, String>> tableProps = Arrays.asList(ImmutableMap.of("distance", "0"), new HashMap<>());
-                        placeDecoration(world, pos.add(x - 2 * i + 2, 0, z), i, tableItems, tablePos, tableProps);
+                        placeDecoration(world, pos.offset(x - 2 * i + 2, 0, z), i, tableItems, tablePos, tableProps, random);
                     }
                 }
 
                 //Barracks corners
                 for (int i = 0; i < 4; i++) {
                     randIndex = rand.nextInt(5) + 10;
-                    placeDecoration(world, pos.add(3 + 7 * (i / 2), 0, 3 + 7 * Math.round(MathHelper.sin((float) (Math.PI / 3 * i)))), i, cornerBlocks.get(randIndex), cornerPos.get(randIndex), cornerProps.get(randIndex));
+                    placeDecoration(world, pos.offset(3 + 7 * (i / 2), 0, 3 + 7 * Math.round(Mth.sin((float) (Math.PI / 3 * i)))), i, cornerBlocks.get(randIndex), cornerPos.get(randIndex), cornerProps.get(randIndex), random);
                 }
 
                 //Barracks center
                 randIndex = rand.nextInt(4) + 10;
-                placeDecoration(world, pos.add(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
+                placeDecoration(world, pos.offset(5, 0, 6), 3, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex), random);
                 randIndex = rand.nextInt(4) + 10;
-                placeDecoration(world, pos.add(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex));
-
+                placeDecoration(world, pos.offset(8, 0, 7), 1, centerBlocks.get(randIndex), centerPos.get(randIndex), centerProps.get(randIndex), random);
                 fillWindows(world, pos, 1);
-                break;
-            case "Empty2":
-                fillWindows(world, pos, 1);
-                break;
-            default:
-                fillWindows(world, pos, 0);
-                break;
+            }
+            case "Empty2" -> fillWindows(world, pos, 1);
+            default -> fillWindows(world, pos, 0);
         }
 
         //pillar
         if (Rands.chance(2)) {
-            placePiece(world, pos.add(6, 0, 6), 0, pieces.get("tower_pillar"), decay);
+            placePiece(world, pos.offset(6, 0, 6), 0, pieces.get("tower_pillar"), decay);
         }
     }
 
@@ -354,11 +346,11 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
     }
 
     @Override
-    public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-        BlockPos pos = context.getOrigin();
-        StructureWorldAccess world = context.getWorld();
-        Random rand = context.getRandom();
-        DefaultFeatureConfig config = context.getConfig();
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+        BlockPos pos = context.origin();
+        WorldGenLevel world = context.level();
+        RandomSource rand = context.random();
+        NoneFeatureConfiguration config = context.config();
         JsonObject towerBase = null;
         JsonObject towerWalls = null;
         JsonObject towerStairs = null;
@@ -366,28 +358,28 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         JsonObject towerPillar = null;
         JsonObject towerRoof = null;
         try {
-            Resource towerBasePath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_base.json"));
-            towerBase = new Gson().fromJson(new InputStreamReader(towerBasePath.getInputStream()), JsonObject.class);
+            Resource towerBasePath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/tower/tower_base.json"));
+            towerBase = new Gson().fromJson(new InputStreamReader(towerBasePath.open()), JsonObject.class);
             JsonObject finalTowerBase = towerBase;
 
-            Resource towerWallsPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_walls.json"));
-            towerWalls = new Gson().fromJson(new InputStreamReader(towerWallsPath.getInputStream()), JsonObject.class);
+            Resource towerWallsPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/tower/tower_walls.json"));
+            towerWalls = new Gson().fromJson(new InputStreamReader(towerWallsPath.open()), JsonObject.class);
             JsonObject finalTowerWalls = towerWalls;
 
-            Resource towerStairsPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_stairs.json"));
-            towerStairs = new Gson().fromJson(new InputStreamReader(towerStairsPath.getInputStream()), JsonObject.class);
+            Resource towerStairsPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/tower/tower_stairs.json"));
+            towerStairs = new Gson().fromJson(new InputStreamReader(towerStairsPath.open()), JsonObject.class);
             JsonObject finalTowerStairs = towerStairs;
 
-            Resource towerLaddersPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_ladders.json"));
-            towerLadders = new Gson().fromJson(new InputStreamReader(towerLaddersPath.getInputStream()), JsonObject.class);
+            Resource towerLaddersPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/tower/tower_ladders.json"));
+            towerLadders = new Gson().fromJson(new InputStreamReader(towerLaddersPath.open()), JsonObject.class);
             JsonObject finalTowerLadders = towerLadders;
 
-            Resource towerPillarPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_pillar.json"));
-            towerPillar = new Gson().fromJson(new InputStreamReader(towerPillarPath.getInputStream()), JsonObject.class);
+            Resource towerPillarPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/tower/tower_pillar.json"));
+            towerPillar = new Gson().fromJson(new InputStreamReader(towerPillarPath.open()), JsonObject.class);
             JsonObject finalTowerPillar = towerPillar;
 
-            Resource towerRoofPath = world.getServer().getResourceManager().getResource(new Identifier("raa_dimensions:structures/tower/tower_roof.json"));
-            towerRoof = new Gson().fromJson(new InputStreamReader(towerRoofPath.getInputStream()), JsonObject.class);
+            Resource towerRoofPath = world.getServer().getResourceManager().getResourceOrThrow(new ResourceLocation("raa_dimensions:structures/tower/tower_roof.json"));
+            towerRoof = new Gson().fromJson(new InputStreamReader(towerRoofPath.open()), JsonObject.class);
             JsonObject finalTowerRoof = towerRoof;
 
             structures = new HashMap<String, JsonConverter.StructureValues>() {{
@@ -418,8 +410,8 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
 
         //Generate basement
         if (pos.getY() > 10 && Rands.chance(3)) {
-            placePiece(world, pos.add(0, -7, 0), 0, structures.get("tower_base"), 0);
-            placeRoom(world, pos.add(0, -6, 0), structures, "Storage", -2);
+            placePiece(world, pos.offset(0, -7, 0), 0, structures.get("tower_base"), 0);
+            placeRoom(world, pos.offset(0, -6, 0), structures, "Storage", -2, rand);
         }
         placePiece(world, pos, 0, structures.get("tower_base"), 0);
 
@@ -443,13 +435,13 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                 } else {
                     roomName = "Empty";
                 }
-                placeRoom(world, pos.add(0, 1 + level * 7, 0), structures, roomName, 2 * level + 2);
+                placeRoom(world, pos.offset(0, 1 + level * 7, 0), structures, roomName, 2 * level + 2, rand);
             } else {
                 break;
             }
         }
 
-        placePiece(world, pos.add(0, 1 + level * 7, 0), 0, structures.get("tower_roof"), 2 * level + 4);
+        placePiece(world, pos.offset(0, 1 + level * 7, 0), 0, structures.get("tower_roof"), 2 * level + 4);
 
         //Place in the door
         List<Integer> windowsOpen = Arrays.asList(0, 0, 0, 0);
@@ -457,10 +449,10 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
         int index = 0;
         for (int i = 0; i < 4; i++) {
             for (int j = 1; j < 4; j++) {
-                if (world.isAir(pos.add(MathHelper.floor(6.5f + 6.5f * MathHelper.cos((float) Math.PI / 2 * i)), j, MathHelper.floor(6.5f + 6.5f * MathHelper.sin((float) Math.PI / 2 * i))))) {
+                if (world.isEmptyBlock(pos.offset(Mth.floor(6.5f + 6.5f * Mth.cos((float) Math.PI / 2 * i)), j, Mth.floor(6.5f + 6.5f * Mth.sin((float) Math.PI / 2 * i))))) {
                     windowsOpen.set(i, windowsOpen.get(i) + 1);
                 }
-                if (world.isAir(pos.add(MathHelper.ceil(6.5f + 6.5f * MathHelper.cos((float) Math.PI / 2 * i)), j, MathHelper.ceil(6.5f + 6.5f * MathHelper.sin((float) Math.PI / 2 * i))))) {
+                if (world.isEmptyBlock(pos.offset(Mth.ceil(6.5f + 6.5f * Mth.cos((float) Math.PI / 2 * i)), j, Mth.ceil(6.5f + 6.5f * Mth.sin((float) Math.PI / 2 * i))))) {
                     windowsOpen.set(i, windowsOpen.get(i) + 1);
                 }
             }
@@ -469,13 +461,14 @@ public class TowerFeature extends Feature<DefaultFeatureConfig> {
                 index = i;
             }
         }
+        Registry<DimensionType> registry = world.registryAccess().ownedRegistryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         for (int i = 0; i < 4; i++) {
             if (i == 0) {
-                world.setBlockState(pos.add(MathHelper.floor(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.floor(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
-                world.setBlockState(pos.add(MathHelper.ceil(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.ceil(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(Identifier.tryParse("raa_dimensions:" + (world.getDimension().getSuffix()).substring(4) + "_stone_bricks")).getDefaultState(), 2);
+                world.setBlock(pos.offset(Mth.floor(6.5f + 5.5f * Mth.cos((float) Math.PI / 2 * index)), 4 - i, Mth.floor(6.5f + 5.5f * Mth.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(ResourceLocation.tryParse("raa_dimensions:" + registry.getKey(world.dimensionType()).getPath().substring(4) + "_stone_bricks")).defaultBlockState(), 2);
+                world.setBlock(pos.offset(Mth.ceil(6.5f + 5.5f * Mth.cos((float) Math.PI / 2 * index)), 4 - i, Mth.ceil(6.5f + 5.5f * Mth.sin((float) Math.PI / 2 * index))), Registry.BLOCK.get(ResourceLocation.tryParse("raa_dimensions:" + registry.getKey(world.dimensionType()).getPath().substring(4) + "_stone_bricks")).defaultBlockState(), 2);
             } else {
-                world.setBlockState(pos.add(MathHelper.floor(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.floor(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Blocks.AIR.getDefaultState(), 2);
-                world.setBlockState(pos.add(MathHelper.ceil(6.5f + 5.5f * MathHelper.cos((float) Math.PI / 2 * index)), 4 - i, MathHelper.ceil(6.5f + 5.5f * MathHelper.sin((float) Math.PI / 2 * index))), Blocks.AIR.getDefaultState(), 2);
+                world.setBlock(pos.offset(Mth.floor(6.5f + 5.5f * Mth.cos((float) Math.PI / 2 * index)), 4 - i, Mth.floor(6.5f + 5.5f * Mth.sin((float) Math.PI / 2 * index))), Blocks.AIR.defaultBlockState(), 2);
+                world.setBlock(pos.offset(Mth.ceil(6.5f + 5.5f * Mth.cos((float) Math.PI / 2 * index)), 4 - i, Mth.ceil(6.5f + 5.5f * Mth.sin((float) Math.PI / 2 * index))), Blocks.AIR.defaultBlockState(), 2);
             }
         }
 

@@ -14,6 +14,6 @@ public class DimensionLanguageManager {
         Language.ENGLISH.addNameGenerator(DIMENSION_NAME, new EnglishDimensions());
         Language.FRENCH.addNameGenerator(DIMENSION_NAME, new FrenchDimensions());
         Language.SPANISH.addNameGenerator(DIMENSION_NAME, new SpanishDimensions());
-        Language.NORWEGIAN_BO.addNameGenerator(DIMENSION_NAME, new NorwegianDimensions());
+        Language.NORWEGIAN_BOKMAL.addNameGenerator(DIMENSION_NAME, new NorwegianDimensions());
     }
 }

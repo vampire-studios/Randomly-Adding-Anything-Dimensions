@@ -2,11 +2,11 @@ package io.github.vampirestudios.raa_dimension.history;
 
 import io.github.vampirestudios.raa_dimension.utils.Utils;
 import io.github.vampirestudios.vampirelib.utils.Rands;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class Civilization {
     private String name;
-    private Identifier homeDimensionId; //The id of the dimension that this civilization originated in
+    private ResourceLocation homeDimensionId; //The id of the dimension that this civilization originated in
     private ProtoDimension homeDimension; //The dimension that this civilization originated in
     private double influenceRadius; //The amount of influence that this civ has on the multiverse
     //Tech level: how advanced was the civ?
@@ -21,7 +21,7 @@ public class Civilization {
     public Civilization(String name, ProtoDimension homeDimension) {
         this.name = name;
         this.homeDimension = homeDimension;
-        this.homeDimensionId = homeDimension.getName().getRight();
+        this.homeDimensionId = homeDimension.getName().getB();
     }
 
     public void simulate() {
@@ -150,7 +150,7 @@ public class Civilization {
         return causeOfDeath;
     }
 
-    public Identifier getHomeDimensionId() {
+    public ResourceLocation getHomeDimensionId() {
         return homeDimensionId;
     }
 

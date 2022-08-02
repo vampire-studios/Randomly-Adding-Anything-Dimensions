@@ -3,36 +3,35 @@ package io.github.vampirestudios.raa_dimension.generation.surface.random.element
 import com.google.gson.JsonObject;
 import io.github.vampirestudios.raa_dimension.generation.surface.random.SurfaceElement;
 import io.github.vampirestudios.raa_dimension.utils.WorleyNoise;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
-
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
 import java.util.Random;
 
 public class SandyDunesSurfaceElement extends SurfaceElement {
     private static final WorleyNoise NOISE = new WorleyNoise(3445);
 
     @Override
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
-        height = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG).get(x & 15, z & 15);
-        BlockPos.Mutable pos = new BlockPos.Mutable(x, height - 8, z);
+    public void generate(Random random, ChunkAccess chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownNumber, long seed, TernarySurfaceConfig surfaceBlocks) {
+        height = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG).getFirstAvailable(x & 15, z & 15);
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, height - 8, z);
 
-        double blend = MathHelper.clamp((height - seaLevel) * 0.125, 0, 1);
+        double blend = Mth.clamp((height - seaLevel) * 0.125, 0, 1);
 
         double vHeight = (NOISE.sample(x * 0.01, z * 0.015) * 30) * blend;
 
         vHeight = Math.abs(vHeight);
 
         for (int i = 0; i < 8; i++) {
-            chunk.setBlockState(pos, Blocks.CUT_SANDSTONE.getDefaultState(), false);
-            pos.offset(Direction.UP);
+            chunk.setBlockState(pos, Blocks.CUT_SANDSTONE.defaultBlockState(), false);
+            pos.relative(Direction.UP);
         }
 
         // Cap the height based on noise
@@ -40,17 +39,17 @@ public class SandyDunesSurfaceElement extends SurfaceElement {
         vHeight = Math.min(vHeight, (NOISE.sample(x * 0.03 + 5, z * 0.05 + 5) * 30 + 6));
 
         for (int h = 0; h < vHeight; h++) {
-            chunk.setBlockState(pos, Blocks.SANDSTONE.getDefaultState(), false);
-            pos.offset(Direction.UP);
+            chunk.setBlockState(pos, Blocks.SANDSTONE.defaultBlockState(), false);
+            pos.relative(Direction.UP);
         }
 
         for (int i = 0; i < 3 + (noise / 2); i++) {
-            chunk.setBlockState(pos, Blocks.SMOOTH_SANDSTONE.getDefaultState(), false);
-            pos.offset(Direction.UP);
+            chunk.setBlockState(pos, Blocks.SMOOTH_SANDSTONE.defaultBlockState(), false);
+            pos.relative(Direction.UP);
         }
 
         for (int i = 0; i < 3 + (noise / 2); i++) {
-            chunk.setBlockState(pos, Blocks.SAND.getDefaultState(), false);
+            chunk.setBlockState(pos, Blocks.SAND.defaultBlockState(), false);
         }
     }
 
@@ -61,8 +60,8 @@ public class SandyDunesSurfaceElement extends SurfaceElement {
     public void deserialize(JsonObject obj) {}
 
     @Override
-    public Identifier getType() {
-        return new Identifier("raa_dimensions", "sandy_dunes");
+    public ResourceLocation getType() {
+        return new ResourceLocation("raa_dimensions", "sandy_dunes");
     }
 
     @Override

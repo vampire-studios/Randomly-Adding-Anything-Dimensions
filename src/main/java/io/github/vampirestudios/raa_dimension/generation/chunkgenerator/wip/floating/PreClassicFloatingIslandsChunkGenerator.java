@@ -1,9 +1,9 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.floating;
 
 import net.minecraft.world.IWorld;
-import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
+import net.minecraft.world.level.biome.BiomeSource;
 
 public class PreClassicFloatingIslandsChunkGenerator extends SurfaceChunkGenerator<FloatingIslandsChunkGeneratorConfig> {
 

@@ -3,7 +3,7 @@ package io.github.vampirestudios.raa_dimension.mixin;
 import io.github.vampirestudios.raa_dimension.utils.BiomeProperty;
 import io.github.vampirestudios.raa_dimension.utils.BiomePropertyType;
 import io.github.vampirestudios.raa_dimension.utils.GCBiomePropertyAccessor;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.level.biome.Biome;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

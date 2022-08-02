@@ -1,19 +1,19 @@
 package io.github.vampirestudios.raa_dimension.generation.carvers.old;
 
 import io.github.vampirestudios.raa_dimension.generation.dimensions.data.DimensionData;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ProbabilityConfig;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
+import net.minecraft.world.level.material.Material;
 
 // Thanks to TelepathicGrunt for this class
 public class StackedBubbleRoomsCarver extends CaveCarver {
@@ -36,8 +36,8 @@ public class StackedBubbleRoomsCarver extends CaveCarver {
      * This is what calls carveCave and carveTunnel.
      * Here, we are doing just carveCave as we don't need any tunnels. Just the cave room.
      */
-    public boolean carve(Chunk chunk, Function<BlockPos, Biome> biomeFunction, Random random, int seaLevel, int xChunk1, int zChunk1, int xChunk2, int zChunk2,
-                         BitSet caveMask, ProbabilityConfig chanceConfig) {
+    public boolean carve(ChunkAccess chunk, Function<BlockPos, Biome> biomeFunction, Random random, int seaLevel, int xChunk1, int zChunk1, int xChunk2, int zChunk2,
+                         BitSet caveMask, ProbabilityFeatureConfiguration chanceConfig) {
         int numberOfRooms = 4; // 4 sphere will be carved out.
 
         for (int roomCount = 0; roomCount < numberOfRooms; ++roomCount) {
@@ -60,8 +60,8 @@ public class StackedBubbleRoomsCarver extends CaveCarver {
      * Though the carver could be customized to place blocks instead which would be interesting.
      */
     @Override
-    protected boolean carveAtPoint(Chunk chunk, Function<BlockPos, Biome> biomeFunction, BitSet carvingMask, Random random, BlockPos.Mutable posHere,
-								   BlockPos.Mutable posAbove, BlockPos.Mutable posBelow, int seaLevel, int xChunk, int zChunk, int globalX, int globalZ, int x, int y, int z,
+    protected boolean carveAtPoint(ChunkAccess chunk, Function<BlockPos, Biome> biomeFunction, BitSet carvingMask, Random random, BlockPos.MutableBlockPos posHere,
+								   BlockPos.MutableBlockPos posAbove, BlockPos.MutableBlockPos posBelow, int seaLevel, int xChunk, int zChunk, int globalX, int globalZ, int x, int y, int z,
                                    MutableBoolean foundSurface) {
         /*
          * Not sure what this specific section is doing.
@@ -105,7 +105,7 @@ public class StackedBubbleRoomsCarver extends CaveCarver {
 
         Material material = blockState.getMaterial();
         Material aboveMaterial = aboveBlockState.getMaterial();
-        return (material == Material.STONE || material == Material.SOIL || material == Material.SOLID_ORGANIC) &&
+        return (material == Material.STONE || material == Material.DIRT || material == Material.GRASS) &&
                 material != Material.WATER &&
                 material != Material.LAVA &&
                 aboveMaterial != Material.WATER &&

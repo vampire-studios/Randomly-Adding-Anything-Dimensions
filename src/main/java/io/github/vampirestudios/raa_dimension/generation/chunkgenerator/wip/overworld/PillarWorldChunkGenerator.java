@@ -1,28 +1,30 @@
 package io.github.vampirestudios.raa_dimension.generation.chunkgenerator.wip.overworld;
 
+import CatSpawner;
+import PhantomSpawner;
+import PillagerSpawner;
 import io.github.vampirestudios.raa.utils.noise.old.OctaveOpenSimplexNoise;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.village.ZombieSiegeManager;
-import net.minecraft.world.ChunkRegion;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.SpawnHelper;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.village.VillageSiege;
 import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
-import net.minecraft.world.gen.feature.Feature;
-
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
 import java.util.List;
 
 public class PillarWorldChunkGenerator extends SurfaceChunkGenerator<OverworldChunkGeneratorConfig> {
     private final PhantomSpawner phantomSpawner = new PhantomSpawner();
     private final PillagerSpawner pillagerSpawner = new PillagerSpawner();
     private final CatSpawner catSpawner = new CatSpawner();
-    private final ZombieSiegeManager zombieSiegeManager = new ZombieSiegeManager();
+    private final VillageSiege zombieSiegeManager = new VillageSiege();
 
     private final OctaveOpenSimplexNoise simplexNoise;
 
@@ -32,13 +34,13 @@ public class PillarWorldChunkGenerator extends SurfaceChunkGenerator<OverworldCh
         this.simplexNoise = new OctaveOpenSimplexNoise(this.random, 4, 1024.0D, 384.0D, -128.0D);
     }
 
-    public void populateEntities(ChunkRegion region) {
+    public void populateEntities(WorldGenRegion region) {
         int centerChunkX = region.getCenterChunkX();
         int centerChunkZ = region.getCenterChunkZ();
         Biome biome = region.getBiome((new ChunkPos(centerChunkX, centerChunkZ)).getCenterBlockPos());
         ChunkRandom chunkRandom = new ChunkRandom();
         chunkRandom.setPopulationSeed(region.getSeed(), centerChunkX << 4, centerChunkZ << 4);
-        SpawnHelper.populateEntities(region, biome, centerChunkX, centerChunkZ, chunkRandom);
+        NaturalSpawner.spawnMobsForChunkGeneration(region, biome, centerChunkX, centerChunkZ, chunkRandom);
     }
 
     protected void sampleNoiseColumn(double[] doubles_1, int int_1, int int_2) {
@@ -61,16 +63,16 @@ public class PillarWorldChunkGenerator extends SurfaceChunkGenerator<OverworldCh
         return doubles;
     }
 
-    public List<Biome.SpawnEntry> getEntitySpawnList(StructureAccessor StructureAccessor, SpawnGroup entityCategory_1, BlockPos blockPos_1) {
+    public List<Biome.SpawnEntry> getEntitySpawnList(StructureManager StructureAccessor, MobCategory entityCategory_1, BlockPos blockPos_1) {
         if (Feature.SWAMP_HUT.method_14029(this.world, StructureAccessor, blockPos_1)) {
-            if (entityCategory_1 == SpawnGroup.MONSTER) {
+            if (entityCategory_1 == MobCategory.MONSTER) {
                 return Feature.SWAMP_HUT.getMonsterSpawns();
             }
 
-            if (entityCategory_1 == SpawnGroup.CREATURE) {
+            if (entityCategory_1 == MobCategory.CREATURE) {
                 return Feature.SWAMP_HUT.getCreatureSpawns();
             }
-        } else if (entityCategory_1 == SpawnGroup.MONSTER) {
+        } else if (entityCategory_1 == MobCategory.MONSTER) {
             if (Feature.PILLAGER_OUTPOST.isApproximatelyInsideStructure(this.world, StructureAccessor, blockPos_1)) {
                 return Feature.PILLAGER_OUTPOST.getMonsterSpawns();
             }
@@ -83,11 +85,11 @@ public class PillarWorldChunkGenerator extends SurfaceChunkGenerator<OverworldCh
         return super.getEntitySpawnList(StructureAccessor, entityCategory_1, blockPos_1);
     }
 
-    public void spawnEntities(ServerWorld serverWorld_1, boolean boolean_1, boolean boolean_2) {
+    public void spawnEntities(ServerLevel serverWorld_1, boolean boolean_1, boolean boolean_2) {
         this.phantomSpawner.spawn(serverWorld_1, boolean_1, boolean_2);
         this.pillagerSpawner.spawn(serverWorld_1, boolean_1, boolean_2);
         this.catSpawner.spawn(serverWorld_1, boolean_1, boolean_2);
-        this.zombieSiegeManager.spawn(serverWorld_1, boolean_1, boolean_2);
+        this.zombieSiegeManager.tick(serverWorld_1, boolean_1, boolean_2);
     }
 
     public int getSpawnHeight() {

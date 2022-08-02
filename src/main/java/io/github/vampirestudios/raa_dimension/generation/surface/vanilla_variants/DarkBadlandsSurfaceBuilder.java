@@ -6,22 +6,21 @@
 package io.github.vampirestudios.raa_dimension.generation.surface.vanilla_variants;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos.Mutable;
-import net.minecraft.util.math.noise.OctaveSimplexNoiseSampler;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.gen.ChunkRandom;
-import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
-
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.SurfaceSystem;
+import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
+public class DarkBadlandsSurfaceBuilder extends SurfaceSystem<TernarySurfaceConfig> {
     private static final BlockState GRAY_TERRACOTTA;
     private static final BlockState WHITE_TERRACOTTA;
     private static final BlockState BLACK_TERRACOTTA;
@@ -30,25 +29,25 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
     private static final BlockState LIGHT_GRAY_TERRACOTTA;
 
     static {
-        GRAY_TERRACOTTA = Blocks.GRAY_TERRACOTTA.getDefaultState();
-        WHITE_TERRACOTTA = Blocks.WHITE_TERRACOTTA.getDefaultState();
-        BLACK_TERRACOTTA = Blocks.BLACK_TERRACOTTA.getDefaultState();
-        BROWN_TERRACOTTA = Blocks.BROWN_TERRACOTTA.getDefaultState();
-        CYAN_TERRACOTTA = Blocks.CYAN_TERRACOTTA.getDefaultState();
-        LIGHT_GRAY_TERRACOTTA = Blocks.LIGHT_GRAY_TERRACOTTA.getDefaultState();
+        GRAY_TERRACOTTA = Blocks.GRAY_TERRACOTTA.defaultBlockState();
+        WHITE_TERRACOTTA = Blocks.WHITE_TERRACOTTA.defaultBlockState();
+        BLACK_TERRACOTTA = Blocks.BLACK_TERRACOTTA.defaultBlockState();
+        BROWN_TERRACOTTA = Blocks.BROWN_TERRACOTTA.defaultBlockState();
+        CYAN_TERRACOTTA = Blocks.CYAN_TERRACOTTA.defaultBlockState();
+        LIGHT_GRAY_TERRACOTTA = Blocks.LIGHT_GRAY_TERRACOTTA.defaultBlockState();
     }
 
     protected BlockState[] layerBlocks;
     protected long seed;
-    protected OctaveSimplexNoiseSampler heightCutoffNoise;
-    protected OctaveSimplexNoiseSampler heightNoise;
-    protected OctaveSimplexNoiseSampler layerNoise;
+    protected PerlinSimplexNoise heightCutoffNoise;
+    protected PerlinSimplexNoise heightNoise;
+    protected PerlinSimplexNoise layerNoise;
 
     public DarkBadlandsSurfaceBuilder(Codec<TernarySurfaceConfig> ternarySurfaceConfigCodec) {
         super(ternarySurfaceConfigCodec);
     }
 
-    public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
+    public void generate(Random random, ChunkAccess chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, int unknownValue, long seed, TernarySurfaceConfig surfaceConfig) {
         int n = x & 15;
         int o = z & 15;
         BlockState whiteTerracotta = WHITE_TERRACOTTA;
@@ -58,7 +57,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
         int i1 = -1;
         boolean notSureWhatThisIs = false;
         int r = 0;
-        Mutable mutable = new Mutable();
+        MutableBlockPos mutable = new MutableBlockPos();
 
         for (int y = height; y >= 0; --y) {
             if (r < 15) {
@@ -70,7 +69,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
                     if (i1 == -1) {
                         notSureWhatThisIs = false;
                         if (i <= 0) {
-                            whiteTerracotta = Blocks.AIR.getDefaultState();
+                            whiteTerracotta = Blocks.AIR.defaultBlockState();
                             underMaterial = defaultBlock;
                         } else if (y >= seaLevel - 4 && y <= seaLevel + 1) {
                             whiteTerracotta = WHITE_TERRACOTTA;
@@ -130,8 +129,8 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
 
         if (this.seed != seed || this.heightCutoffNoise == null || this.heightNoise == null) {
             ChunkRandom chunkRandom = new ChunkRandom(seed);
-            this.heightCutoffNoise = new OctaveSimplexNoiseSampler(chunkRandom, IntStream.of(3, 0));
-            this.heightNoise = new OctaveSimplexNoiseSampler(chunkRandom, IntStream.of(0, 0));
+            this.heightCutoffNoise = new PerlinSimplexNoise(chunkRandom, IntStream.of(3, 0));
+            this.heightNoise = new PerlinSimplexNoise(chunkRandom, IntStream.of(0, 0));
         }
 
         this.seed = seed;
@@ -141,7 +140,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
         this.layerBlocks = new BlockState[64];
         Arrays.fill(this.layerBlocks, WHITE_TERRACOTTA);
         ChunkRandom chunkRandom = new ChunkRandom(seed);
-        this.layerNoise = new OctaveSimplexNoiseSampler(chunkRandom, IntStream.of(0, 0));
+        this.layerNoise = new PerlinSimplexNoise(chunkRandom, IntStream.of(0, 0));
 
         int i;
         for (i = 0; i < 64; ++i) {
@@ -210,7 +209,7 @@ public class DarkBadlandsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceCon
     }
 
     protected BlockState calculateLayerBlockState(int x, int y, int z) {
-        int i = (int) Math.round(this.layerNoise.sample((double) x / 512.0D, (double) z / 512.0D, false) * 2.0D);
+        int i = (int) Math.round(this.layerNoise.getValue((double) x / 512.0D, (double) z / 512.0D, false) * 2.0D);
         return this.layerBlocks[(y + i + 64) % 64];
     }
 }
